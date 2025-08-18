@@ -161,9 +161,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         # Vercel 도메인들
-        "https://wei-service.vercel.app",
-        "https://wei-service-git-main-ilhan-yus-projects.vercel.app",
-        "https://wei-service-hxigyrhwl-ilhan-yus-projects.vercel.app",
+        "https://investment-assistant.vercel.app",
         
         # 커스텀 도메인
         "https://investment-assistant.site",
