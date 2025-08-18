@@ -1,0 +1,23 @@
+{
+  "request_url": "http://localhost:30888/api/v1/financial-news/health",
+  "data": {
+    "status": "healthy",
+    "database": "connected",
+    "categories_count": {
+      "crypto": 1704,
+      "general": 1004,
+      "merger": 988,
+      "forex": 339
+    },
+    "total_news": 4035,
+    "latest_news_date": "2025-08-11T06:16:26",
+    "available_categories": [
+      "crypto",
+      "forex",
+      "merger",
+      "general"
+    ],
+    "api_version": "1.0.0",
+    "timestamp": "2025-08-11T07:16:47.772617+00:00"
+  }
+}

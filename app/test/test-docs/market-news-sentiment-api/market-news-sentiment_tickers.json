@@ -1,0 +1,8 @@
+{
+  "request_url": "http://localhost:30888/api/v1/market-news-sentiment/tickers",
+  "error": {
+    "status": 500,
+    "reason": "Internal Server Error",
+    "body": "{\"detail\":\"데이터베이스 연결 중 오류가 발생했습니다: (psycopg2.errors.FeatureNotSupported) aggregate function calls cannot contain set-returning function calls\\nLINE 3:                 AVG((jsonb_array_elements(ticker_sentiment)-...\\n                             ^\\nHINT:  You might be able to move the set-returning function into a LATERAL FROM item.\\n\\n[SQL: \\n            SELECT \\n                AVG((jsonb_array_elements(ticker_sentiment)->>'ticker_sentiment_score')::float) as avg_sentiment,\\n                COUNT(*) as mention_count,\\n                AVG((jsonb_array_elements(ticker_sentiment)->>'relevance_score')::float) as avg_relevance\\n            FROM market_news_sentiment \\n            WHERE ticker_sentiment @> %(ticker_filter)s\\n            AND time_published >= %(cutoff_date)s\\n        ]\\n[parameters: {'ticker_filter': '[{\\\"ticker\\\": \\\"0IJU\\\"}]', 'cutoff_date': datetime.datetime(2025, 8, 4, 7, 16, 48, 484052)}]\\n(Background on this error at: https://sqlalche.me/e/20/tw8g)\"}"
+  }
+}

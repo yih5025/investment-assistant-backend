@@ -1,0 +1,17 @@
+{
+  "period": "최근 7일",
+  "total_news": 1675,
+  "sentiment_distribution": {
+    "bullish": 1000,
+    "bearish": 26,
+    "neutral": 273
+  },
+  "sentiment_percentages": {
+    "bullish": 59.7,
+    "bearish": 1.6,
+    "neutral": 16.3
+  },
+  "average_sentiment_score": 0.1915,
+  "market_mood": "긍정적",
+  "market_mood_emoji": "📈"
+}

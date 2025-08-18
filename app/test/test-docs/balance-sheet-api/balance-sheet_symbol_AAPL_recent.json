@@ -1,0 +1,28 @@
+{
+  "request_url": "http://localhost:30888/api/v1/balance-sheet/symbol/AAPL/recent",
+  "data": {
+    "symbol": "AAPL",
+    "fiscaldateending": "2025-06-30",
+    "reportedcurrency": null,
+    "totalassets": "331495000000",
+    "totalcurrentassets": "122491000000",
+    "totalnoncurrentassets": "209004000000",
+    "totalliabilities": "265665000000",
+    "totalcurrentliabilities": "141120000000",
+    "totalnoncurrentliabilities": "124545000000",
+    "totalshareholderequity": "65830000000",
+    "cashandcashequivalentsatcarryingvalue": "36269000000",
+    "cashandshortterminvestments": "36269000000",
+    "inventory": "5925000000",
+    "currentnetreceivables": "46835000000",
+    "currentaccountspayable": "50374000000",
+    "longtermdebt": null,
+    "commonstock": "89806000000",
+    "retainedearnings": "-17607000000",
+    "commonstocksharesoutstanding": "14948179000",
+    "fetched_at": "2025-08-02T18:45:06.859747",
+    "total_assets_billions": 331.5,
+    "market_cap_category": "Large Cap",
+    "fiscal_date_str": "2025-06-30"
+  }
+}

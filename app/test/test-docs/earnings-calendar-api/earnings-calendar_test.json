@@ -1,0 +1,6 @@
+{
+  "request_url": "http://localhost:30888/api/v1/earnings-calendar/test",
+  "data": {
+    "message": "API v1/earnings-calendar/test"
+  }
+}

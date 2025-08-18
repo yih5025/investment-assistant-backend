@@ -1,0 +1,411 @@
+{
+  "request_url": "http://localhost:30888/api/v1/treasury-yield/",
+  "data": {
+    "items": [
+      {
+        "date": "2025-06-01",
+        "maturity": "10year",
+        "interval_type": "monthly",
+        "yield_rate": "4.3800",
+        "created_at": "2025-07-23T05:37:02.487095",
+        "updated_at": "2025-08-01T00:02:35.148176"
+      },
+      {
+        "date": "2025-06-01",
+        "maturity": "2year",
+        "interval_type": "monthly",
+        "yield_rate": "3.8900",
+        "created_at": "2025-07-23T05:36:54.575956",
+        "updated_at": "2025-08-01T00:01:16.060082"
+      },
+      {
+        "date": "2025-06-01",
+        "maturity": "30year",
+        "interval_type": "monthly",
+        "yield_rate": "4.8900",
+        "created_at": "2025-07-23T05:37:18.397664",
+        "updated_at": "2025-08-01T00:03:15.058086"
+      },
+      {
+        "date": "2025-05-01",
+        "maturity": "10year",
+        "interval_type": "monthly",
+        "yield_rate": "4.4200",
+        "created_at": "2025-07-23T05:37:02.496847",
+        "updated_at": "2025-08-01T00:02:35.241716"
+      },
+      {
+        "date": "2025-05-01",
+        "maturity": "2year",
+        "interval_type": "monthly",
+        "yield_rate": "3.9200",
+        "created_at": "2025-07-23T05:36:54.589479",
+        "updated_at": "2025-08-01T00:01:16.339908"
+      },
+      {
+        "date": "2025-05-01",
+        "maturity": "30year",
+        "interval_type": "monthly",
+        "yield_rate": "4.9000",
+        "created_at": "2025-07-23T05:37:18.407579",
+        "updated_at": "2025-08-01T00:03:15.077576"
+      },
+      {
+        "date": "2025-04-01",
+        "maturity": "10year",
+        "interval_type": "monthly",
+        "yield_rate": "4.2800",
+        "created_at": "2025-07-23T05:37:02.506594",
+        "updated_at": "2025-08-01T00:02:35.265802"
+      },
+      {
+        "date": "2025-04-01",
+        "maturity": "2year",
+        "interval_type": "monthly",
+        "yield_rate": "3.7800",
+        "created_at": "2025-07-23T05:36:54.602663",
+        "updated_at": "2025-08-01T00:01:16.455783"
+      },
+      {
+        "date": "2025-04-01",
+        "maturity": "30year",
+        "interval_type": "monthly",
+        "yield_rate": "4.7100",
+        "created_at": "2025-07-23T05:37:18.418135",
+        "updated_at": "2025-08-01T00:03:15.156231"
+      },
+      {
+        "date": "2025-03-01",
+        "maturity": "10year",
+        "interval_type": "monthly",
+        "yield_rate": "4.2800",
+        "created_at": "2025-07-23T05:37:02.518975",
+        "updated_at": "2025-08-01T00:02:35.353260"
+      },
+      {
+        "date": "2025-03-01",
+        "maturity": "2year",
+        "interval_type": "monthly",
+        "yield_rate": "3.9700",
+        "created_at": "2025-07-23T05:36:54.617961",
+        "updated_at": "2025-08-01T00:01:16.659092"
+      },
+      {
+        "date": "2025-03-01",
+        "maturity": "30year",
+        "interval_type": "monthly",
+        "yield_rate": "4.6000",
+        "created_at": "2025-07-23T05:37:18.429303",
+        "updated_at": "2025-08-01T00:03:15.173816"
+      },
+      {
+        "date": "2025-02-01",
+        "maturity": "10year",
+        "interval_type": "monthly",
+        "yield_rate": "4.4500",
+        "created_at": "2025-07-23T05:37:02.529051",
+        "updated_at": "2025-08-01T00:02:35.439866"
+      },
+      {
+        "date": "2025-02-01",
+        "maturity": "2year",
+        "interval_type": "monthly",
+        "yield_rate": "4.2100",
+        "created_at": "2025-07-23T05:36:54.633336",
+        "updated_at": "2025-08-01T00:01:16.940859"
+      },
+      {
+        "date": "2025-02-01",
+        "maturity": "30year",
+        "interval_type": "monthly",
+        "yield_rate": "4.6800",
+        "created_at": "2025-07-23T05:37:18.440297",
+        "updated_at": "2025-08-01T00:03:15.250026"
+      },
+      {
+        "date": "2025-01-01",
+        "maturity": "10year",
+        "interval_type": "monthly",
+        "yield_rate": "4.6300",
+        "created_at": "2025-07-23T05:37:02.538715",
+        "updated_at": "2025-08-01T00:02:35.463439"
+      },
+      {
+        "date": "2025-01-01",
+        "maturity": "2year",
+        "interval_type": "monthly",
+        "yield_rate": "4.2700",
+        "created_at": "2025-07-23T05:36:54.646781",
+        "updated_at": "2025-08-01T00:01:17.048981"
+      },
+      {
+        "date": "2025-01-01",
+        "maturity": "30year",
+        "interval_type": "monthly",
+        "yield_rate": "4.8500",
+        "created_at": "2025-07-23T05:37:18.450483",
+        "updated_at": "2025-08-01T00:03:15.269066"
+      },
+      {
+        "date": "2024-12-01",
+        "maturity": "10year",
+        "interval_type": "monthly",
+        "yield_rate": "4.3900",
+        "created_at": "2025-07-23T05:37:02.548350",
+        "updated_at": "2025-08-01T00:02:35.552763"
+      },
+      {
+        "date": "2024-12-01",
+        "maturity": "2year",
+        "interval_type": "monthly",
+        "yield_rate": "4.2300",
+        "created_at": "2025-07-23T05:36:54.661511",
+        "updated_at": "2025-08-01T00:01:17.158826"
+      },
+      {
+        "date": "2024-12-01",
+        "maturity": "30year",
+        "interval_type": "monthly",
+        "yield_rate": "4.5800",
+        "created_at": "2025-07-23T05:37:18.466133",
+        "updated_at": "2025-08-01T00:03:15.344103"
+      },
+      {
+        "date": "2024-11-01",
+        "maturity": "10year",
+        "interval_type": "monthly",
+        "yield_rate": "4.3600",
+        "created_at": "2025-07-23T05:37:02.560637",
+        "updated_at": "2025-08-01T00:02:35.572236"
+      },
+      {
+        "date": "2024-11-01",
+        "maturity": "2year",
+        "interval_type": "monthly",
+        "yield_rate": "4.2600",
+        "created_at": "2025-07-23T05:36:54.673886",
+        "updated_at": "2025-08-01T00:01:17.643675"
+      },
+      {
+        "date": "2024-11-01",
+        "maturity": "30year",
+        "interval_type": "monthly",
+        "yield_rate": "4.5400",
+        "created_at": "2025-07-23T05:37:18.479682",
+        "updated_at": "2025-08-01T00:03:15.365808"
+      },
+      {
+        "date": "2024-10-01",
+        "maturity": "10year",
+        "interval_type": "monthly",
+        "yield_rate": "4.1000",
+        "created_at": "2025-07-23T05:37:02.575541",
+        "updated_at": "2025-08-01T00:02:35.651228"
+      },
+      {
+        "date": "2024-10-01",
+        "maturity": "2year",
+        "interval_type": "monthly",
+        "yield_rate": "3.9700",
+        "created_at": "2025-07-23T05:36:54.686590",
+        "updated_at": "2025-08-01T00:01:17.962207"
+      },
+      {
+        "date": "2024-10-01",
+        "maturity": "30year",
+        "interval_type": "monthly",
+        "yield_rate": "4.3800",
+        "created_at": "2025-07-23T05:37:18.490097",
+        "updated_at": "2025-08-01T00:03:15.384558"
+      },
+      {
+        "date": "2024-09-01",
+        "maturity": "10year",
+        "interval_type": "monthly",
+        "yield_rate": "3.7200",
+        "created_at": "2025-07-23T05:37:02.596552",
+        "updated_at": "2025-08-01T00:02:35.670390"
+      },
+      {
+        "date": "2024-09-01",
+        "maturity": "2year",
+        "interval_type": "monthly",
+        "yield_rate": "3.6200",
+        "created_at": "2025-07-23T05:36:54.698402",
+        "updated_at": "2025-08-01T00:01:18.343052"
+      },
+      {
+        "date": "2024-09-01",
+        "maturity": "30year",
+        "interval_type": "monthly",
+        "yield_rate": "4.0400",
+        "created_at": "2025-07-23T05:37:18.506260",
+        "updated_at": "2025-08-01T00:03:15.455710"
+      },
+      {
+        "date": "2024-08-01",
+        "maturity": "10year",
+        "interval_type": "monthly",
+        "yield_rate": "3.8700",
+        "created_at": "2025-07-23T05:37:02.614757",
+        "updated_at": "2025-08-01T00:02:35.689260"
+      },
+      {
+        "date": "2024-08-01",
+        "maturity": "2year",
+        "interval_type": "monthly",
+        "yield_rate": "3.9700",
+        "created_at": "2025-07-23T05:36:54.709206",
+        "updated_at": "2025-08-01T00:01:18.558222"
+      },
+      {
+        "date": "2024-08-01",
+        "maturity": "30year",
+        "interval_type": "monthly",
+        "yield_rate": "4.1500",
+        "created_at": "2025-07-23T05:37:18.525946",
+        "updated_at": "2025-08-01T00:03:15.475161"
+      },
+      {
+        "date": "2024-07-01",
+        "maturity": "10year",
+        "interval_type": "monthly",
+        "yield_rate": "4.2500",
+        "created_at": "2025-07-23T05:37:02.631173",
+        "updated_at": "2025-08-01T00:02:35.755226"
+      },
+      {
+        "date": "2024-07-01",
+        "maturity": "2year",
+        "interval_type": "monthly",
+        "yield_rate": "4.5000",
+        "created_at": "2025-07-23T05:36:54.719883",
+        "updated_at": "2025-08-01T00:01:19.044628"
+      },
+      {
+        "date": "2024-07-01",
+        "maturity": "30year",
+        "interval_type": "monthly",
+        "yield_rate": "4.4600",
+        "created_at": "2025-07-23T05:37:18.541606",
+        "updated_at": "2025-08-01T00:03:15.549043"
+      },
+      {
+        "date": "2024-06-01",
+        "maturity": "10year",
+        "interval_type": "monthly",
+        "yield_rate": "4.3100",
+        "created_at": "2025-07-23T05:37:02.641785",
+        "updated_at": "2025-08-01T00:02:35.773892"
+      },
+      {
+        "date": "2024-06-01",
+        "maturity": "2year",
+        "interval_type": "monthly",
+        "yield_rate": "4.7400",
+        "created_at": "2025-07-23T05:36:54.730059",
+        "updated_at": "2025-08-01T00:01:19.457673"
+      },
+      {
+        "date": "2024-06-01",
+        "maturity": "30year",
+        "interval_type": "monthly",
+        "yield_rate": "4.4400",
+        "created_at": "2025-07-23T05:37:18.555326",
+        "updated_at": "2025-08-01T00:03:15.571419"
+      },
+      {
+        "date": "2024-05-01",
+        "maturity": "10year",
+        "interval_type": "monthly",
+        "yield_rate": "4.4800",
+        "created_at": "2025-07-23T05:37:02.653726",
+        "updated_at": "2025-08-01T00:02:35.794441"
+      },
+      {
+        "date": "2024-05-01",
+        "maturity": "2year",
+        "interval_type": "monthly",
+        "yield_rate": "4.8600",
+        "created_at": "2025-07-23T05:36:54.742064",
+        "updated_at": "2025-08-01T00:01:19.747424"
+      },
+      {
+        "date": "2024-05-01",
+        "maturity": "30year",
+        "interval_type": "monthly",
+        "yield_rate": "4.6200",
+        "created_at": "2025-07-23T05:37:18.565233",
+        "updated_at": "2025-08-01T00:03:15.646383"
+      },
+      {
+        "date": "2024-04-01",
+        "maturity": "10year",
+        "interval_type": "monthly",
+        "yield_rate": "4.5400",
+        "created_at": "2025-07-23T05:37:02.671384",
+        "updated_at": "2025-08-01T00:02:35.861918"
+      },
+      {
+        "date": "2024-04-01",
+        "maturity": "2year",
+        "interval_type": "monthly",
+        "yield_rate": "4.8700",
+        "created_at": "2025-07-23T05:36:54.757356",
+        "updated_at": "2025-08-01T00:01:20.047130"
+      },
+      {
+        "date": "2024-04-01",
+        "maturity": "30year",
+        "interval_type": "monthly",
+        "yield_rate": "4.6600",
+        "created_at": "2025-07-23T05:37:18.575590",
+        "updated_at": "2025-08-01T00:03:15.667292"
+      },
+      {
+        "date": "2024-03-01",
+        "maturity": "10year",
+        "interval_type": "monthly",
+        "yield_rate": "4.2100",
+        "created_at": "2025-07-23T05:37:02.681918",
+        "updated_at": "2025-08-01T00:02:35.880270"
+      },
+      {
+        "date": "2024-03-01",
+        "maturity": "2year",
+        "interval_type": "monthly",
+        "yield_rate": "4.5900",
+        "created_at": "2025-07-23T05:36:54.771490",
+        "updated_at": "2025-08-01T00:01:20.245808"
+      },
+      {
+        "date": "2024-03-01",
+        "maturity": "30year",
+        "interval_type": "monthly",
+        "yield_rate": "4.3600",
+        "created_at": "2025-07-23T05:37:18.586385",
+        "updated_at": "2025-08-01T00:03:15.738886"
+      },
+      {
+        "date": "2024-02-01",
+        "maturity": "10year",
+        "interval_type": "monthly",
+        "yield_rate": "4.2100",
+        "created_at": "2025-07-23T05:37:02.692600",
+        "updated_at": "2025-08-01T00:02:35.939665"
+      },
+      {
+        "date": "2024-02-01",
+        "maturity": "2year",
+        "interval_type": "monthly",
+        "yield_rate": "4.5400",
+        "created_at": "2025-07-23T05:36:54.784868",
+        "updated_at": "2025-08-01T00:01:20.352754"
+      }
+    ],
+    "total": 2037,
+    "page": 1,
+    "size": 50,
+    "pages": 41
+  }
+}

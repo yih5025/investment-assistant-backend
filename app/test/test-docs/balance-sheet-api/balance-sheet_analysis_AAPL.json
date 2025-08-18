@@ -1,0 +1,93 @@
+{
+  "request_url": "http://localhost:30888/api/v1/balance-sheet/analysis/AAPL",
+  "data": {
+    "symbol": "AAPL",
+    "analysis_date": "2025-06-30",
+    "financial_health": {
+      "grade": "C",
+      "score": 35,
+      "status": "경고"
+    },
+    "key_ratios": {
+      "liquidity": {
+        "ratios": {
+          "current_ratio": {
+            "name": "유동비율",
+            "value": 0.87,
+            "status": "위험",
+            "description": "유동비율 0.87로 단기 지급능력에 주의가 필요합니다",
+            "benchmark": 1.5
+          },
+          "quick_ratio": {
+            "name": "당좌비율",
+            "value": 0.83,
+            "status": "양호",
+            "description": "당좌비율 0.83로 단기 유동성이 양호합니다",
+            "benchmark": 1.0
+          },
+          "cash_ratio": {
+            "name": "현금비율",
+            "value": 0.26,
+            "status": "양호",
+            "description": "현금비율 0.26로 적정 수준의 현금을 보유하고 있습니다",
+            "benchmark": 0.2
+          }
+        },
+        "summary": "유동비율 0.87로 단기 지급능력 개선이 필요합니다"
+      },
+      "leverage": {
+        "ratios": {
+          "debt_to_asset": {
+            "name": "부채비율",
+            "value": 0.801,
+            "status": "위험",
+            "description": "부채비율 80.1%로 부채 관리에 주의가 필요합니다",
+            "benchmark": 0.5
+          },
+          "debt_to_equity": {
+            "name": "부채자기자본비율",
+            "value": 4.04,
+            "status": "위험",
+            "description": "부채자기자본비율 4.04로 높은 재무위험을 보이고 있습니다",
+            "benchmark": 1.0
+          },
+          "equity_ratio": {
+            "name": "자기자본비율",
+            "value": 0.199,
+            "status": "위험",
+            "description": "자기자본비율 19.9%로 자본 확충이 필요할 수 있습니다",
+            "benchmark": 0.5
+          }
+        },
+        "summary": "부채비율 80.1%로 부채 관리에 주의가 필요합니다"
+      },
+      "efficiency": {
+        "ratios": {
+          "inventory_ratio": {
+            "name": "재고자산비율",
+            "value": 0.018,
+            "status": "우수",
+            "description": "재고자산비율 1.8%로 효율적인 재고관리를 보이고 있습니다",
+            "benchmark": 0.1
+          }
+        },
+        "summary": "재고자산비율 1.8%로 우수 수준의 재고관리를 보이고 있습니다"
+      }
+    },
+    "interpretation": {
+      "overall_summary": "AAPL는 경고 수준의 재무상태입니다. 재무구조 개선을 위한 노력이 필요합니다.",
+      "strengths": [
+        "당좌비율 0.83로 단기 유동성이 양호합니다",
+        "현금비율 0.26로 적정 수준의 현금을 보유하고 있습니다",
+        "재고자산비율 1.8%로 효율적인 재고관리를 보이고 있습니다"
+      ],
+      "concerns": [
+        "유동비율 0.87로 단기 지급능력에 주의가 필요합니다",
+        "부채비율 80.1%로 부채 관리에 주의가 필요합니다",
+        "부채자기자본비율 4.04로 높은 재무위험을 보이고 있습니다"
+      ],
+      "recommendation": "재무위험이 존재하므로 단기 투자 관점에서 신중한 접근이 필요합니다"
+    },
+    "sector_comparison": null
+  }
+}

@@ -1,0 +1,268 @@
+{
+  "request_url": "http://localhost:30888/api/v1/market-news-sentiment/tickers/ranking",
+  "data": {
+    "ranking_period": "최근 7일",
+    "total_tickers": 20,
+    "hot_tickers": [
+      {
+        "ticker": "ASH",
+        "avg_sentiment_score": 0.586689,
+        "sentiment_label": "매우긍정적",
+        "sentiment_emoji": "🚀",
+        "mention_count": 2,
+        "avg_relevance_score": 0.9334404999999999,
+        "related_topics": [
+          "Retail & Wholesale",
+          "Financial Markets"
+        ]
+      },
+      {
+        "ticker": "GNL",
+        "avg_sentiment_score": 0.5785315,
+        "sentiment_label": "매우긍정적",
+        "sentiment_emoji": "🚀",
+        "mention_count": 2,
+        "avg_relevance_score": 0.36011000000000004,
+        "related_topics": [
+          "Financial Markets",
+          "Finance",
+          "Real Estate & Construction"
+        ]
+      },
+      {
+        "ticker": "HLLY",
+        "avg_sentiment_score": 0.5249915,
+        "sentiment_label": "매우긍정적",
+        "sentiment_emoji": "🚀",
+        "mention_count": 2,
+        "avg_relevance_score": 0.475208,
+        "related_topics": [
+          "Real Estate & Construction",
+          "Earnings",
+          "Financial Markets"
+        ]
+      },
+      {
+        "ticker": "CELH",
+        "avg_sentiment_score": 0.5101789999999999,
+        "sentiment_label": "매우긍정적",
+        "sentiment_emoji": "🚀",
+        "mention_count": 2,
+        "avg_relevance_score": 0.498683,
+        "related_topics": [
+          "Earnings",
+          "Financial Markets",
+          "Manufacturing"
+        ]
+      },
+      {
+        "ticker": "TOL",
+        "avg_sentiment_score": 0.4863916666666667,
+        "sentiment_label": "매우긍정적",
+        "sentiment_emoji": "🚀",
+        "mention_count": 3,
+        "avg_relevance_score": 0.6964963333333333,
+        "related_topics": [
+          "Real Estate & Construction",
+          "Financial Markets"
+        ]
+      },
+      {
+        "ticker": "ARCVF",
+        "avg_sentiment_score": 0.4735455,
+        "sentiment_label": "매우긍정적",
+        "sentiment_emoji": "🚀",
+        "mention_count": 2,
+        "avg_relevance_score": 0.41175,
+        "related_topics": [
+          "Energy & Transportation",
+          "Financial Markets",
+          "IPO"
+        ]
+      },
+      {
+        "ticker": "LMND",
+        "avg_sentiment_score": 0.438821,
+        "sentiment_label": "매우긍정적",
+        "sentiment_emoji": "🚀",
+        "mention_count": 2,
+        "avg_relevance_score": 0.5361835,
+        "related_topics": [
+          "Finance",
+          "Earnings",
+          "Financial Markets"
+        ]
+      },
+      {
+        "ticker": "PAG",
+        "avg_sentiment_score": 0.42783649999999995,
+        "sentiment_label": "매우긍정적",
+        "sentiment_emoji": "🚀",
+        "mention_count": 2,
+        "avg_relevance_score": 0.3861445,
+        "related_topics": [
+          "Earnings",
+          "Financial Markets",
+          "Retail & Wholesale"
+        ]
+      },
+      {
+        "ticker": "HLVX",
+        "avg_sentiment_score": 0.42672333333333334,
+        "sentiment_label": "매우긍정적",
+        "sentiment_emoji": "🚀",
+        "mention_count": 3,
+        "avg_relevance_score": 0.47746666666666665,
+        "related_topics": [
+          "Financial Markets",
+          "Mergers & Acquisitions"
+        ]
+      },
+      {
+        "ticker": "AMG",
+        "avg_sentiment_score": 0.4029493333333333,
+        "sentiment_label": "매우긍정적",
+        "sentiment_emoji": "🚀",
+        "mention_count": 3,
+        "avg_relevance_score": 0.5186536666666667,
+        "related_topics": [
+          "Earnings",
+          "Economy - Monetary",
+          "Financial Markets"
+        ]
+      }
+    ],
+    "cold_tickers": [
+      {
+        "ticker": "BKR",
+        "avg_sentiment_score": -0.2979045,
+        "sentiment_label": "부정적",
+        "sentiment_emoji": "📉",
+        "mention_count": 2,
+        "avg_relevance_score": 0.0791705,
+        "related_topics": [
+          "Earnings",
+          "Financial Markets",
+          "Technology"
+        ]
+      },
+      {
+        "ticker": "EXPD",
+        "avg_sentiment_score": -0.26912800000000003,
+        "sentiment_label": "부정적",
+        "sentiment_emoji": "📉",
+        "mention_count": 2,
+        "avg_relevance_score": 0.270779,
+        "related_topics": [
+          "Energy & Transportation",
+          "Earnings",
+          "Economy - Monetary"
+        ]
+      },
+      {
+        "ticker": "UNH",
+        "avg_sentiment_score": -0.2271985,
+        "sentiment_label": "부정적",
+        "sentiment_emoji": "📉",
+        "mention_count": 2,
+        "avg_relevance_score": 0.315746,
+        "related_topics": [
+          "Financial Markets",
+          "Earnings",
+          "Finance"
+        ]
+      },
+      {
+        "ticker": "UTHR",
+        "avg_sentiment_score": -0.16038725,
+        "sentiment_label": "부정적",
+        "sentiment_emoji": "📉",
+        "mention_count": 4,
+        "avg_relevance_score": 0.0637805,
+        "related_topics": [
+          "Earnings",
+          "Technology",
+          "Life Sciences"
+        ]
+      },
+      {
+        "ticker": "CRI",
+        "avg_sentiment_score": -0.099596,
+        "sentiment_label": "중립적",
+        "sentiment_emoji": "➡️",
+        "mention_count": 2,
+        "avg_relevance_score": 0.5139185,
+        "related_topics": [
+          "Financial Markets",
+          "Earnings",
+          "Manufacturing"
+        ]
+      },
+      {
+        "ticker": "NET",
+        "avg_sentiment_score": -0.0934975,
+        "sentiment_label": "중립적",
+        "sentiment_emoji": "➡️",
+        "mention_count": 2,
+        "avg_relevance_score": 0.2528405,
+        "related_topics": [
+          "Financial Markets",
+          "Earnings",
+          "Economy - Monetary"
+        ]
+      },
+      {
+        "ticker": "BRKR",
+        "avg_sentiment_score": -0.088669,
+        "sentiment_label": "중립적",
+        "sentiment_emoji": "➡️",
+        "mention_count": 2,
+        "avg_relevance_score": 0.5035125,
+        "related_topics": [
+          "Earnings",
+          "Finance",
+          "Life Sciences"
+        ]
+      },
+      {
+        "ticker": "HOG",
+        "avg_sentiment_score": -0.087091,
+        "sentiment_label": "중립적",
+        "sentiment_emoji": "➡️",
+        "mention_count": 2,
+        "avg_relevance_score": 0.08010149999999999,
+        "related_topics": [
+          "Financial Markets",
+          "Retail & Wholesale",
+          "Manufacturing"
+        ]
+      },
+      {
+        "ticker": "CRYPTO:UST",
+        "avg_sentiment_score": -0.072954,
+        "sentiment_label": "중립적",
+        "sentiment_emoji": "➡️",
+        "mention_count": 3,
+        "avg_relevance_score": 0.21023766666666666,
+        "related_topics": [
+          "Finance",
+          "Blockchain",
+          "Financial Markets"
+        ]
+      },
+      {
+        "ticker": "DDD",
+        "avg_sentiment_score": -0.06643075,
+        "sentiment_label": "중립적",
+        "sentiment_emoji": "➡️",
+        "mention_count": 4,
+        "avg_relevance_score": 0.5404169999999999,
+        "related_topics": [
+          "Earnings",
+          "Technology",
+          "Life Sciences"
+        ]
+      }
+    ]
+  }
+}

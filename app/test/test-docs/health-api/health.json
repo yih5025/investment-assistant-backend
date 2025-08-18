@@ -1,0 +1,9 @@
+{
+  "request_url": "http://localhost:30888/api/v1/health",
+  "data": {
+    "status": "healthy",
+    "service": "investment-assistant-api",
+    "version": "1.0.0",
+    "uptime": "operational"
+  }
+}

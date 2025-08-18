@@ -1,0 +1,50 @@
+{
+  "request_url": "http://localhost:30888/api/v1/stats",
+  "data": {
+    "api_summary": {
+      "total_routers": 14,
+      "categories": {
+        "뉴스_관련": 4,
+        "소셜미디어": 2,
+        "실적_정보": 2,
+        "경제_지표": 3,
+        "재무제표": 1,
+        "국채수익률": 1
+      }
+    },
+    "implemented_domains": [
+      "market-news",
+      "financial-news",
+      "company-news",
+      "market-news-sentiment",
+      "truth-social",
+      "x-posts",
+      "earnings-calendar",
+      "earnings-calendar-news",
+      "inflation",
+      "federal-funds-rate",
+      "cpi",
+      "balance-sheet",
+      "treasury-yield",
+      ""
+    ],
+    "planned_features": [
+      "crypto-prices",
+      "stock-analysis",
+      "portfolio-management",
+      "risk-assessment"
+    ],
+    "database_integration": {
+      "postgresql": "메인 데이터베이스",
+      "jsonb_support": "복합 데이터 처리",
+      "time_series": "시계열 데이터 최적화"
+    },
+    "api_features": {
+      "pagination": "모든 목록 API에서 지원",
+      "filtering": "다양한 필터링 옵션",
+      "sorting": "정렬 기능 지원",
+      "real_time": "실시간 데이터 업데이트",
+      "sentiment_analysis": "뉴스 감성 분석"
+    }
+  }
+}

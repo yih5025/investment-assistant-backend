@@ -1,0 +1,98 @@
+{
+  "ranking_period": "최근 7일",
+  "total_topics": 6,
+  "hot_topics": [
+    {
+      "topic": "Mergers & Acquisitions",
+      "avg_sentiment_score": 0.21705132743362832,
+      "news_count": 113,
+      "sentiment_label": "긍정적",
+      "sentiment_emoji": "📈",
+      "trend": "상승",
+      "related_tickers": [
+        "META",
+        "GS",
+        "WFC",
+        "C",
+        "BAC"
+      ]
+    },
+    {
+      "topic": "Earnings",
+      "avg_sentiment_score": 0.20889980039920159,
+      "news_count": 1002,
+      "sentiment_label": "긍정적",
+      "sentiment_emoji": "📈",
+      "trend": "상승",
+      "related_tickers": [
+        "NVDA",
+        "MSFT",
+        "META",
+        "GOOG",
+        "AAPL"
+      ]
+    },
+    {
+      "topic": "Real Estate & Construction",
+      "avg_sentiment_score": 0.20620472972972972,
+      "news_count": 148,
+      "sentiment_label": "긍정적",
+      "sentiment_emoji": "📈",
+      "trend": "상승",
+      "related_tickers": [
+        "APG",
+        "CRYPTO:BTC",
+        "TSLA",
+        "GOOG",
+        "IONQ"
+      ]
+    }
+  ],
+  "cold_topics": [
+    {
+      "topic": "Life Sciences",
+      "avg_sentiment_score": 0.17430430622009568,
+      "news_count": 209,
+      "sentiment_label": "긍정적",
+      "sentiment_emoji": "📈",
+      "trend": "상승",
+      "related_tickers": [
+        "META",
+        "CRYPTO:BTC",
+        "GOOG",
+        "TSLA",
+        "WFC"
+      ]
+    },
+    {
+      "topic": "IPO",
+      "avg_sentiment_score": 0.18230775193798449,
+      "news_count": 129,
+      "sentiment_label": "긍정적",
+      "sentiment_emoji": "📈",
+      "trend": "상승",
+      "related_tickers": [
+        "CRYPTO:BTC",
+        "GOOG",
+        "CRCL",
+        "TSLA",
+        "NVDA"
+      ]
+    },
+    {
+      "topic": "Economy - Monetary",
+      "avg_sentiment_score": 0.18548097826086957,
+      "news_count": 184,
+      "sentiment_label": "긍정적",
+      "sentiment_emoji": "📈",
+      "trend": "상승",
+      "related_tickers": [
+        "CRYPTO:BTC",
+        "MSFT",
+        "META",
+        "NVDA",
+        "BAC"
+      ]
+    }
+  ]
+}

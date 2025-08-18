@@ -1,0 +1,67 @@
+{
+  "request_url": "http://localhost:30888/api/v1/market-news-sentiment/sentiment-trends",
+  "data": {
+    "period": "최근 7일",
+    "interval": "일별",
+    "overall_trend": [
+      {
+        "timestamp": "2025-08-04T00:00:00",
+        "avg_sentiment_score": 0.18791650485436892,
+        "news_count": 206,
+        "bullish_count": 168,
+        "bearish_count": 3,
+        "neutral_count": 35
+      },
+      {
+        "timestamp": "2025-08-05T00:00:00",
+        "avg_sentiment_score": 0.1912978417266187,
+        "news_count": 278,
+        "bullish_count": 235,
+        "bearish_count": 12,
+        "neutral_count": 31
+      },
+      {
+        "timestamp": "2025-08-06T00:00:00",
+        "avg_sentiment_score": 0.20614730769230769,
+        "news_count": 260,
+        "bullish_count": 222,
+        "bearish_count": 8,
+        "neutral_count": 30
+      },
+      {
+        "timestamp": "2025-08-07T00:00:00",
+        "avg_sentiment_score": 0.19668045454545455,
+        "news_count": 220,
+        "bullish_count": 189,
+        "bearish_count": 3,
+        "neutral_count": 28
+      },
+      {
+        "timestamp": "2025-08-08T00:00:00",
+        "avg_sentiment_score": 0.21140894941634242,
+        "news_count": 257,
+        "bullish_count": 216,
+        "bearish_count": 2,
+        "neutral_count": 39
+      },
+      {
+        "timestamp": "2025-08-09T00:00:00",
+        "avg_sentiment_score": 0.19365390070921987,
+        "news_count": 141,
+        "bullish_count": 106,
+        "bearish_count": 1,
+        "neutral_count": 34
+      },
+      {
+        "timestamp": "2025-08-10T00:00:00",
+        "avg_sentiment_score": 0.1788272,
+        "news_count": 125,
+        "bullish_count": 96,
+        "bearish_count": 4,
+        "neutral_count": 25
+      }
+    ],
+    "ticker_trends": [],
+    "topic_trends": []
+  }
+}

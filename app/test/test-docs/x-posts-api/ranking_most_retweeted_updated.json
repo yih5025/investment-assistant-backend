@@ -1,0 +1,146 @@
+{
+  "items": [
+    {
+      "tweet_id": "1951444082477375827",
+      "author_id": "44196397",
+      "text": "Starlink now dynamically connects to the satellite with the best connection updating 10 times a second! https://t.co/BA1xojuevQ",
+      "created_at": "2025-08-02T00:44:59Z",
+      "lang": "en",
+      "author": {
+        "username": "elonmusk",
+        "display_name": "Elon Musk",
+        "verified": false,
+        "followers_count": 223505937,
+        "following_count": 1172,
+        "tweet_count": 82351
+      },
+      "engagement": {
+        "likes": 15972,
+        "retweets": 2384,
+        "replies": 1796,
+        "quotes": 124,
+        "bookmarks": 704,
+        "impressions": 1552691,
+        "engagement_score": 27080
+      },
+      "metadata": {
+        "hashtags": null,
+        "mentions": null,
+        "urls": [
+          {
+            "end": 127,
+            "url": "https://t.co/BA1xojuevQ",
+            "start": 104,
+            "display_url": "x.com/starlink/statu…",
+            "expanded_url": "https://twitter.com/starlink/status/1951398415973449902"
+          }
+        ],
+        "cashtags": null
+      },
+      "classification": {
+        "account_category": "core_investors",
+        "collection_source": "primary_token",
+        "source_account": "elonmusk"
+      },
+      "tweet_url": "https://x.com/elonmusk/status/1951444082477375827"
+    },
+    {
+      "tweet_id": "1951391849299718644",
+      "author_id": "44196397",
+      "text": "RT @thatsKAIZEN: Slavery was practiced by people of all colors, well before America and the British did it.\n\nThe British were the first maj…",
+      "created_at": "2025-08-01T21:17:26Z",
+      "lang": "en",
+      "author": {
+        "username": "elonmusk",
+        "display_name": "Elon Musk",
+        "verified": false,
+        "followers_count": 223505937,
+        "following_count": 1172,
+        "tweet_count": 82351
+      },
+      "engagement": {
+        "likes": 0,
+        "retweets": 1801,
+        "replies": 0,
+        "quotes": 0,
+        "bookmarks": 0,
+        "impressions": 418,
+        "engagement_score": 3602
+      },
+      "metadata": {
+        "hashtags": null,
+        "mentions": [
+          {
+            "id": "282419632",
+            "end": 15,
+            "start": 3,
+            "username": "thatsKAIZEN"
+          }
+        ],
+        "urls": null,
+        "cashtags": null
+      },
+      "classification": {
+        "account_category": "core_investors",
+        "collection_source": "primary_token",
+        "source_account": "elonmusk"
+      },
+      "tweet_url": "https://x.com/elonmusk/status/1951391849299718644"
+    },
+    {
+      "tweet_id": "1951348026058088681",
+      "author_id": "44196397",
+      "text": "RT @Tesla: A vehicle display you actually want to use\n\nNo lag, no buffering https://t.co/rxLxZQhUzU",
+      "created_at": "2025-08-01T18:23:18Z",
+      "lang": "en",
+      "author": {
+        "username": "elonmusk",
+        "display_name": "Elon Musk",
+        "verified": false,
+        "followers_count": 223505937,
+        "following_count": 1172,
+        "tweet_count": 82351
+      },
+      "engagement": {
+        "likes": 0,
+        "retweets": 1558,
+        "replies": 0,
+        "quotes": 0,
+        "bookmarks": 0,
+        "impressions": 3,
+        "engagement_score": 3116
+      },
+      "metadata": {
+        "hashtags": null,
+        "mentions": [
+          {
+            "id": "13298072",
+            "end": 9,
+            "start": 3,
+            "username": "Tesla"
+          }
+        ],
+        "urls": [
+          {
+            "end": 99,
+            "url": "https://t.co/rxLxZQhUzU",
+            "start": 76,
+            "media_key": "13_1951342782485860352",
+            "display_url": "pic.x.com/rxLxZQhUzU",
+            "expanded_url": "https://x.com/Tesla/status/1951343000514105754/video/1"
+          }
+        ],
+        "cashtags": null
+      },
+      "classification": {
+        "account_category": "core_investors",
+        "collection_source": "primary_token",
+        "source_account": "elonmusk"
+      },
+      "tweet_url": "https://x.com/elonmusk/status/1951348026058088681"
+    }
+  ],
+  "ranking_type": "most-retweeted",
+  "period": "24h",
+  "total_count": 3
+}

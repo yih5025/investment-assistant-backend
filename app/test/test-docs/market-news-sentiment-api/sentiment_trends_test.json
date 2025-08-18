@@ -1,0 +1,64 @@
+{
+  "period": "최근 7일",
+  "interval": "일별",
+  "overall_trend": [
+    {
+      "timestamp": "2025-07-24T00:00:00",
+      "avg_sentiment_score": 0.1951299065420561,
+      "news_count": 321,
+      "bullish_count": 262,
+      "bearish_count": 5,
+      "neutral_count": 54
+    },
+    {
+      "timestamp": "2025-07-25T00:00:00",
+      "avg_sentiment_score": 0.20435951742627345,
+      "news_count": 373,
+      "bullish_count": 309,
+      "bearish_count": 2,
+      "neutral_count": 62
+    },
+    {
+      "timestamp": "2025-07-26T00:00:00",
+      "avg_sentiment_score": 0.2041951048951049,
+      "news_count": 143,
+      "bullish_count": 117,
+      "bearish_count": 1,
+      "neutral_count": 25
+    },
+    {
+      "timestamp": "2025-07-27T00:00:00",
+      "avg_sentiment_score": 0.19259411764705883,
+      "news_count": 102,
+      "bullish_count": 79,
+      "bearish_count": 0,
+      "neutral_count": 23
+    },
+    {
+      "timestamp": "2025-07-28T00:00:00",
+      "avg_sentiment_score": 0.18301133603238867,
+      "news_count": 247,
+      "bullish_count": 199,
+      "bearish_count": 4,
+      "neutral_count": 44
+    },
+    {
+      "timestamp": "2025-07-29T00:00:00",
+      "avg_sentiment_score": 0.20285407166123778,
+      "news_count": 307,
+      "bullish_count": 260,
+      "bearish_count": 3,
+      "neutral_count": 44
+    },
+    {
+      "timestamp": "2025-07-30T00:00:00",
+      "avg_sentiment_score": 0.1812429347826087,
+      "news_count": 184,
+      "bullish_count": 151,
+      "bearish_count": 11,
+      "neutral_count": 22
+    }
+  ],
+  "ticker_trends": [],
+  "topic_trends": []
+}

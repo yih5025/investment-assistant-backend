@@ -1,0 +1,50 @@
+{
+  "request_url": "http://localhost:30888/api/v1/balance-sheet/trends/AAPL",
+  "data": {
+    "symbol": "AAPL",
+    "period_count": 4,
+    "trends": [
+      {
+        "metric": "총자산",
+        "current_value": 331.495,
+        "previous_value": 331.233,
+        "change_amount": 0.262,
+        "change_rate": 0.08,
+        "trend_direction": "유지"
+      },
+      {
+        "metric": "총부채",
+        "current_value": 265.665,
+        "previous_value": 264.437,
+        "change_amount": 1.228,
+        "change_rate": 0.46,
+        "trend_direction": "유지"
+      },
+      {
+        "metric": "자기자본",
+        "current_value": 65.83,
+        "previous_value": 66.796,
+        "change_amount": -0.966,
+        "change_rate": -1.45,
+        "trend_direction": "감소"
+      },
+      {
+        "metric": "유동자산",
+        "current_value": 122.491,
+        "previous_value": 118.674,
+        "change_amount": 3.817,
+        "change_rate": 3.22,
+        "trend_direction": "증가"
+      },
+      {
+        "metric": "현금성자산",
+        "current_value": 36.269,
+        "previous_value": 28.162,
+        "change_amount": 8.107,
+        "change_rate": 28.79,
+        "trend_direction": "증가"
+      }
+    ],
+    "summary": "전분기 대비 2개 지표 증가, 1개 지표 감소로 전반적인 성장세를 보이고 있습니다"
+  }
+}

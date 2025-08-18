@@ -1,0 +1,92 @@
+{
+  "request_url": "http://localhost:30888/api/v1/cpi/recent",
+  "data": {
+    "total_count": 12,
+    "items": [
+      {
+        "date": "2025-06-01",
+        "cpi_value": 322.561,
+        "interval_type": "monthly",
+        "unit": "index 1982-1984=100",
+        "name": "Consumer Price Index for all Urban Consumers"
+      },
+      {
+        "date": "2025-05-01",
+        "cpi_value": 321.465,
+        "interval_type": "monthly",
+        "unit": "index 1982-1984=100",
+        "name": "Consumer Price Index for all Urban Consumers"
+      },
+      {
+        "date": "2025-04-01",
+        "cpi_value": 320.795,
+        "interval_type": "monthly",
+        "unit": "index 1982-1984=100",
+        "name": "Consumer Price Index for all Urban Consumers"
+      },
+      {
+        "date": "2025-03-01",
+        "cpi_value": 319.799,
+        "interval_type": "monthly",
+        "unit": "index 1982-1984=100",
+        "name": "Consumer Price Index for all Urban Consumers"
+      },
+      {
+        "date": "2025-02-01",
+        "cpi_value": 319.082,
+        "interval_type": "monthly",
+        "unit": "index 1982-1984=100",
+        "name": "Consumer Price Index for all Urban Consumers"
+      },
+      {
+        "date": "2025-01-01",
+        "cpi_value": 317.671,
+        "interval_type": "monthly",
+        "unit": "index 1982-1984=100",
+        "name": "Consumer Price Index for all Urban Consumers"
+      },
+      {
+        "date": "2024-12-01",
+        "cpi_value": 315.605,
+        "interval_type": "monthly",
+        "unit": "index 1982-1984=100",
+        "name": "Consumer Price Index for all Urban Consumers"
+      },
+      {
+        "date": "2024-11-01",
+        "cpi_value": 315.493,
+        "interval_type": "monthly",
+        "unit": "index 1982-1984=100",
+        "name": "Consumer Price Index for all Urban Consumers"
+      },
+      {
+        "date": "2024-10-01",
+        "cpi_value": 315.664,
+        "interval_type": "monthly",
+        "unit": "index 1982-1984=100",
+        "name": "Consumer Price Index for all Urban Consumers"
+      },
+      {
+        "date": "2024-09-01",
+        "cpi_value": 315.301,
+        "interval_type": "monthly",
+        "unit": "index 1982-1984=100",
+        "name": "Consumer Price Index for all Urban Consumers"
+      },
+      {
+        "date": "2024-08-01",
+        "cpi_value": 314.796,
+        "interval_type": "monthly",
+        "unit": "index 1982-1984=100",
+        "name": "Consumer Price Index for all Urban Consumers"
+      },
+      {
+        "date": "2024-07-01",
+        "cpi_value": 314.54,
+        "interval_type": "monthly",
+        "unit": "index 1982-1984=100",
+        "name": "Consumer Price Index for all Urban Consumers"
+      }
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "request_url": "http://localhost:30888/api/v1/x-posts/ranking/most-quoted/",
+  "data": {
+    "items": [],
+    "ranking_type": "most-quoted",
+    "period": "24h",
+    "total_count": 0
+  }
+}

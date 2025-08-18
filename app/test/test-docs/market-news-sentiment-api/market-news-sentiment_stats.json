@@ -1,0 +1,20 @@
+{
+  "request_url": "http://localhost:30888/api/v1/market-news-sentiment/stats",
+  "data": {
+    "period": "최근 7일",
+    "total_news": 1487,
+    "sentiment_distribution": {
+      "bullish": 1000,
+      "bearish": 33,
+      "neutral": 222
+    },
+    "sentiment_percentages": {
+      "bullish": 67.2,
+      "bearish": 2.2,
+      "neutral": 14.9
+    },
+    "average_sentiment_score": 0.2014,
+    "market_mood": "긍정적",
+    "market_mood_emoji": "📈"
+  }
+}

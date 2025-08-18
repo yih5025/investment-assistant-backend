@@ -1,0 +1,8 @@
+{
+  "request_url": "http://localhost:30888/api/v1/treasury-yield/maturity/sample",
+  "error": {
+    "status": 500,
+    "reason": "Internal Server Error",
+    "body": "{\"detail\":\"데이터베이스 연결 중 오류가 발생했습니다: \"}"
+  }
+}

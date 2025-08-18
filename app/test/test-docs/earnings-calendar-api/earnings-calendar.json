@@ -1,0 +1,508 @@
+{
+  "request_url": "http://localhost:30888/api/v1/earnings-calendar/",
+  "data": {
+    "items": [
+      {
+        "symbol": "NBIAY",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": null,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:17:18.743988"
+      },
+      {
+        "symbol": "MMM",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 2.01,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:17:08.244361"
+      },
+      {
+        "symbol": "MMNNF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 1.29,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:17:08.369091"
+      },
+      {
+        "symbol": "HBMBF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": null,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:16:08.704087"
+      },
+      {
+        "symbol": "KNYJF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 0.58,
+        "currency": "EUR",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:16:40.651583"
+      },
+      {
+        "symbol": "MCBS",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 0.63,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:17:01.365569"
+      },
+      {
+        "symbol": "EPOAY",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": null,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:15:34.584282"
+      },
+      {
+        "symbol": "EPIPF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": null,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:15:34.442563"
+      },
+      {
+        "symbol": "GNGBY",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": null,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:16:02.915760"
+      },
+      {
+        "symbol": "HBANP",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": null,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:16:08.455721"
+      },
+      {
+        "symbol": "HXPLF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 1.63,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:16:20.450506"
+      },
+      {
+        "symbol": "KMRSF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": null,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:16:39.718075"
+      },
+      {
+        "symbol": "LEXX",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-05-31",
+        "estimate": -0.1567,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:16:46.433709"
+      },
+      {
+        "symbol": "LUD",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": null,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:16:56.663529"
+      },
+      {
+        "symbol": "BGLAF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": null,
+        "currency": "SEK",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:14:32.972309"
+      },
+      {
+        "symbol": "CLVSF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 1.65,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:15:01.890100"
+      },
+      {
+        "symbol": "DNSKF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 6.55,
+        "currency": "DKK",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:15:23.145508"
+      },
+      {
+        "symbol": "EPIAF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 1.9,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:15:34.388979"
+      },
+      {
+        "symbol": "GMXTF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 0.03,
+        "currency": "MXN",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:16:02.613265"
+      },
+      {
+        "symbol": "GNGBF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 2.04,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:16:02.852869"
+      },
+      {
+        "symbol": "HBAN",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 0.33,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:16:08.304984"
+      },
+      {
+        "symbol": "HBANM",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": null,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:16:08.410027"
+      },
+      {
+        "symbol": "HSQVY",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": null,
+        "currency": "SEK",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:16:17.899316"
+      },
+      {
+        "symbol": "HUSQF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 2.25,
+        "currency": "SEK",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:16:19.800936"
+      },
+      {
+        "symbol": "AXP",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 3.88,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:14:26.978724"
+      },
+      {
+        "symbol": "HXXPY",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": null,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:16:20.494624"
+      },
+      {
+        "symbol": "KNYJY",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": null,
+        "currency": "EUR",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:16:40.714728"
+      },
+      {
+        "symbol": "KOYJF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 0.39,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:16:41.064184"
+      },
+      {
+        "symbol": "BURBY",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 0.0,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:14:44.706219"
+      },
+      {
+        "symbol": "BTSNY",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": null,
+        "currency": "EUR",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:14:44.341086"
+      },
+      {
+        "symbol": "BDNNY",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 0.8964,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:14:31.307200"
+      },
+      {
+        "symbol": "BENF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": -1.39,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:14:32.223499"
+      },
+      {
+        "symbol": "BLIDF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 2.84,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:14:36.616386"
+      },
+      {
+        "symbol": "BHOOY",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-05-31",
+        "estimate": null,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:14:33.672559"
+      },
+      {
+        "symbol": "CMA",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 1.22,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:15:02.269189"
+      },
+      {
+        "symbol": "DNKEY",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 0.5045,
+        "currency": "DKK",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:15:22.629063"
+      },
+      {
+        "symbol": "BIOGY",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": null,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:14:34.160357"
+      },
+      {
+        "symbol": "ELRXF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 0.52,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:15:31.777595"
+      },
+      {
+        "symbol": "ATLCY",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 0.1426,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:14:23.831002"
+      },
+      {
+        "symbol": "FSROF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 0.03,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:15:54.590856"
+      },
+      {
+        "symbol": "ATLFF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": null,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:14:23.881661"
+      },
+      {
+        "symbol": "BLRDF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 1.02,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:14:36.896501"
+      },
+      {
+        "symbol": "ALLY",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 0.81,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:14:11.843195"
+      },
+      {
+        "symbol": "ATLKY",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 0.1426,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:14:23.923519"
+      },
+      {
+        "symbol": "HBANL",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": null,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:16:08.360494"
+      },
+      {
+        "symbol": "ATLPF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 1.44,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:14:23.977824"
+      },
+      {
+        "symbol": "BTSBF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 4.4,
+        "currency": "EUR",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:14:44.243976"
+      },
+      {
+        "symbol": "HMNTY",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": null,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:16:12.613646"
+      },
+      {
+        "symbol": "HUQVF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": null,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:16:19.695508"
+      },
+      {
+        "symbol": "NKRKF",
+        "company_name": "",
+        "report_date": "2025-07-18",
+        "fiscal_date_ending": "2025-06-30",
+        "estimate": 0.03,
+        "currency": "USD",
+        "event_description": null,
+        "fetched_at": "2025-07-18T07:17:24.723429"
+      }
+    ],
+    "total_count": 22727
+  }
+}

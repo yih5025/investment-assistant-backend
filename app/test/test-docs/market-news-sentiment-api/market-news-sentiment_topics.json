@@ -1,0 +1,85 @@
+{
+  "request_url": "http://localhost:30888/api/v1/market-news-sentiment/topics",
+  "data": {
+    "total_topics": 15,
+    "topics": [
+      "Blockchain",
+      "Earnings",
+      "Economy - Fiscal",
+      "Economy - Macro",
+      "Economy - Monetary",
+      "Energy & Transportation",
+      "Finance",
+      "Financial Markets",
+      "IPO",
+      "Life Sciences",
+      "Manufacturing",
+      "Mergers & Acquisitions",
+      "Real Estate & Construction",
+      "Retail & Wholesale",
+      "Technology"
+    ],
+    "topic_details": [
+      {
+        "topic": "Blockchain",
+        "news_count": 202,
+        "avg_sentiment": 0.18161336633663366,
+        "sentiment_label": "긍정적"
+      },
+      {
+        "topic": "Earnings",
+        "news_count": 956,
+        "avg_sentiment": 0.2093239539748954,
+        "sentiment_label": "긍정적"
+      },
+      {
+        "topic": "Economy - Fiscal",
+        "news_count": 38,
+        "avg_sentiment": 0.17503684210526316,
+        "sentiment_label": "긍정적"
+      },
+      {
+        "topic": "Economy - Macro",
+        "news_count": 72,
+        "avg_sentiment": 0.18857361111111112,
+        "sentiment_label": "긍정적"
+      },
+      {
+        "topic": "Economy - Monetary",
+        "news_count": 225,
+        "avg_sentiment": 0.18192311111111112,
+        "sentiment_label": "긍정적"
+      },
+      {
+        "topic": "Energy & Transportation",
+        "news_count": 158,
+        "avg_sentiment": 0.20283291139240506,
+        "sentiment_label": "긍정적"
+      },
+      {
+        "topic": "Finance",
+        "news_count": 444,
+        "avg_sentiment": 0.20302072072072072,
+        "sentiment_label": "긍정적"
+      },
+      {
+        "topic": "Financial Markets",
+        "news_count": 1294,
+        "avg_sentiment": 0.2014836166924266,
+        "sentiment_label": "긍정적"
+      },
+      {
+        "topic": "IPO",
+        "news_count": 140,
+        "avg_sentiment": 0.1999392857142857,
+        "sentiment_label": "긍정적"
+      },
+      {
+        "topic": "Life Sciences",
+        "news_count": 214,
+        "avg_sentiment": 0.16210280373831776,
+        "sentiment_label": "긍정적"
+      }
+    ]
+  }
+}

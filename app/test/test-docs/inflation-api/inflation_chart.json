@@ -1,0 +1,91 @@
+{
+  "request_url": "http://localhost:30888/api/v1/inflation/chart",
+  "data": {
+    "data": [
+      {
+        "year": 2005,
+        "rate": 3.393
+      },
+      {
+        "year": 2006,
+        "rate": 3.226
+      },
+      {
+        "year": 2007,
+        "rate": 2.853
+      },
+      {
+        "year": 2008,
+        "rate": 3.839
+      },
+      {
+        "year": 2009,
+        "rate": -0.356
+      },
+      {
+        "year": 2010,
+        "rate": 1.64
+      },
+      {
+        "year": 2011,
+        "rate": 3.157
+      },
+      {
+        "year": 2012,
+        "rate": 2.069
+      },
+      {
+        "year": 2013,
+        "rate": 1.465
+      },
+      {
+        "year": 2014,
+        "rate": 1.622
+      },
+      {
+        "year": 2015,
+        "rate": 0.119
+      },
+      {
+        "year": 2016,
+        "rate": 1.262
+      },
+      {
+        "year": 2017,
+        "rate": 2.13
+      },
+      {
+        "year": 2018,
+        "rate": 2.443
+      },
+      {
+        "year": 2019,
+        "rate": 1.812
+      },
+      {
+        "year": 2020,
+        "rate": 1.234
+      },
+      {
+        "year": 2021,
+        "rate": 4.698
+      },
+      {
+        "year": 2022,
+        "rate": 8.003
+      },
+      {
+        "year": 2023,
+        "rate": 4.116
+      },
+      {
+        "year": 2024,
+        "rate": 2.95
+      }
+    ],
+    "latest_rate": 2.95,
+    "avg_rate": 2.584,
+    "min_rate": -0.356,
+    "max_rate": 8.003
+  }
+}

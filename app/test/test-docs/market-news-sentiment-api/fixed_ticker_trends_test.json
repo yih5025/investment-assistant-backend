@@ -1,0 +1,179 @@
+{
+  "period": "최근 7일",
+  "interval": "일별",
+  "overall_trend": [
+    {
+      "timestamp": "2025-07-24T00:00:00",
+      "avg_sentiment_score": 0.19499556962025316,
+      "news_count": 316,
+      "bullish_count": 258,
+      "bearish_count": 5,
+      "neutral_count": 53
+    },
+    {
+      "timestamp": "2025-07-25T00:00:00",
+      "avg_sentiment_score": 0.20435951742627345,
+      "news_count": 373,
+      "bullish_count": 309,
+      "bearish_count": 2,
+      "neutral_count": 62
+    },
+    {
+      "timestamp": "2025-07-26T00:00:00",
+      "avg_sentiment_score": 0.2041951048951049,
+      "news_count": 143,
+      "bullish_count": 117,
+      "bearish_count": 1,
+      "neutral_count": 25
+    },
+    {
+      "timestamp": "2025-07-27T00:00:00",
+      "avg_sentiment_score": 0.19259411764705883,
+      "news_count": 102,
+      "bullish_count": 79,
+      "bearish_count": 0,
+      "neutral_count": 23
+    },
+    {
+      "timestamp": "2025-07-28T00:00:00",
+      "avg_sentiment_score": 0.18301133603238867,
+      "news_count": 247,
+      "bullish_count": 199,
+      "bearish_count": 4,
+      "neutral_count": 44
+    },
+    {
+      "timestamp": "2025-07-29T00:00:00",
+      "avg_sentiment_score": 0.20285407166123778,
+      "news_count": 307,
+      "bullish_count": 260,
+      "bearish_count": 3,
+      "neutral_count": 44
+    },
+    {
+      "timestamp": "2025-07-30T00:00:00",
+      "avg_sentiment_score": 0.1812429347826087,
+      "news_count": 184,
+      "bullish_count": 151,
+      "bearish_count": 11,
+      "neutral_count": 22
+    }
+  ],
+  "ticker_trends": [
+    {
+      "ticker": "AAPL",
+      "trend_data": [
+        {
+          "timestamp": "2025-07-24T00:00:00",
+          "avg_sentiment_score": 0.11228218367346925,
+          "news_count": 49,
+          "bullish_count": 21,
+          "bearish_count": 0,
+          "neutral_count": 28
+        },
+        {
+          "timestamp": "2025-07-25T00:00:00",
+          "avg_sentiment_score": 0.12788912264150945,
+          "news_count": 106,
+          "bullish_count": 54,
+          "bearish_count": 2,
+          "neutral_count": 50
+        },
+        {
+          "timestamp": "2025-07-26T00:00:00",
+          "avg_sentiment_score": 0.12470231578947368,
+          "news_count": 38,
+          "bullish_count": 21,
+          "bearish_count": 0,
+          "neutral_count": 17
+        },
+        {
+          "timestamp": "2025-07-27T00:00:00",
+          "avg_sentiment_score": 0.12683070212765957,
+          "news_count": 47,
+          "bullish_count": 24,
+          "bearish_count": 5,
+          "neutral_count": 18
+        },
+        {
+          "timestamp": "2025-07-28T00:00:00",
+          "avg_sentiment_score": 0.10333568666666665,
+          "news_count": 150,
+          "bullish_count": 72,
+          "bearish_count": 3,
+          "neutral_count": 75
+        },
+        {
+          "timestamp": "2025-07-29T00:00:00",
+          "avg_sentiment_score": 0.10468594845360828,
+          "news_count": 97,
+          "bullish_count": 49,
+          "bearish_count": 4,
+          "neutral_count": 44
+        }
+      ]
+    },
+    {
+      "ticker": "NVDA",
+      "trend_data": [
+        {
+          "timestamp": "2025-07-24T00:00:00",
+          "avg_sentiment_score": 0.14721567948717945,
+          "news_count": 156,
+          "bullish_count": 95,
+          "bearish_count": 8,
+          "neutral_count": 53
+        },
+        {
+          "timestamp": "2025-07-25T00:00:00",
+          "avg_sentiment_score": 0.11412107200000002,
+          "news_count": 250,
+          "bullish_count": 125,
+          "bearish_count": 16,
+          "neutral_count": 109
+        },
+        {
+          "timestamp": "2025-07-26T00:00:00",
+          "avg_sentiment_score": 0.11240527272727276,
+          "news_count": 66,
+          "bullish_count": 36,
+          "bearish_count": 3,
+          "neutral_count": 27
+        },
+        {
+          "timestamp": "2025-07-27T00:00:00",
+          "avg_sentiment_score": 0.10772878260869567,
+          "news_count": 69,
+          "bullish_count": 35,
+          "bearish_count": 5,
+          "neutral_count": 29
+        },
+        {
+          "timestamp": "2025-07-28T00:00:00",
+          "avg_sentiment_score": 0.12334474782608698,
+          "news_count": 115,
+          "bullish_count": 73,
+          "bearish_count": 4,
+          "neutral_count": 38
+        },
+        {
+          "timestamp": "2025-07-29T00:00:00",
+          "avg_sentiment_score": 0.1364042205128205,
+          "news_count": 195,
+          "bullish_count": 116,
+          "bearish_count": 9,
+          "neutral_count": 70
+        },
+        {
+          "timestamp": "2025-07-30T00:00:00",
+          "avg_sentiment_score": 0.11724879999999999,
+          "news_count": 15,
+          "bullish_count": 7,
+          "bearish_count": 0,
+          "neutral_count": 8
+        }
+      ]
+    }
+  ],
+  "topic_trends": []
+}

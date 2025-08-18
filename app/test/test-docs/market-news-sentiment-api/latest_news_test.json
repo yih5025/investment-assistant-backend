@@ -1,0 +1,200 @@
+{
+  "total_count": 176,
+  "batch_info": {
+    "latest_batch_id": 11,
+    "collection_date": "2025-07-31",
+    "total_batches": 11
+  },
+  "news": [
+    {
+      "batch_id": 11,
+      "url": "https://cointelegraph.com/news/kraken-q2-earnings-exchange-expands-beyond-crypto",
+      "title": "Kraken's Q2 earnings dip as exchange expands beyond crypto",
+      "time_published": "2025-07-30T23:25:01",
+      "authors": "Nate Kostar",
+      "summary": "As Kraken eyes a $15 billion valuation and potential IPO, its Q2 report reveals growth and a shift toward TradFi products.",
+      "source": "Cointelegraph",
+      "overall_sentiment_score": 0.1421,
+      "overall_sentiment_label": "Neutral",
+      "query_type": "blockchain_general",
+      "query_params": "topics=blockchain&sort=LATEST",
+      "created_at": "2025-07-31T00:01:42.092039",
+      "sentiment_interpretation": "긍정적",
+      "sentiment_emoji": "📈",
+      "related_tickers": [
+        {
+          "ticker": "COIN",
+          "relevance_score": 0.115232,
+          "ticker_sentiment_label": "Somewhat-Bullish",
+          "ticker_sentiment_score": 0.209208
+        },
+        {
+          "ticker": "ETOR",
+          "relevance_score": 0.115232,
+          "ticker_sentiment_label": "Neutral",
+          "ticker_sentiment_score": 0.1058
+        },
+        {
+          "ticker": "CRYPTO:ETH",
+          "relevance_score": 0.115232,
+          "ticker_sentiment_label": "Neutral",
+          "ticker_sentiment_score": 0.1058
+        },
+        {
+          "ticker": "CRYPTO:ERC",
+          "relevance_score": 0.115232,
+          "ticker_sentiment_label": "Neutral",
+          "ticker_sentiment_score": 0.1058
+        }
+      ],
+      "related_topics": [
+        {
+          "topic": "IPO",
+          "relevance_score": 0.158519
+        },
+        {
+          "topic": "Financial Markets",
+          "relevance_score": 0.413559
+        },
+        {
+          "topic": "Earnings",
+          "relevance_score": 0.904684
+        },
+        {
+          "topic": "Finance",
+          "relevance_score": 1
+        },
+        {
+          "topic": "Blockchain",
+          "relevance_score": 0.310843
+        }
+      ]
+    },
+    {
+      "batch_id": 11,
+      "url": "https://www.benzinga.com/analyst-stock-ratings/reiteration/25/07/46743048/spotifys-subscriber-boom-cant-hide-ad-woes-analyst",
+      "title": "Spotify's Subscriber Boom Can't Hide Ad Woes: Analyst - Spotify Technology  ( NYSE:SPOT ) ",
+      "time_published": "2025-07-30T23:21:39",
+      "authors": "Anusuya Lahiri",
+      "summary": "Spotify beat user growth targets, but weak ad results and flat ARPU guidance dragged sentiment despite upbeat long-term analyst views. Analysts lowered price targets on FX and ad weakness, but still see pricing power, user growth, and 2026 rebound as upside catalysts.",
+      "source": "Benzinga",
+      "overall_sentiment_score": 0.2005,
+      "overall_sentiment_label": "Somewhat-Bullish",
+      "query_type": "finance_general",
+      "query_params": "topics=finance&sort=LATEST",
+      "created_at": "2025-07-31T00:01:42.901071",
+      "sentiment_interpretation": "긍정적",
+      "sentiment_emoji": "📈",
+      "related_tickers": [
+        {
+          "ticker": "BAC",
+          "relevance_score": 0.071677,
+          "ticker_sentiment_label": "Neutral",
+          "ticker_sentiment_score": 0.118741
+        },
+        {
+          "ticker": "SPOT",
+          "relevance_score": 0.441256,
+          "ticker_sentiment_label": "Somewhat-Bullish",
+          "ticker_sentiment_score": 0.160721
+        }
+      ],
+      "related_topics": [
+        {
+          "topic": "Financial Markets",
+          "relevance_score": 0.999987
+        },
+        {
+          "topic": "Earnings",
+          "relevance_score": 0.999897
+        },
+        {
+          "topic": "Technology",
+          "relevance_score": 0.5
+        },
+        {
+          "topic": "Finance",
+          "relevance_score": 0.5
+        }
+      ]
+    },
+    {
+      "batch_id": 11,
+      "url": "https://www.benzinga.com/trading-ideas/previews/25/07/46742773/coinbase-q2-preview-can-white-house-momentum-bitcoin-all-time-highs-help",
+      "title": "Coinbase Q2 Preview: Can White House Momentum, Bitcoin All-Time Highs Help? - Coinbase Global  ( NASDAQ:COIN ) ",
+      "time_published": "2025-07-30T23:06:12",
+      "authors": "Chris Katje",
+      "summary": "Coinbase missed analyst estimates for revenue and earnings per share in Q1, but it has a history of beating estimates. All-time highs for Bitcoin and increased price action for Ethereum in 2025 could help Q2 results. Get special access to three exclusive \"Top 10 Stocks\" power lists today, ...",
+      "source": "Benzinga",
+      "overall_sentiment_score": 0.1411,
+      "overall_sentiment_label": "Neutral",
+      "query_type": "finance_general",
+      "query_params": "topics=finance&sort=LATEST",
+      "created_at": "2025-07-31T00:01:42.455459",
+      "sentiment_interpretation": "긍정적",
+      "sentiment_emoji": "📈",
+      "related_tickers": [
+        {
+          "ticker": "HOOD",
+          "relevance_score": 0.059049,
+          "ticker_sentiment_label": "Neutral",
+          "ticker_sentiment_score": 0.063988
+        },
+        {
+          "ticker": "COIN",
+          "relevance_score": 0.733479,
+          "ticker_sentiment_label": "Neutral",
+          "ticker_sentiment_score": 0.046493
+        },
+        {
+          "ticker": "PLSQF",
+          "relevance_score": 0.059049,
+          "ticker_sentiment_label": "Somewhat-Bullish",
+          "ticker_sentiment_score": 0.258078
+        },
+        {
+          "ticker": "CRYPTO:BTC",
+          "relevance_score": 0.232996,
+          "ticker_sentiment_label": "Somewhat-Bullish",
+          "ticker_sentiment_score": 0.283219
+        },
+        {
+          "ticker": "CRYPTO:ETH",
+          "relevance_score": 0.232996,
+          "ticker_sentiment_label": "Somewhat-Bullish",
+          "ticker_sentiment_score": 0.283219
+        },
+        {
+          "ticker": "CRYPTO:SOL",
+          "relevance_score": 0.059049,
+          "ticker_sentiment_label": "Neutral",
+          "ticker_sentiment_score": 0.117999
+        },
+        {
+          "ticker": "CRYPTO:XRP",
+          "relevance_score": 0.117774,
+          "ticker_sentiment_label": "Neutral",
+          "ticker_sentiment_score": 0.132738
+        }
+      ],
+      "related_topics": [
+        {
+          "topic": "Financial Markets",
+          "relevance_score": 0.623304
+        },
+        {
+          "topic": "Earnings",
+          "relevance_score": 0.998947
+        },
+        {
+          "topic": "Finance",
+          "relevance_score": 1
+        },
+        {
+          "topic": "Blockchain",
+          "relevance_score": 0.9545
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "request_url": "http://localhost:30888/api/v1/x-posts/users/elonmusk/recent/",
+  "data": [
+    {
+      "tweet_id": "1952183058431648244",
+      "text": "RT @teslaenergy: Generate and store your own clean energy with Solar + Powerwall.",
+      "username": "elonmusk",
+      "display_name": "Elon Musk",
+      "created_at": "2025-08-04T01:41:25Z",
+      "like_count": 0,
+      "retweet_count": 259,
+      "reply_count": 0,
+      "tweet_url": "https://x.com/elonmusk/status/1952183058431648244"
+    },
+    {
+      "tweet_id": "1952179328734916788",
+      "text": "RT @cb_doge: Grok Imagine also comes in Spicy Mode 🌶️ https://t.co/vz5Wzf3DyN",
+      "username": "elonmusk",
+      "display_name": "Elon Musk",
+      "created_at": "2025-08-04T01:26:36Z",
+      "like_count": 0,
+      "retweet_count": 249,
+      "reply_count": 0,
+      "tweet_url": "https://x.com/elonmusk/status/1952179328734916788"
+    },
+    {
+      "tweet_id": "1952178532794396780",
+      "text": "Upgrade to Premium+ or SuperGrok to get priority access to Imagine super fast image and video generation! https://t.co/wk5jRUkIbO",
+      "username": "elonmusk",
+      "display_name": "Elon Musk",
+      "created_at": "2025-08-04T01:23:26Z",
+      "like_count": 2673,
+      "retweet_count": 412,
+      "reply_count": 1049,
+      "tweet_url": "https://x.com/elonmusk/status/1952178532794396780"
+    },
+    {
+      "tweet_id": "1952177713546170501",
+      "text": "@shivon The graphics are great, but the tutorials are way too long",
+      "username": "elonmusk",
+      "display_name": "Elon Musk",
+      "created_at": "2025-08-04T01:20:11Z",
+      "like_count": 451,
+      "retweet_count": 41,
+      "reply_count": 137,
+      "tweet_url": "https://x.com/elonmusk/status/1952177713546170501"
+    },
+    {
+      "tweet_id": "1952176488167649342",
+      "text": "Imagine with @Grok https://t.co/UIay5yNp97",
+      "username": "elonmusk",
+      "display_name": "Elon Musk",
+      "created_at": "2025-08-04T01:15:19Z",
+      "like_count": 8198,
+      "retweet_count": 828,
+      "reply_count": 2638,
+      "tweet_url": "https://x.com/elonmusk/status/1952176488167649342"
+    },
+    {
+      "tweet_id": "1952167785586741302",
+      "text": "RT @Tesla: In the future, people will find it wild that manual driving was a daily task, not a weekend thrill https://t.co/EEwM1ZrF5d",
+      "username": "elonmusk",
+      "display_name": "Elon Musk",
+      "created_at": "2025-08-04T00:40:44Z",
+      "like_count": 0,
+      "retweet_count": 472,
+      "reply_count": 0,
+      "tweet_url": "https://x.com/elonmusk/status/1952167785586741302"
+    },
+    {
+      "tweet_id": "1952167729584320548",
+      "text": "@techdevnotes We will",
+      "username": "elonmusk",
+      "display_name": "Elon Musk",
+      "created_at": "2025-08-04T00:40:30Z",
+      "like_count": 384,
+      "retweet_count": 39,
+      "reply_count": 112,
+      "tweet_url": "https://x.com/elonmusk/status/1952167729584320548"
+    },
+    {
+      "tweet_id": "1952166922138927284",
+      "text": "@DogecoinNorway 🤯 🍆 🤣",
+      "username": "elonmusk",
+      "display_name": "Elon Musk",
+      "created_at": "2025-08-04T00:37:18Z",
+      "like_count": 365,
+      "retweet_count": 40,
+      "reply_count": 180,
+      "tweet_url": "https://x.com/elonmusk/status/1952166922138927284"
+    },
+    {
+      "tweet_id": "1952166507083116932",
+      "text": "@DogecoinNorway Spicy 😂",
+      "username": "elonmusk",
+      "display_name": "Elon Musk",
+      "created_at": "2025-08-04T00:35:39Z",
+      "like_count": 310,
+      "retweet_count": 42,
+      "reply_count": 116,
+      "tweet_url": "https://x.com/elonmusk/status/1952166507083116932"
+    },
+    {
+      "tweet_id": "1952166368314593625",
+      "text": "@DogecoinNorway 😂",
+      "username": "elonmusk",
+      "display_name": "Elon Musk",
+      "created_at": "2025-08-04T00:35:06Z",
+      "like_count": 202,
+      "retweet_count": 23,
+      "reply_count": 47,
+      "tweet_url": "https://x.com/elonmusk/status/1952166368314593625"
+    }
+  ]
+}

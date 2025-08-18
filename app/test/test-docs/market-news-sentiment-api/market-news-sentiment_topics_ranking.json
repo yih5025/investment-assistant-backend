@@ -1,0 +1,311 @@
+{
+  "request_url": "http://localhost:30888/api/v1/market-news-sentiment/topics/ranking",
+  "data": {
+    "ranking_period": "최근 7일",
+    "total_topics": 20,
+    "hot_topics": [
+      {
+        "topic": "Real Estate & Construction",
+        "avg_sentiment_score": 0.22585734265734267,
+        "news_count": 143,
+        "sentiment_label": "긍정적",
+        "sentiment_emoji": "📈",
+        "trend": "상승",
+        "related_tickers": [
+          "APG",
+          "GS",
+          "BAC",
+          "UBER",
+          "BNXYF"
+        ]
+      },
+      {
+        "topic": "Retail & Wholesale",
+        "avg_sentiment_score": 0.21942372262773724,
+        "news_count": 274,
+        "sentiment_label": "긍정적",
+        "sentiment_emoji": "📈",
+        "trend": "상승",
+        "related_tickers": [
+          "AMZN",
+          "WMT",
+          "MSFT",
+          "META",
+          "NVDA"
+        ]
+      },
+      {
+        "topic": "Mergers & Acquisitions",
+        "avg_sentiment_score": 0.2190632258064516,
+        "news_count": 155,
+        "sentiment_label": "긍정적",
+        "sentiment_emoji": "📈",
+        "trend": "상승",
+        "related_tickers": [
+          "GS",
+          "BAC",
+          "MS",
+          "WFC",
+          "C"
+        ]
+      },
+      {
+        "topic": "Earnings",
+        "avg_sentiment_score": 0.2093239539748954,
+        "news_count": 956,
+        "sentiment_label": "긍정적",
+        "sentiment_emoji": "📈",
+        "trend": "상승",
+        "related_tickers": [
+          "BAC",
+          "NVDA",
+          "MSFT",
+          "GOOG",
+          "GS"
+        ]
+      },
+      {
+        "topic": "Finance",
+        "avg_sentiment_score": 0.20302072072072072,
+        "news_count": 444,
+        "sentiment_label": "긍정적",
+        "sentiment_emoji": "📈",
+        "trend": "상승",
+        "related_tickers": [
+          "GS",
+          "BAC",
+          "MS",
+          "COIN",
+          "WFC"
+        ]
+      },
+      {
+        "topic": "Energy & Transportation",
+        "avg_sentiment_score": 0.20283291139240506,
+        "news_count": 158,
+        "sentiment_label": "긍정적",
+        "sentiment_emoji": "📈",
+        "trend": "상승",
+        "related_tickers": [
+          "GS",
+          "BAC",
+          "AAPL",
+          "MSFT",
+          "CVX"
+        ]
+      },
+      {
+        "topic": "Technology",
+        "avg_sentiment_score": 0.20269718804920914,
+        "news_count": 569,
+        "sentiment_label": "긍정적",
+        "sentiment_emoji": "📈",
+        "trend": "상승",
+        "related_tickers": [
+          "MSFT",
+          "META",
+          "AAPL",
+          "GOOG",
+          "NVDA"
+        ]
+      },
+      {
+        "topic": "Financial Markets",
+        "avg_sentiment_score": 0.2014836166924266,
+        "news_count": 1294,
+        "sentiment_label": "긍정적",
+        "sentiment_emoji": "📈",
+        "trend": "상승",
+        "related_tickers": [
+          "MSFT",
+          "META",
+          "NVDA",
+          "AAPL",
+          "CRYPTO:BTC"
+        ]
+      },
+      {
+        "topic": "Manufacturing",
+        "avg_sentiment_score": 0.20060852534562212,
+        "news_count": 434,
+        "sentiment_label": "긍정적",
+        "sentiment_emoji": "📈",
+        "trend": "상승",
+        "related_tickers": [
+          "NVDA",
+          "TSLA",
+          "MSFT",
+          "AAPL",
+          "META"
+        ]
+      },
+      {
+        "topic": "IPO",
+        "avg_sentiment_score": 0.1999392857142857,
+        "news_count": 140,
+        "sentiment_label": "긍정적",
+        "sentiment_emoji": "📈",
+        "trend": "상승",
+        "related_tickers": [
+          "GS",
+          "CRYPTO:BTC",
+          "MS",
+          "META",
+          "UBER"
+        ]
+      }
+    ],
+    "cold_topics": [
+      {
+        "topic": "Life Sciences",
+        "avg_sentiment_score": 0.16210280373831776,
+        "news_count": 214,
+        "sentiment_label": "긍정적",
+        "sentiment_emoji": "📈",
+        "trend": "상승",
+        "related_tickers": [
+          "META",
+          "WFC",
+          "BAC",
+          "NVO",
+          "MS"
+        ]
+      },
+      {
+        "topic": "Economy - Fiscal",
+        "avg_sentiment_score": 0.17503684210526316,
+        "news_count": 38,
+        "sentiment_label": "긍정적",
+        "sentiment_emoji": "📈",
+        "trend": "상승",
+        "related_tickers": [
+          "FOREX:USD",
+          "BAC",
+          "BCS",
+          "CRYPTO:BTC",
+          "GS"
+        ]
+      },
+      {
+        "topic": "Blockchain",
+        "avg_sentiment_score": 0.18161336633663366,
+        "news_count": 202,
+        "sentiment_label": "긍정적",
+        "sentiment_emoji": "📈",
+        "trend": "상승",
+        "related_tickers": [
+          "CRYPTO:BTC",
+          "CRYPTO:ETH",
+          "COIN",
+          "PLSQF",
+          "FOREX:USD"
+        ]
+      },
+      {
+        "topic": "Economy - Monetary",
+        "avg_sentiment_score": 0.18192311111111112,
+        "news_count": 225,
+        "sentiment_label": "긍정적",
+        "sentiment_emoji": "📈",
+        "trend": "상승",
+        "related_tickers": [
+          "BAC",
+          "FOREX:USD",
+          "GS",
+          "BCS",
+          "AAPL"
+        ]
+      },
+      {
+        "topic": "Economy - Macro",
+        "avg_sentiment_score": 0.18857361111111112,
+        "news_count": 72,
+        "sentiment_label": "긍정적",
+        "sentiment_emoji": "📈",
+        "trend": "상승",
+        "related_tickers": [
+          "FOREX:USD",
+          "GS",
+          "FOREX:CAD",
+          "WFC",
+          "GOOG"
+        ]
+      },
+      {
+        "topic": "IPO",
+        "avg_sentiment_score": 0.1999392857142857,
+        "news_count": 140,
+        "sentiment_label": "긍정적",
+        "sentiment_emoji": "📈",
+        "trend": "상승",
+        "related_tickers": [
+          "GS",
+          "CRYPTO:BTC",
+          "MS",
+          "META",
+          "UBER"
+        ]
+      },
+      {
+        "topic": "Manufacturing",
+        "avg_sentiment_score": 0.20060852534562212,
+        "news_count": 434,
+        "sentiment_label": "긍정적",
+        "sentiment_emoji": "📈",
+        "trend": "상승",
+        "related_tickers": [
+          "NVDA",
+          "TSLA",
+          "MSFT",
+          "AAPL",
+          "META"
+        ]
+      },
+      {
+        "topic": "Financial Markets",
+        "avg_sentiment_score": 0.2014836166924266,
+        "news_count": 1294,
+        "sentiment_label": "긍정적",
+        "sentiment_emoji": "📈",
+        "trend": "상승",
+        "related_tickers": [
+          "MSFT",
+          "META",
+          "NVDA",
+          "AAPL",
+          "CRYPTO:BTC"
+        ]
+      },
+      {
+        "topic": "Technology",
+        "avg_sentiment_score": 0.20269718804920914,
+        "news_count": 569,
+        "sentiment_label": "긍정적",
+        "sentiment_emoji": "📈",
+        "trend": "상승",
+        "related_tickers": [
+          "MSFT",
+          "META",
+          "AAPL",
+          "GOOG",
+          "NVDA"
+        ]
+      },
+      {
+        "topic": "Energy & Transportation",
+        "avg_sentiment_score": 0.20283291139240506,
+        "news_count": 158,
+        "sentiment_label": "긍정적",
+        "sentiment_emoji": "📈",
+        "trend": "상승",
+        "related_tickers": [
+          "GS",
+          "BAC",
+          "AAPL",
+          "MSFT",
+          "CVX"
+        ]
+      }
+    ]
+  }
+}

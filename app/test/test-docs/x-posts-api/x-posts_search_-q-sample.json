@@ -1,0 +1,10 @@
+{
+  "request_url": "http://localhost:30888/api/v1/x-posts/search/?q=sample",
+  "data": {
+    "items": [],
+    "total_count": 0,
+    "limit": 20,
+    "offset": 0,
+    "has_more": false
+  }
+}

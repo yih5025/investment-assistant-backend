@@ -1,0 +1,8 @@
+{
+  "request_url": "http://localhost:30888/api/v1/company-news/trending/category/crypto",
+  "error": {
+    "status": 500,
+    "reason": "Internal Server Error",
+    "body": "{\"detail\":\"데이터베이스 연결 중 오류가 발생했습니다: [{'type': 'string_pattern_mismatch', 'loc': ('path', 'category'), 'msg': \\\"String should match pattern '^(top_gainers|top_losers|most_actively_traded)$'\\\", 'input': 'crypto', 'ctx': {'pattern': '^(top_gainers|top_losers|most_actively_traded)$'}, 'url': 'https://errors.pydantic.dev/2.5/v/string_pattern_mismatch'}]\"}"
+  }
+}

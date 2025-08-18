@@ -1,0 +1,8 @@
+{
+  "request_url": "http://localhost:30888/api/v1/cpi/compare?start_date=sample&end_date=sample",
+  "error": {
+    "status": 500,
+    "reason": "Internal Server Error",
+    "body": "{\"detail\":\"데이터베이스 연결 중 오류가 발생했습니다: [{'type': 'string_pattern_mismatch', 'loc': ('query', 'start_date'), 'msg': \\\"String should match pattern '^\\\\\\\\d{4}-\\\\\\\\d{2}-\\\\\\\\d{2}$'\\\", 'input': 'sample', 'ctx': {'pattern': '^\\\\\\\\d{4}-\\\\\\\\d{2}-\\\\\\\\d{2}$'}, 'url': 'https://errors.pydantic.dev/2.5/v/string_pattern_mismatch'}, {'type': 'string_pattern_mismatch', 'loc': ('query', 'end_date'), 'msg': \\\"String should match pattern '^\\\\\\\\d{4}-\\\\\\\\d{2}-\\\\\\\\d{2}$'\\\", 'input': 'sample', 'ctx': {'pattern': '^\\\\\\\\d{4}-\\\\\\\\d{2}-\\\\\\\\d{2}$'}, 'url': 'https://errors.pydantic.dev/2.5/v/string_pattern_mismatch'}]\"}"
+  }
+}

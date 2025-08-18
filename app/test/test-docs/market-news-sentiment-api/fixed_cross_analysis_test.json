@@ -1,0 +1,35 @@
+{
+  "analysis_type": "topic_to_tickers",
+  "primary_key": "Technology",
+  "related_items": [
+    {
+      "ticker": "META",
+      "avg_sentiment_score": 0.08629349710982656,
+      "mention_count": 173,
+      "sentiment_label": "중립적"
+    },
+    {
+      "ticker": "MSFT",
+      "avg_sentiment_score": 0.11712351369863011,
+      "mention_count": 146,
+      "sentiment_label": "긍정적"
+    },
+    {
+      "ticker": "GOOG",
+      "avg_sentiment_score": 0.09907967200000004,
+      "mention_count": 125,
+      "sentiment_label": "중립적"
+    }
+  ],
+  "sentiment_summary": {
+    "avg_sentiment_score": 0.20548094534711964,
+    "sentiment_label": "긍정적",
+    "sentiment_emoji": "📈",
+    "total_news": 677,
+    "sentiment_distribution": {
+      "bullish": 581,
+      "bearish": 4,
+      "neutral": 92
+    }
+  }
+}

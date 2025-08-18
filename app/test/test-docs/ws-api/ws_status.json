@@ -1,0 +1,55 @@
+{
+  "request_url": "http://localhost:30888/api/v1/ws/status",
+  "data": {
+    "timestamp": "2025-08-11T07:16:59.773850",
+    "websocket_server": {
+      "status": "running",
+      "total_connections": 0,
+      "topgainers_subscribers": 0,
+      "crypto_subscribers": 0,
+      "sp500_subscribers": 0,
+      "dashboard_subscribers": 0,
+      "symbol_subscribers": 0
+    },
+    "realtime_service": {
+      "timestamp": "2025-08-11T07:16:59.773682",
+      "status": "unhealthy",
+      "services": {
+        "redis": {
+          "status": "not_configured",
+          "mode": "db_only"
+        },
+        "database": {
+          "status": "disconnected",
+          "error": "Textual SQL expression 'SELECT 1' should be explicitly declared as text('SELECT 1')"
+        }
+      },
+      "data_freshness": "unknown"
+    },
+    "redis_streamer": {
+      "polling_interval": 0.5,
+      "streaming_status": {
+        "topgainers": false,
+        "crypto": false,
+        "sp500": false,
+        "dashboard": false
+      },
+      "symbol_streams": {
+        "active_count": 0,
+        "active_streams": [],
+        "total_registered": 0
+      },
+      "performance": {
+        "uptime_seconds": 351382.409371,
+        "total_cycles": 0,
+        "error_count": 0,
+        "last_updates": {
+          "topgainers": null,
+          "crypto": null,
+          "sp500": null,
+          "dashboard": null
+        }
+      }
+    }
+  }
+}

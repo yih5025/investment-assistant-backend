@@ -1,0 +1,70 @@
+{
+  "total_posts": 92,
+  "total_users": 9,
+  "categories": {
+    "crypto": 20,
+    "core_investors": 40,
+    "tech_ceo": 10,
+    "institutional": 12,
+    "corporate": 10
+  },
+  "recent_24h_posts": 41,
+  "avg_engagement": 5050.5,
+  "top_posts_today": [
+    {
+      "tweet_id": "1951074444761506252",
+      "text": "🇯🇵 https://t.co/8nzxOCgpAt",
+      "username": "elonmusk",
+      "display_name": "Elon Musk",
+      "created_at": "2025-08-01T00:16:11Z",
+      "like_count": 41520,
+      "retweet_count": 4276,
+      "reply_count": 2752,
+      "tweet_url": "https://x.com/elonmusk/status/1951074444761506252"
+    },
+    {
+      "tweet_id": "1951073656790208848",
+      "text": "@BillyM2k The government will crush freedom",
+      "username": "elonmusk",
+      "display_name": "Elon Musk",
+      "created_at": "2025-08-01T00:13:03Z",
+      "like_count": 1395,
+      "retweet_count": 142,
+      "reply_count": 335,
+      "tweet_url": "https://x.com/elonmusk/status/1951073656790208848"
+    },
+    {
+      "tweet_id": "1951073042890973235",
+      "text": "@PeterSweden7 Wow",
+      "username": "elonmusk",
+      "display_name": "Elon Musk",
+      "created_at": "2025-08-01T00:10:37Z",
+      "like_count": 655,
+      "retweet_count": 60,
+      "reply_count": 102,
+      "tweet_url": "https://x.com/elonmusk/status/1951073042890973235"
+    },
+    {
+      "tweet_id": "1951086414520787332",
+      "text": "@brian_armstrong ₿2,509 🔥",
+      "username": "saylor",
+      "display_name": "Michael Saylor",
+      "created_at": "2025-08-01T01:03:45Z",
+      "like_count": 507,
+      "retweet_count": 32,
+      "reply_count": 37,
+      "tweet_url": "https://x.com/saylor/status/1951086414520787332"
+    },
+    {
+      "tweet_id": "1951082319277859202",
+      "text": "@JakeSherman Interesting",
+      "username": "elonmusk",
+      "display_name": "Elon Musk",
+      "created_at": "2025-08-01T00:47:28Z",
+      "like_count": 440,
+      "retweet_count": 36,
+      "reply_count": 102,
+      "tweet_url": "https://x.com/elonmusk/status/1951082319277859202"
+    }
+  ]
+}

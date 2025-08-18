@@ -1,0 +1,37 @@
+{
+  "request_url": "http://localhost:30888/api/v1/treasury-yield/trends",
+  "data": {
+    "analysis_date": "2025-06-01",
+    "trends": [
+      {
+        "maturity": "2year",
+        "trend_direction": "flat",
+        "change_1month": null,
+        "change_3month": null,
+        "change_1year": "-0.8500",
+        "trend_strength": "weak"
+      },
+      {
+        "maturity": "10year",
+        "trend_direction": "flat",
+        "change_1month": null,
+        "change_3month": null,
+        "change_1year": "0.0700",
+        "trend_strength": "weak"
+      },
+      {
+        "maturity": "30year",
+        "trend_direction": "flat",
+        "change_1month": null,
+        "change_3month": null,
+        "change_1year": "0.4500",
+        "trend_strength": "weak"
+      }
+    ],
+    "market_outlook": {
+      "analysis_date": "2025-06-01",
+      "overall_trend": "mixed",
+      "key_insights": []
+    }
+  }
+}

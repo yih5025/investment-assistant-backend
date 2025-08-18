@@ -1,0 +1,14 @@
+{
+  "request_url": "http://localhost:30888/api/v1/federal-funds-rate/statistics",
+  "data": {
+    "latest_date": "2025-06-01",
+    "latest_rate": 4.33,
+    "previous_rate": 4.33,
+    "rate_change": 0.0,
+    "trend": "stable",
+    "avg_12_months": 4.643,
+    "max_12_months": 5.33,
+    "min_12_months": 4.33,
+    "total_months": 24
+  }
+}

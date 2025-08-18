@@ -1,0 +1,86 @@
+{
+  "ranking_period": "최근 7일",
+  "total_tickers": 6,
+  "hot_tickers": [
+    {
+      "ticker": "CSTL",
+      "avg_sentiment_score": 0.679289,
+      "sentiment_label": "매우긍정적",
+      "sentiment_emoji": "🚀",
+      "mention_count": 2,
+      "avg_relevance_score": 0.76363,
+      "related_topics": [
+        "Technology",
+        "Life Sciences",
+        "Financial Markets"
+      ]
+    },
+    {
+      "ticker": "SAIC",
+      "avg_sentiment_score": 0.5566800000000001,
+      "sentiment_label": "매우긍정적",
+      "sentiment_emoji": "🚀",
+      "mention_count": 2,
+      "avg_relevance_score": 0.454146,
+      "related_topics": [
+        "Technology",
+        "Finance",
+        "Manufacturing"
+      ]
+    },
+    {
+      "ticker": "TOL",
+      "avg_sentiment_score": 0.46753333333333336,
+      "sentiment_label": "매우긍정적",
+      "sentiment_emoji": "🚀",
+      "mention_count": 3,
+      "avg_relevance_score": 0.6106686666666666,
+      "related_topics": [
+        "Real Estate & Construction",
+        "Earnings",
+        "Financial Markets"
+      ]
+    }
+  ],
+  "cold_tickers": [
+    {
+      "ticker": "HLX",
+      "avg_sentiment_score": -0.296218,
+      "sentiment_label": "부정적",
+      "sentiment_emoji": "📉",
+      "mention_count": 2,
+      "avg_relevance_score": 0.17650149999999998,
+      "related_topics": [
+        "Earnings",
+        "Financial Markets",
+        "Technology"
+      ]
+    },
+    {
+      "ticker": "SFSVF",
+      "avg_sentiment_score": -0.29497399999999996,
+      "sentiment_label": "부정적",
+      "sentiment_emoji": "📉",
+      "mention_count": 2,
+      "avg_relevance_score": 0.038884,
+      "related_topics": [
+        "Earnings",
+        "Technology",
+        "Manufacturing"
+      ]
+    },
+    {
+      "ticker": "GLPG",
+      "avg_sentiment_score": -0.276277,
+      "sentiment_label": "부정적",
+      "sentiment_emoji": "📉",
+      "mention_count": 2,
+      "avg_relevance_score": 0.261667,
+      "related_topics": [
+        "Earnings",
+        "Financial Markets",
+        "Technology"
+      ]
+    }
+  ]
+}

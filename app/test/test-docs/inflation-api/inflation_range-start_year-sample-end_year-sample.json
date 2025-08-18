@@ -1,0 +1,8 @@
+{
+  "request_url": "http://localhost:30888/api/v1/inflation/range?start_year=sample&end_year=sample",
+  "error": {
+    "status": 500,
+    "reason": "Internal Server Error",
+    "body": "{\"detail\":\"데이터베이스 연결 중 오류가 발생했습니다: [{'type': 'int_parsing', 'loc': ('query', 'start_year'), 'msg': 'Input should be a valid integer, unable to parse string as an integer', 'input': 'sample', 'url': 'https://errors.pydantic.dev/2.5/v/int_parsing'}, {'type': 'int_parsing', 'loc': ('query', 'end_year'), 'msg': 'Input should be a valid integer, unable to parse string as an integer', 'input': 'sample', 'url': 'https://errors.pydantic.dev/2.5/v/int_parsing'}]\"}"
+  }
+}

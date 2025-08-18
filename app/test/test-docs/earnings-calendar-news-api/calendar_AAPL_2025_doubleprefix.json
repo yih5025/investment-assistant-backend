@@ -1,0 +1,1 @@
+{"detail":[{"type":"date_from_datetime_parsing","loc":["path","report_date"],"msg":"Input should be a valid date or datetime, input is too short","input":"AAPL","ctx":{"error":"input is too short"},"url":"https://errors.pydantic.dev/2.5/v/date_from_datetime_parsing"}]}

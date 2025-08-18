@@ -1,0 +1,8 @@
+{
+  "request_url": "http://localhost:30888/api/v1/financial-news/trending-symbols",
+  "data": {
+    "trending_symbols": [],
+    "period_days": 7,
+    "total_symbols": 0
+  }
+}

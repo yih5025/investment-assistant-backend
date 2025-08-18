@@ -1,0 +1,57 @@
+{
+  "request_url": "http://localhost:30888/api/v1/treasury-yield/chart",
+  "data": {
+    "maturity": "10year",
+    "period": "1year",
+    "data": [
+      {
+        "date": "2024-09-01",
+        "yield_rate": "3.7200"
+      },
+      {
+        "date": "2024-10-01",
+        "yield_rate": "4.1000"
+      },
+      {
+        "date": "2024-11-01",
+        "yield_rate": "4.3600"
+      },
+      {
+        "date": "2024-12-01",
+        "yield_rate": "4.3900"
+      },
+      {
+        "date": "2025-01-01",
+        "yield_rate": "4.6300"
+      },
+      {
+        "date": "2025-02-01",
+        "yield_rate": "4.4500"
+      },
+      {
+        "date": "2025-03-01",
+        "yield_rate": "4.2800"
+      },
+      {
+        "date": "2025-04-01",
+        "yield_rate": "4.2800"
+      },
+      {
+        "date": "2025-05-01",
+        "yield_rate": "4.4200"
+      },
+      {
+        "date": "2025-06-01",
+        "yield_rate": "4.3800"
+      }
+    ],
+    "summary": {
+      "current": 4.38,
+      "min": 3.72,
+      "max": 4.63,
+      "avg": 4.301,
+      "change": 0.6599999999999997,
+      "volatility": 0.24519606667137034
+    }
+  }
+}

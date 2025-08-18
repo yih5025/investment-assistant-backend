@@ -1,0 +1,47 @@
+{
+  "request_url": "http://localhost:30888/api/v1/x-posts/stats/categories/crypto/",
+  "data": {
+    "category": "crypto",
+    "total_users": 2,
+    "total_posts": 28,
+    "avg_engagement_per_post": 3680.6428571428573,
+    "top_users": [
+      {
+        "username": "saylor",
+        "display_name": "Michael Saylor",
+        "account_category": "crypto",
+        "verified": false,
+        "followers_count": 4507111,
+        "total_posts": 10,
+        "avg_engagement": 4641.9
+      },
+      {
+        "username": "saylor",
+        "display_name": "Michael Saylor",
+        "account_category": "crypto",
+        "verified": false,
+        "followers_count": 4503837,
+        "total_posts": 6,
+        "avg_engagement": 4587.666666666667
+      },
+      {
+        "username": "saylor",
+        "display_name": "Michael Saylor",
+        "account_category": "crypto",
+        "verified": false,
+        "followers_count": 4505437,
+        "total_posts": 2,
+        "avg_engagement": 2455.0
+      },
+      {
+        "username": "brian_armstrong",
+        "display_name": "Brian Armstrong",
+        "account_category": "crypto",
+        "verified": false,
+        "followers_count": 1577422,
+        "total_posts": 10,
+        "avg_engagement": 2420.3
+      }
+    ]
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "request_url": "http://localhost:30888/api/v1/market-news-sentiment/info",
+  "data": {
+    "api_name": "Market Sentiment Analysis API",
+    "version": "1.0.0",
+    "description": "시장 뉴스 감성 분석 데이터를 제공합니다",
+    "features": [
+      "JSONB 기반 복합 데이터 처리",
+      "주제별/티커별 감성 분석",
+      "실시간 감성 랭킹",
+      "크로스 분석 (주제↔티커)",
+      "다양한 필터링 옵션"
+    ],
+    "data_summary": {
+      "latest_batch_id": 22,
+      "collection_date": "2025-08-11",
+      "total_topics": 15,
+      "total_tickers": 3141
+    },
+    "endpoints": {
+      "news": {
+        "list": "/api/v1/market-sentiment/",
+        "latest": "/api/v1/market-sentiment/latest",
+        "batch": "/api/v1/market-sentiment/batch/{batch_id}",
+        "bullish": "/api/v1/market-sentiment/bullish",
+        "bearish": "/api/v1/market-sentiment/bearish",
+        "neutral": "/api/v1/market-sentiment/neutral"
+      },
+      "topics": {
+        "list": "/api/v1/market-sentiment/topics",
+        "detail": "/api/v1/market-sentiment/topic/{topic}",
+        "ranking": "/api/v1/market-sentiment/topics/ranking"
+      },
+      "tickers": {
+        "list": "/api/v1/market-sentiment/tickers",
+        "detail": "/api/v1/market-sentiment/ticker/{symbol}",
+        "ranking": "/api/v1/market-sentiment/tickers/ranking"
+      },
+      "cross_analysis": {
+        "topic_to_tickers": "/api/v1/market-sentiment/topic/{topic}/tickers",
+        "ticker_to_topics": "/api/v1/market-sentiment/ticker/{symbol}/topics"
+      }
+    },
+    "sample_topics": [
+      "Blockchain",
+      "Earnings",
+      "Economy - Fiscal",
+      "Economy - Macro",
+      "Economy - Monetary"
+    ],
+    "sample_tickers": [
+      "0IJU",
+      "0JDB",
+      "A",
+      "AA",
+      "AAIGF"
+    ]
+  }
+}

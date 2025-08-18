@@ -1,0 +1,10 @@
+{
+  "request_url": "http://localhost:30888/api/v1/federal-funds-rate/current",
+  "data": {
+    "date": "2025-06-01",
+    "rate": 4.33,
+    "interval_type": "monthly",
+    "unit": "percent",
+    "name": "Effective Federal Funds Rate"
+  }
+}

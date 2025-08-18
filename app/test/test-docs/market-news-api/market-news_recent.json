@@ -1,0 +1,125 @@
+{
+  "request_url": "http://localhost:30888/api/v1/market-news/recent",
+  "data": [
+    {
+      "source": "Econbrowser.com",
+      "url": "https://econbrowser.com/archives/2025/08/stock-market-capitalization-ex-magnificent-7",
+      "author": "Menzie Chinn",
+      "title": "Stock Market Capitalization ex-Magnificent 7",
+      "description": "Courtesy of Ed Yardeni: Source: Yardeni as edited by Chinn. In terms of assessing how the general economy is responding to tariff and other uncertainty shocks, one might want to look at the SP500 excluding the Magnificent 7. As of August 8, SP500 market cap w…",
+      "published_at": "2025-08-10T23:39:44",
+      "content": "Courtesy of Ed Yardeni:\r\nSource:Yardeni as edited by Chinn.\r\nIn terms of assessing how the general economy is responding to tariff and other uncertainty shocks, one might want to look at the SP500 ex… [+1059 chars]",
+      "fetched_at": "2025-08-11T04:01:11.497806",
+      "short_description": "Courtesy of Ed Yardeni: Source: Yardeni as edited by Chinn. In terms of assessing how the general ec...",
+      "content_preview": "Courtesy of Ed Yardeni:\r\nSource:Yardeni as edited by Chinn.\r\nIn terms of assessing how the general economy is responding to tariff and other uncertainty shocks, one might want to look at the SP500 ex…..."
+    },
+    {
+      "source": "Forbes",
+      "url": "https://www.forbes.com/sites/robtoews/2025/08/10/will-reinforcement-learning-take-us-to-agi/",
+      "author": "Rob Toews, Contributor, \n Rob Toews, Contributor\n https://www.forbes.com/sites/robtoews/",
+      "title": "Will Reinforcement Learning Take Us To AGI?",
+      "description": "It has never been more important to understand this technology, its history and its future.",
+      "published_at": "2025-08-10T23:31:16",
+      "content": "Nearly a century ago, psychologist B.F. Skinner pioneered a controversial school of thought, behaviorism, to explain human and animal behavior. Behaviorism directly inspired modern reinforcement lear… [+26846 chars]",
+      "fetched_at": "2025-08-11T04:01:34.509829",
+      "short_description": "It has never been more important to understand this technology, its history and its future.",
+      "content_preview": "Nearly a century ago, psychologist B.F. Skinner pioneered a controversial school of thought, behaviorism, to explain human and animal behavior. Behaviorism directly inspired modern reinforcement lear…..."
+    },
+    {
+      "source": "Biztoc.com",
+      "url": "https://biztoc.com/x/7c66e7e71c27e96f",
+      "author": "finance.yahoo.com",
+      "title": "The Largest Space Tech IPO of the Year Just Launched, With a $6.3 Billion Valuation. Can the Stock Go to the Moon?",
+      "description": "The Largest Space Tech IPO of the Year Just Launched, With a $6.3 Billion Valuation. Can the Stock Go to the Moon?\nIn This Article:\nKey Points\n-\nFirefly Aerospace has notched some operational successes with its rockets and lunar lander.\n-\nThe company's partne…",
+      "published_at": "2025-08-10T23:30:35",
+      "content": "The Largest Space Tech IPO of the Year Just Launched, With a $6.3 Billion Valuation. Can the Stock Go to the Moon?In This Article:Key Points-Firefly Aerospace has notched some operational successes w… [+143 chars]",
+      "fetched_at": "2025-08-11T04:01:08.811619",
+      "short_description": "The Largest Space Tech IPO of the Year Just Launched, With a $6.3 Billion Valuation. Can the Stock G...",
+      "content_preview": "The Largest Space Tech IPO of the Year Just Launched, With a $6.3 Billion Valuation. Can the Stock Go to the Moon?In This Article:Key Points-Firefly Aerospace has notched some operational successes w…..."
+    },
+    {
+      "source": "Forbes",
+      "url": "https://www.forbes.com/sites/melikkaylan/2025/08/10/the-armenia-azerbaijan-peace-deal-and-the-new-trump-corridor/",
+      "author": "Melik Kaylan, Contributor, \n Melik Kaylan, Contributor\n https://www.forbes.com/sites/melikkaylan/",
+      "title": "The Armenia-Azerbaijan Peace Deal And The New Trump Corridor",
+      "description": "The Zangezur Corridor now named after President Trump offers the US as strategic arbiter of a region previously dominated by Russia and Iran",
+      "published_at": "2025-08-10T23:23:53",
+      "content": "WASHINGTON, DC - AUGUST 08: U.S. President Donald Trump (C), Azerbaijani President Ilham Aliyev (L), and Armenian Prime Minister Nikol Pashinyan (R) hold up an agreement signed during a ceremony in t… [+5343 chars]",
+      "fetched_at": "2025-08-11T04:00:59.405949",
+      "short_description": "The Zangezur Corridor now named after President Trump offers the US as strategic arbiter of a region...",
+      "content_preview": "WASHINGTON, DC - AUGUST 08: U.S. President Donald Trump (C), Azerbaijani President Ilham Aliyev (L), and Armenian Prime Minister Nikol Pashinyan (R) hold up an agreement signed during a ceremony in t…..."
+    },
+    {
+      "source": "Crooksandliars.com",
+      "url": "https://crooksandliars.com/2025/08/watch-jd-vance-musters-most-awkward",
+      "author": "David Edwards",
+      "title": "Watch: JD Vance Musters Most Awkward Reaction Yet When Asked If He's Running In 2028",
+      "description": "Vice President J.D. Vance mustered an awkward laugh after he was asked if he was running for president in 2028.\n\n\nDuring an interview on Fox News over the weekend, host Maria Bartiromo noted that President Donald Trump suggested that Vance and Secretary of St…",
+      "published_at": "2025-08-10T23:23:15",
+      "content": "Vice President J.D. Vance mustered an awkward laugh after he was asked if he was running for president in 2028.\r\nDuring an interview on Fox News over the weekend, host Maria Bartiromo noted that Pres… [+826 chars]",
+      "fetched_at": "2025-08-11T04:01:27.668249",
+      "short_description": "Vice President J.D. Vance mustered an awkward laugh after he was asked if he was running for preside...",
+      "content_preview": "Vice President J.D. Vance mustered an awkward laugh after he was asked if he was running for president in 2028.\r\nDuring an interview on Fox News over the weekend, host Maria Bartiromo noted that Pres…..."
+    },
+    {
+      "source": "Crooksandliars.com",
+      "url": "https://crooksandliars.com/2025/08/dem-governor-nails-trump-redistricting-he",
+      "author": "David Edwards",
+      "title": "Dem Governor Nails Trump On Redistricting: He Cheats On Wives, Golf, And Voting",
+      "description": "Illinois Gov. JB Pritzker (D) pointed out that President Donald Trump had a history of cheating, as evidenced by his demand that Texas lawmakers find new Republican seats through redistricting the state before the 2026 midterm elections.\n\n\nIn a Sunday intervi…",
+      "published_at": "2025-08-10T23:23:14",
+      "content": "Illinois Gov. JB Pritzker (D) pointed out that President Donald Trump had a history of cheating, as evidenced by his demand that Texas lawmakers find new Republican seats through redistricting the st… [+933 chars]",
+      "fetched_at": "2025-08-11T04:01:38.431559",
+      "short_description": "Illinois Gov. JB Pritzker (D) pointed out that President Donald Trump had a history of cheating, as ...",
+      "content_preview": "Illinois Gov. JB Pritzker (D) pointed out that President Donald Trump had a history of cheating, as evidenced by his demand that Texas lawmakers find new Republican seats through redistricting the st…..."
+    },
+    {
+      "source": "New York Post",
+      "url": "https://nypost.com/2025/08/10/us-news/alan-dershowitz-offered-free-pierogi-for-life-after-marthas-vineyard-dumpling-row/",
+      "author": "Doree Lewak",
+      "title": "Trump lawyer Alan Dershowitz offered free pierogi for life after Martha’s Vineyard dumpling row",
+      "description": "Alan Dershowitz might not be able to get his pierogi fix on Martha's Vineyard, but one Trump-supporting purveyor of the delectable dumplings says the president's former lawyer never has to worry about the well running dry.",
+      "published_at": "2025-08-10T23:21:48",
+      "content": "Alan Dershowitz might not be able to get his pierogi fix among the woke on Marthas Vineyard, but a Florida peddler of the doughy delights is offering more than enough for the ex-Trump lawyer to fill … [+2492 chars]",
+      "fetched_at": "2025-08-11T04:01:28.009352",
+      "short_description": "Alan Dershowitz might not be able to get his pierogi fix on Martha's Vineyard, but one Trump-support...",
+      "content_preview": "Alan Dershowitz might not be able to get his pierogi fix among the woke on Marthas Vineyard, but a Florida peddler of the doughy delights is offering more than enough for the ex-Trump lawyer to fill …..."
+    },
+    {
+      "source": "The Conversation Africa",
+      "url": "https://theconversation.com/trump-administration-cuts-to-terrorism-prevention-departments-could-leave-americans-exposed-261630",
+      "author": "Kris Inman, Professor of African Studies and Security Studies, Georgetown University",
+      "title": "Trump administration cuts to terrorism prevention departments could leave Americans exposed",
+      "description": "The elimination of offices within Homeland Security and the State Department may force US counterterrorism efforts to rely on a solely military approach, which has proven ineffective.",
+      "published_at": "2025-08-10T23:20:44",
+      "content": "Ghanaian special forces take part in U.S. military-led counterterrorism training near Jacqueville, Ivory Coast, on Feb. 16, 2022. AP Photo/Sylvain Cherkaoui\r\nStaff at the State Department’s Office of… [+7684 chars]",
+      "fetched_at": "2025-08-11T04:01:18.814928",
+      "short_description": "The elimination of offices within Homeland Security and the State Department may force US counterter...",
+      "content_preview": "Ghanaian special forces take part in U.S. military-led counterterrorism training near Jacqueville, Ivory Coast, on Feb. 16, 2022. AP Photo/Sylvain Cherkaoui\r\nStaff at the State Department’s Office of…..."
+    },
+    {
+      "source": "ESPN",
+      "url": "https://www.espn.com/mlb/story/_/id/45926727/2025-mlb-playoff-contender-tiers-locks-long-shots-phillies-mets-dodgers-cubs-tigers-yankees-red-sox",
+      "author": "David Schoenfield",
+      "title": "MLB playoff contender tiers: From the locks to the long shots",
+      "description": "As hot streaks and cold spells jumble the postseason picture, here's how sure we are that your team will be playing in October.",
+      "published_at": "2025-08-10T23:20:15",
+      "content": "The early returns from the MLB trade deadline are filtering in. The dog days of August are challenging pitching staffs. The Boston Red Sox are humming, the New York Yankees are stumbling and the New … [+21703 chars]",
+      "fetched_at": "2025-08-11T04:01:18.290934",
+      "short_description": "As hot streaks and cold spells jumble the postseason picture, here's how sure we are that your team ...",
+      "content_preview": "The early returns from the MLB trade deadline are filtering in. The dog days of August are challenging pitching staffs. The Boston Red Sox are humming, the New York Yankees are stumbling and the New …..."
+    },
+    {
+      "source": "Biztoc.com",
+      "url": "https://biztoc.com/x/d2f06c6cecf168da",
+      "author": "finance.yahoo.com",
+      "title": "Exclusive-SoftBank selects banks for US IPO of payments app PayPay, sources say",
+      "description": "In This Article:\nBy Echo Wang and Miho Uranaka\n(Reuters) -SoftBank has selected investment banks to help organize a potential initial public offering in the United States for its Japanese payments app operator PayPay, according to two people familiar with the…",
+      "published_at": "2025-08-10T23:19:39",
+      "content": "In This Article:By Echo Wang and Miho Uranaka(Reuters) -SoftBank has selected investment banks to help organize a potential initial public offering in the United States for its Japanese payments app … [+146 chars]",
+      "fetched_at": "2025-08-11T04:01:08.848362",
+      "short_description": "In This Article:\nBy Echo Wang and Miho Uranaka\n(Reuters) -SoftBank has selected investment banks to ...",
+      "content_preview": "In This Article:By Echo Wang and Miho Uranaka(Reuters) -SoftBank has selected investment banks to help organize a potential initial public offering in the United States for its Japanese payments app …..."
+    }
+  ]
+}

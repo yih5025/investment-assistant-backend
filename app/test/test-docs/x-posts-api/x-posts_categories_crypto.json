@@ -1,0 +1,231 @@
+{
+  "request_url": "http://localhost:30888/api/v1/x-posts/categories/crypto/",
+  "data": {
+    "items": [
+      {
+        "tweet_id": "1951626333231972786",
+        "text": "Bitcoin is a swarm of cyber hornets serving the goddess of wisdom, feeding on the fire of truth, exponentially growing ever smarter, faster, and stronger behind a wall of encrypted energy. https://t.co/pVnbQ3xzlc",
+        "username": "saylor",
+        "display_name": "Michael Saylor",
+        "created_at": "2025-08-02T12:49:11Z",
+        "like_count": 8120,
+        "retweet_count": 1060,
+        "reply_count": 1084,
+        "tweet_url": "https://x.com/saylor/status/1951626333231972786"
+      },
+      {
+        "tweet_id": "1951617125312803321",
+        "text": "RT @Strategy: $MSTR is Amplified Bitcoin. https://t.co/MHhdX508kw",
+        "username": "saylor",
+        "display_name": "Michael Saylor",
+        "created_at": "2025-08-02T12:12:36Z",
+        "like_count": 0,
+        "retweet_count": 262,
+        "reply_count": 0,
+        "tweet_url": "https://x.com/saylor/status/1951617125312803321"
+      },
+      {
+        "tweet_id": "1951401912605061556",
+        "text": "In the short term, Bitcoin is a trading asset. Over the long term, it’s a treasury asset.",
+        "username": "saylor",
+        "display_name": "Michael Saylor",
+        "created_at": "2025-08-01T21:57:25Z",
+        "like_count": 17275,
+        "retweet_count": 1773,
+        "reply_count": 1213,
+        "tweet_url": "https://x.com/saylor/status/1951401912605061556"
+      },
+      {
+        "tweet_id": "1951399513760936087",
+        "text": "RT @Strategy: Strategy is misunderstood and undervalued. $MSTR https://t.co/EbisD2LhBf",
+        "username": "saylor",
+        "display_name": "Michael Saylor",
+        "created_at": "2025-08-01T21:47:53Z",
+        "like_count": 0,
+        "retweet_count": 508,
+        "reply_count": 0,
+        "tweet_url": "https://x.com/saylor/status/1951399513760936087"
+      },
+      {
+        "tweet_id": "1951316312661078353",
+        "text": "@MichaelDell We have a @Strategy",
+        "username": "saylor",
+        "display_name": "Michael Saylor",
+        "created_at": "2025-08-01T16:17:17Z",
+        "like_count": 2384,
+        "retweet_count": 156,
+        "reply_count": 79,
+        "tweet_url": "https://x.com/saylor/status/1951316312661078353"
+      },
+      {
+        "tweet_id": "1951304126203150574",
+        "text": "RT @tadtweets: Just watched the @Strategy earnings call and bought more $MSTR and replaced my cash reserve investment with $STRC.  Not fina…",
+        "username": "saylor",
+        "display_name": "Michael Saylor",
+        "created_at": "2025-08-01T15:28:51Z",
+        "like_count": 0,
+        "retweet_count": 192,
+        "reply_count": 0,
+        "tweet_url": "https://x.com/saylor/status/1951304126203150574"
+      },
+      {
+        "tweet_id": "1951259962514030857",
+        "text": "@gerovich ₿rilliant",
+        "username": "saylor",
+        "display_name": "Michael Saylor",
+        "created_at": "2025-08-01T12:33:22Z",
+        "like_count": 652,
+        "retweet_count": 31,
+        "reply_count": 15,
+        "tweet_url": "https://x.com/saylor/status/1951259962514030857"
+      },
+      {
+        "tweet_id": "1951258192874258874",
+        "text": "$MSTR is Amplified Bitcoin.\n$STRK is Structured Bitcoin.\n$STRC is Treasury Bitcoin. https://t.co/iv5O6NkIol",
+        "username": "saylor",
+        "display_name": "Michael Saylor",
+        "created_at": "2025-08-01T12:26:20Z",
+        "like_count": 8108,
+        "retweet_count": 1249,
+        "reply_count": 754,
+        "tweet_url": "https://x.com/saylor/status/1951258192874258874"
+      },
+      {
+        "tweet_id": "1951086414520787332",
+        "text": "@brian_armstrong ₿2,509 🔥",
+        "username": "saylor",
+        "display_name": "Michael Saylor",
+        "created_at": "2025-08-01T01:03:45Z",
+        "like_count": 818,
+        "retweet_count": 37,
+        "reply_count": 42,
+        "tweet_url": "https://x.com/saylor/status/1951086414520787332"
+      },
+      {
+        "tweet_id": "1951077331461873743",
+        "text": "Brooklyn hackathon - come learn how to build crypto apps https://t.co/QtClUecOlB",
+        "username": "brian_armstrong",
+        "display_name": "Brian Armstrong",
+        "created_at": "2025-08-01T00:27:39Z",
+        "like_count": 189,
+        "retweet_count": 18,
+        "reply_count": 46,
+        "tweet_url": "https://x.com/brian_armstrong/status/1951077331461873743"
+      },
+      {
+        "tweet_id": "1951063905448632382",
+        "text": "From the Spotify leak - I've been exposed for having a 7 hour long playlist with only one song on it.\n\nIt helps me do deep focused work, don't ask me why. https://t.co/c2sn44LXAI",
+        "username": "brian_armstrong",
+        "display_name": "Brian Armstrong",
+        "created_at": "2025-07-31T23:34:18Z",
+        "like_count": 2858,
+        "retweet_count": 55,
+        "reply_count": 357,
+        "tweet_url": "https://x.com/brian_armstrong/status/1951063905448632382"
+      },
+      {
+        "tweet_id": "1951057225587499168",
+        "text": "Excited about our next goal: becoming the everything exchange. https://t.co/1BmlnVvfE1",
+        "username": "brian_armstrong",
+        "display_name": "Brian Armstrong",
+        "created_at": "2025-07-31T23:07:46Z",
+        "like_count": 1031,
+        "retweet_count": 142,
+        "reply_count": 212,
+        "tweet_url": "https://x.com/brian_armstrong/status/1951057225587499168"
+      },
+      {
+        "tweet_id": "1951032266924105924",
+        "text": "RT @coinbase: Going live: Coinbase earnings call.\n\nListen in as our leadership team delivers our Q2 2025 financial update and our plans for…",
+        "username": "brian_armstrong",
+        "display_name": "Brian Armstrong",
+        "created_at": "2025-07-31T21:28:35Z",
+        "like_count": 0,
+        "retweet_count": 59,
+        "reply_count": 0,
+        "tweet_url": "https://x.com/brian_armstrong/status/1951032266924105924"
+      },
+      {
+        "tweet_id": "1951025399003226227",
+        "text": "For those who would prefer to view the $MSTR Q2 Earnings Call on YouTube: https://t.co/DN888aHzHg",
+        "username": "saylor",
+        "display_name": "Michael Saylor",
+        "created_at": "2025-07-31T21:01:18Z",
+        "like_count": 486,
+        "retweet_count": 70,
+        "reply_count": 51,
+        "tweet_url": "https://x.com/saylor/status/1951025399003226227"
+      },
+      {
+        "tweet_id": "1951024087373086989",
+        "text": "Join our livestream for a discussion of our Q2 financial results, including a review of $MSTR, $STRK, $STRF, $STRD, and $STRC; an update on our capital plan; introduction of new metrics; and a live Q&amp;A.\nhttps://t.co/KIaExRux8t",
+        "username": "saylor",
+        "display_name": "Michael Saylor",
+        "created_at": "2025-07-31T20:56:05Z",
+        "like_count": 3123,
+        "retweet_count": 461,
+        "reply_count": 266,
+        "tweet_url": "https://x.com/saylor/status/1951024087373086989"
+      },
+      {
+        "tweet_id": "1951022635942551645",
+        "text": "Coinbase is long bitcoin.\n\nOur holding increased by 2,509 BTC in Q2, and we keep buying more. https://t.co/ztx10X2YXV",
+        "username": "brian_armstrong",
+        "display_name": "Brian Armstrong",
+        "created_at": "2025-07-31T20:50:19Z",
+        "like_count": 7210,
+        "retweet_count": 559,
+        "reply_count": 565,
+        "tweet_url": "https://x.com/brian_armstrong/status/1951022635942551645"
+      },
+      {
+        "tweet_id": "1951020621430743216",
+        "text": "Strategy Announces $4.2 Billion STRC At-The-Market Program\nhttps://t.co/4wOYjw8B2u",
+        "username": "saylor",
+        "display_name": "Michael Saylor",
+        "created_at": "2025-07-31T20:42:19Z",
+        "like_count": 906,
+        "retweet_count": 106,
+        "reply_count": 48,
+        "tweet_url": "https://x.com/saylor/status/1951020621430743216"
+      },
+      {
+        "tweet_id": "1951017502923956282",
+        "text": "Coinbase is becoming the everything exchange.\n\nAll assets will inevitably move onchain, so we want to have everything you want to trade in one place.\n\nIncoming: DEX integration (access millions of assets) + expansion of our derivatives offerings.\n\nNext: tokenized equities + more. https://t.co/56Bp6seJ9q",
+        "username": "brian_armstrong",
+        "display_name": "Brian Armstrong",
+        "created_at": "2025-07-31T20:29:55Z",
+        "like_count": 4970,
+        "retweet_count": 629,
+        "reply_count": 604,
+        "tweet_url": "https://x.com/brian_armstrong/status/1951017502923956282"
+      },
+      {
+        "tweet_id": "1951014680085889504",
+        "text": "Full shareholder letter: https://t.co/DrPYxC8cWG",
+        "username": "brian_armstrong",
+        "display_name": "Brian Armstrong",
+        "created_at": "2025-07-31T20:18:42Z",
+        "like_count": 63,
+        "retweet_count": 5,
+        "reply_count": 7,
+        "tweet_url": "https://x.com/brian_armstrong/status/1951014680085889504"
+      },
+      {
+        "tweet_id": "1951014677972132144",
+        "text": "It's Coinbase earnings day.\n\nSome recent highlights:\n\n- $1.5B total revenue, $1.4B net income in Q2\n- US perps launched, closing a key gap in market access\n- Announced acquisition of Deribit, which will unlock global options\n- Stablecoin revenue up 12% Q/Q\n- 80%+ of U.S. BTC and https://t.co/Xhm3y1HFrw",
+        "username": "brian_armstrong",
+        "display_name": "Brian Armstrong",
+        "created_at": "2025-07-31T20:18:41Z",
+        "like_count": 2086,
+        "retweet_count": 244,
+        "reply_count": 193,
+        "tweet_url": "https://x.com/brian_armstrong/status/1951014677972132144"
+      }
+    ],
+    "total_count": 28,
+    "limit": 20,
+    "offset": 0,
+    "has_more": true
+  }
+}

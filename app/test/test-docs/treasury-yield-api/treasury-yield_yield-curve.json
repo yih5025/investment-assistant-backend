@@ -1,0 +1,30 @@
+{
+  "request_url": "http://localhost:30888/api/v1/treasury-yield/yield-curve",
+  "data": {
+    "date": "2025-06-01",
+    "curve_type": "normal",
+    "data": [
+      {
+        "maturity": "10year",
+        "years": 10,
+        "yield_rate": "4.3800"
+      },
+      {
+        "maturity": "2year",
+        "years": 2,
+        "yield_rate": "3.8900"
+      },
+      {
+        "maturity": "30year",
+        "years": 30,
+        "yield_rate": "4.8900"
+      }
+    ],
+    "analysis": {
+      "curve_type": "normal",
+      "yield_spread_2_10": 0.48999999999999977,
+      "yield_spread_10_30": 0.5099999999999998,
+      "inversion_signal": false
+    }
+  }
+}

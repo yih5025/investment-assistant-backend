@@ -1,0 +1,9 @@
+{
+  "request_url": "http://localhost:30888/api/v1/x-posts/ranking/most-replied/",
+  "data": {
+    "items": [],
+    "ranking_type": "most-replied",
+    "period": "24h",
+    "total_count": 0
+  }
+}

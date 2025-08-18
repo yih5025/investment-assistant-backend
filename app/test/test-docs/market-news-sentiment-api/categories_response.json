@@ -1,0 +1,1 @@
+{"categories":{"top_gainers":{"name":"상승 주식","description":"가장 많이 상승한 주식들","typical_count":"약 20개"},"top_losers":{"name":"하락 주식","description":"가장 많이 하락한 주식들","typical_count":"약 10개"},"most_actively_traded":{"name":"활발한 주식","description":"거래량이 가장 많은 주식들","typical_count":"약 20개"}},"total_symbols":"약 50개","update_frequency":"하루 1회","data_source":"top_gainers 테이블"}

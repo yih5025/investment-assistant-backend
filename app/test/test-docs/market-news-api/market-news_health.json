@@ -1,0 +1,11 @@
+{
+  "request_url": "http://localhost:30888/api/v1/market-news/health",
+  "data": {
+    "status": "healthy",
+    "database": "connected",
+    "total_news": 4606,
+    "latest_news_date": "2025-08-10T23:39:44",
+    "api_version": "1.0.0",
+    "timestamp": "2025-08-11T07:16:47.035200"
+  }
+}

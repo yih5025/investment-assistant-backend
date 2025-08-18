@@ -1,0 +1,211 @@
+{
+  "request_url": "http://localhost:30888/api/v1/market-news/",
+  "data": {
+    "total": 4606,
+    "items": [
+      {
+        "source": "Econbrowser.com",
+        "url": "https://econbrowser.com/archives/2025/08/stock-market-capitalization-ex-magnificent-7",
+        "author": "Menzie Chinn",
+        "title": "Stock Market Capitalization ex-Magnificent 7",
+        "description": "Courtesy of Ed Yardeni: Source: Yardeni as edited by Chinn. In terms of assessing how the general economy is responding to tariff and other uncertainty shocks, one might want to look at the SP500 excluding the Magnificent 7. As of August 8, SP500 market cap w…",
+        "published_at": "2025-08-10T23:39:44",
+        "short_description": "Courtesy of Ed Yardeni: Source: Yardeni as edited by Chinn. In terms of assessing how the general ec...",
+        "fetched_at": "2025-08-11T04:01:11.497806"
+      },
+      {
+        "source": "Forbes",
+        "url": "https://www.forbes.com/sites/robtoews/2025/08/10/will-reinforcement-learning-take-us-to-agi/",
+        "author": "Rob Toews, Contributor, \n Rob Toews, Contributor\n https://www.forbes.com/sites/robtoews/",
+        "title": "Will Reinforcement Learning Take Us To AGI?",
+        "description": "It has never been more important to understand this technology, its history and its future.",
+        "published_at": "2025-08-10T23:31:16",
+        "short_description": "It has never been more important to understand this technology, its history and its future.",
+        "fetched_at": "2025-08-11T04:01:34.509829"
+      },
+      {
+        "source": "Biztoc.com",
+        "url": "https://biztoc.com/x/7c66e7e71c27e96f",
+        "author": "finance.yahoo.com",
+        "title": "The Largest Space Tech IPO of the Year Just Launched, With a $6.3 Billion Valuation. Can the Stock Go to the Moon?",
+        "description": "The Largest Space Tech IPO of the Year Just Launched, With a $6.3 Billion Valuation. Can the Stock Go to the Moon?\nIn This Article:\nKey Points\n-\nFirefly Aerospace has notched some operational successes with its rockets and lunar lander.\n-\nThe company's partne…",
+        "published_at": "2025-08-10T23:30:35",
+        "short_description": "The Largest Space Tech IPO of the Year Just Launched, With a $6.3 Billion Valuation. Can the Stock G...",
+        "fetched_at": "2025-08-11T04:01:08.811619"
+      },
+      {
+        "source": "Forbes",
+        "url": "https://www.forbes.com/sites/melikkaylan/2025/08/10/the-armenia-azerbaijan-peace-deal-and-the-new-trump-corridor/",
+        "author": "Melik Kaylan, Contributor, \n Melik Kaylan, Contributor\n https://www.forbes.com/sites/melikkaylan/",
+        "title": "The Armenia-Azerbaijan Peace Deal And The New Trump Corridor",
+        "description": "The Zangezur Corridor now named after President Trump offers the US as strategic arbiter of a region previously dominated by Russia and Iran",
+        "published_at": "2025-08-10T23:23:53",
+        "short_description": "The Zangezur Corridor now named after President Trump offers the US as strategic arbiter of a region...",
+        "fetched_at": "2025-08-11T04:00:59.405949"
+      },
+      {
+        "source": "Crooksandliars.com",
+        "url": "https://crooksandliars.com/2025/08/watch-jd-vance-musters-most-awkward",
+        "author": "David Edwards",
+        "title": "Watch: JD Vance Musters Most Awkward Reaction Yet When Asked If He's Running In 2028",
+        "description": "Vice President J.D. Vance mustered an awkward laugh after he was asked if he was running for president in 2028.\n\n\nDuring an interview on Fox News over the weekend, host Maria Bartiromo noted that President Donald Trump suggested that Vance and Secretary of St…",
+        "published_at": "2025-08-10T23:23:15",
+        "short_description": "Vice President J.D. Vance mustered an awkward laugh after he was asked if he was running for preside...",
+        "fetched_at": "2025-08-11T04:01:27.668249"
+      },
+      {
+        "source": "Crooksandliars.com",
+        "url": "https://crooksandliars.com/2025/08/dem-governor-nails-trump-redistricting-he",
+        "author": "David Edwards",
+        "title": "Dem Governor Nails Trump On Redistricting: He Cheats On Wives, Golf, And Voting",
+        "description": "Illinois Gov. JB Pritzker (D) pointed out that President Donald Trump had a history of cheating, as evidenced by his demand that Texas lawmakers find new Republican seats through redistricting the state before the 2026 midterm elections.\n\n\nIn a Sunday intervi…",
+        "published_at": "2025-08-10T23:23:14",
+        "short_description": "Illinois Gov. JB Pritzker (D) pointed out that President Donald Trump had a history of cheating, as ...",
+        "fetched_at": "2025-08-11T04:01:38.431559"
+      },
+      {
+        "source": "New York Post",
+        "url": "https://nypost.com/2025/08/10/us-news/alan-dershowitz-offered-free-pierogi-for-life-after-marthas-vineyard-dumpling-row/",
+        "author": "Doree Lewak",
+        "title": "Trump lawyer Alan Dershowitz offered free pierogi for life after Martha’s Vineyard dumpling row",
+        "description": "Alan Dershowitz might not be able to get his pierogi fix on Martha's Vineyard, but one Trump-supporting purveyor of the delectable dumplings says the president's former lawyer never has to worry about the well running dry.",
+        "published_at": "2025-08-10T23:21:48",
+        "short_description": "Alan Dershowitz might not be able to get his pierogi fix on Martha's Vineyard, but one Trump-support...",
+        "fetched_at": "2025-08-11T04:01:28.009352"
+      },
+      {
+        "source": "The Conversation Africa",
+        "url": "https://theconversation.com/trump-administration-cuts-to-terrorism-prevention-departments-could-leave-americans-exposed-261630",
+        "author": "Kris Inman, Professor of African Studies and Security Studies, Georgetown University",
+        "title": "Trump administration cuts to terrorism prevention departments could leave Americans exposed",
+        "description": "The elimination of offices within Homeland Security and the State Department may force US counterterrorism efforts to rely on a solely military approach, which has proven ineffective.",
+        "published_at": "2025-08-10T23:20:44",
+        "short_description": "The elimination of offices within Homeland Security and the State Department may force US counterter...",
+        "fetched_at": "2025-08-11T04:01:18.814928"
+      },
+      {
+        "source": "ESPN",
+        "url": "https://www.espn.com/mlb/story/_/id/45926727/2025-mlb-playoff-contender-tiers-locks-long-shots-phillies-mets-dodgers-cubs-tigers-yankees-red-sox",
+        "author": "David Schoenfield",
+        "title": "MLB playoff contender tiers: From the locks to the long shots",
+        "description": "As hot streaks and cold spells jumble the postseason picture, here's how sure we are that your team will be playing in October.",
+        "published_at": "2025-08-10T23:20:15",
+        "short_description": "As hot streaks and cold spells jumble the postseason picture, here's how sure we are that your team ...",
+        "fetched_at": "2025-08-11T04:01:18.290934"
+      },
+      {
+        "source": "Biztoc.com",
+        "url": "https://biztoc.com/x/d2f06c6cecf168da",
+        "author": "finance.yahoo.com",
+        "title": "Exclusive-SoftBank selects banks for US IPO of payments app PayPay, sources say",
+        "description": "In This Article:\nBy Echo Wang and Miho Uranaka\n(Reuters) -SoftBank has selected investment banks to help organize a potential initial public offering in the United States for its Japanese payments app operator PayPay, according to two people familiar with the…",
+        "published_at": "2025-08-10T23:19:39",
+        "short_description": "In This Article:\nBy Echo Wang and Miho Uranaka\n(Reuters) -SoftBank has selected investment banks to ...",
+        "fetched_at": "2025-08-11T04:01:08.848362"
+      },
+      {
+        "source": "Biztoc.com",
+        "url": "https://biztoc.com/x/54830e007229fc18",
+        "author": "reuters.com",
+        "title": "SoftBank selects banks for US IPO of payments app PayPay, sources say",
+        "description": "",
+        "published_at": "2025-08-10T23:19:30",
+        "short_description": null,
+        "fetched_at": "2025-08-11T04:01:08.883714"
+      },
+      {
+        "source": "Forbes",
+        "url": "https://www.forbes.com/sites/ianpalmer/2025/08/10/a-global-leader-in-weather-intelligence-for-boosting-energy-efficiency/",
+        "author": "Ian Dexter Palmer, Ph.D., Contributor, \n Ian Dexter Palmer, Ph.D., Contributor\n https://www.forbes.com/sites/ianpalmer/",
+        "title": "A Global Leader In Weather Intelligence For Boosting Energy Efficiency",
+        "description": "Meteomatics provides accurate weather forecasting to improve reliability of energy generation and transmission, for fossil power plants as well as renewables.",
+        "published_at": "2025-08-10T23:08:00",
+        "short_description": "Meteomatics provides accurate weather forecasting to improve reliability of energy generation and tr...",
+        "fetched_at": "2025-08-11T04:01:44.943435"
+      },
+      {
+        "source": "CNA",
+        "url": "https://www.channelnewsasia.com/business/exclusive-softbank-selects-banks-us-ipo-payments-app-paypay-sources-say-5287791",
+        "author": null,
+        "title": "Exclusive-SoftBank selects banks for US IPO of payments app PayPay, sources say",
+        "description": "SoftBank has selected investment banks to help organize a potential initial public offering in the United States for its Japanese payments app operator PayPay, according to two people familiar with the matter. The banks leading preparations for the listing ar…",
+        "published_at": "2025-08-10T23:04:48",
+        "short_description": "SoftBank has selected investment banks to help organize a potential initial public offering in the U...",
+        "fetched_at": "2025-08-11T04:01:08.318259"
+      },
+      {
+        "source": "Yahoo Entertainment",
+        "url": "https://finance.yahoo.com/news/exclusive-softbank-selects-banks-us-230448990.html",
+        "author": "Echo Wang and Miho Uranaka",
+        "title": "Exclusive-SoftBank selects banks for US IPO of payments app PayPay, sources say",
+        "description": "(Reuters) -SoftBank has selected investment banks to help organize a potential initial public offering in the United States for its Japanese payments app...",
+        "published_at": "2025-08-10T23:04:48",
+        "short_description": "(Reuters) -SoftBank has selected investment banks to help organize a potential initial public offeri...",
+        "fetched_at": "2025-08-11T04:01:08.273926"
+      },
+      {
+        "source": "Yahoo Entertainment",
+        "url": "https://finance.yahoo.com/news/analysis-rbas-policy-board-comes-230145622.html",
+        "author": "Wayne Cole",
+        "title": "Analysis-RBA's new policy board comes with added unpredictability",
+        "description": "SYDNEY (Reuters) -Australia's central bank has a problem communicating that has injected an element of unpredictability into interest rate policy when global...",
+        "published_at": "2025-08-10T23:01:45",
+        "short_description": "SYDNEY (Reuters) -Australia's central bank has a problem communicating that has injected an element ...",
+        "fetched_at": "2025-08-11T04:01:11.712578"
+      },
+      {
+        "source": "XDA Developers",
+        "url": "https://www.xda-developers.com/6-ways-you-can-take-advantage-of-a-spare-pcie-slot/",
+        "author": "Jacob Roach",
+        "title": "6 ways you can take advantage of a spare PCIe slot",
+        "description": "Don&#039;t let your spare PCIe slot gather dust.",
+        "published_at": "2025-08-10T23:00:23",
+        "short_description": "Don&#039;t let your spare PCIe slot gather dust.",
+        "fetched_at": "2025-08-11T04:01:05.686132"
+      },
+      {
+        "source": "GlobeNewswire",
+        "url": "https://www.globenewswire.com/news-release/2025/08/10/3130568/673/en/ROSEN-LEADING-TRIAL-ATTORNEYS-Encourages-Alto-Neuroscience-Inc-Investors-to-Secure-Counsel-Before-Important-Deadline-in-Securities-Class-Action-ANRO.html",
+        "author": "The Rosen Law Firm PA",
+        "title": "ROSEN, LEADING TRIAL ATTORNEYS, Encourages Alto Neuroscience, Inc. Investors to Secure Counsel Before Important Deadline in Securities Class Action - ANRO",
+        "description": "NEW YORK, Aug. 10, 2025 (GLOBE NEWSWIRE) -- WHY: Rosen Law Firm, a global investor rights law firm, reminds purchasers of common stock of Alto Neuroscience, Inc. (NYSE: ANRO): (i) pursuant and/or traceable to Alto’s initial public offering conducted on or abo…",
+        "published_at": "2025-08-10T22:52:00",
+        "short_description": "NEW YORK, Aug. 10, 2025 (GLOBE NEWSWIRE) -- WHY: Rosen Law Firm, a global investor rights law firm, ...",
+        "fetched_at": "2025-08-11T04:01:08.938789"
+      },
+      {
+        "source": "Gizmodo.com",
+        "url": "https://gizmodo.com/the-real-reason-you-havent-been-replaced-by-ai-yet-2000641235",
+        "author": "Luc Olinga",
+        "title": "The Real Reason You Haven’t Been Replaced by AI Yet",
+        "description": "AI is already powerful enough to replace millions of jobs. The only thing stopping the mass layoffs isn't technology. It's that no CEO wants to be the first one to face the political firestorm.",
+        "published_at": "2025-08-10T22:44:46",
+        "short_description": "AI is already powerful enough to replace millions of jobs. The only thing stopping the mass layoffs ...",
+        "fetched_at": "2025-08-11T04:00:58.810627"
+      },
+      {
+        "source": "Theregister.com",
+        "url": "https://www.theregister.com/2025/08/10/infosec_in_brief/",
+        "author": "Brandon Vigliarolo",
+        "title": "Trend Micro offers weak workaround for already-exploited critical vuln in management console",
+        "description": "PLUS: Crypto mixer founders plead guilty; Another French telco hacked; Meta fights WhatsApp scams; And more! Infosec In Brief  A critical vulnerability in the on-prem version of Trend Micro's Apex One endpoint security platform is under active exploitation, t…",
+        "published_at": "2025-08-10T22:39:58",
+        "short_description": "PLUS: Crypto mixer founders plead guilty; Another French telco hacked; Meta fights WhatsApp scams; A...",
+        "fetched_at": "2025-08-11T04:01:38.308146"
+      },
+      {
+        "source": "Gizmodo.com",
+        "url": "https://gizmodo.com/a-kentucky-town-experimented-with-ai-the-results-were-stunning-2000641233",
+        "author": "Ece Yildirim",
+        "title": "A Kentucky Town Experimented With AI. The Results Were Stunning",
+        "description": "In a divided America, a Kentucky town used AI to strip away political labels and discovered its residents agree on almost everything.",
+        "published_at": "2025-08-10T22:34:47",
+        "short_description": "In a divided America, a Kentucky town used AI to strip away political labels and discovered its resi...",
+        "fetched_at": "2025-08-11T04:01:01.583186"
+      }
+    ],
+    "page": 1,
+    "limit": 20,
+    "has_next": true
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "request_url": "http://localhost:30888/api/v1/earnings-calendar/statistics",
+  "data": {
+    "total_earnings": 22727,
+    "today_earnings": 218,
+    "this_week_earnings": 1504,
+    "companies_with_estimates": 10056,
+    "latest_update": "2025-08-01T00:08:46.364434",
+    "currency_breakdown": {
+      "USD": 21704,
+      "others": 1023
+    }
+  }
+}

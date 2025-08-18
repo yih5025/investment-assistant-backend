@@ -1,0 +1,24 @@
+{
+  "category": "crypto",
+  "users": [
+    {
+      "username": "saylor",
+      "display_name": "Michael Saylor",
+      "account_category": "crypto",
+      "verified": false,
+      "followers_count": 4503837,
+      "total_posts": 10,
+      "avg_engagement": 3227.7
+    },
+    {
+      "username": "brian_armstrong",
+      "display_name": "Brian Armstrong",
+      "account_category": "crypto",
+      "verified": false,
+      "followers_count": 1577422,
+      "total_posts": 10,
+      "avg_engagement": 2420.3
+    }
+  ],
+  "total_count": 2
+}

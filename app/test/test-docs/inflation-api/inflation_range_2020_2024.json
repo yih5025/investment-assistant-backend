@@ -1,0 +1,40 @@
+{
+  "total_count": 5,
+  "items": [
+    {
+      "date": "2020-01-01",
+      "inflation_rate": 1.234,
+      "interval_type": "annual",
+      "unit": "percent",
+      "name": "Inflation - US Consumer Prices"
+    },
+    {
+      "date": "2021-01-01",
+      "inflation_rate": 4.698,
+      "interval_type": "annual",
+      "unit": "percent",
+      "name": "Inflation - US Consumer Prices"
+    },
+    {
+      "date": "2022-01-01",
+      "inflation_rate": 8.003,
+      "interval_type": "annual",
+      "unit": "percent",
+      "name": "Inflation - US Consumer Prices"
+    },
+    {
+      "date": "2023-01-01",
+      "inflation_rate": 4.116,
+      "interval_type": "annual",
+      "unit": "percent",
+      "name": "Inflation - US Consumer Prices"
+    },
+    {
+      "date": "2024-01-01",
+      "inflation_rate": 2.95,
+      "interval_type": "annual",
+      "unit": "percent",
+      "name": "Inflation - US Consumer Prices"
+    }
+  ]
+}

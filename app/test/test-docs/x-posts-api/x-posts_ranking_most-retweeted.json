@@ -1,0 +1,9 @@
+{
+  "request_url": "http://localhost:30888/api/v1/x-posts/ranking/most-retweeted/",
+  "data": {
+    "items": [],
+    "ranking_type": "most-retweeted",
+    "period": "24h",
+    "total_count": 0
+  }
+}

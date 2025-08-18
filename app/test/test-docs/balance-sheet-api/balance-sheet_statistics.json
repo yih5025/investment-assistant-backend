@@ -1,0 +1,15 @@
+{
+  "request_url": "http://localhost:30888/api/v1/balance-sheet/statistics",
+  "data": {
+    "total_companies": 104,
+    "latest_period": "2025-06-30",
+    "average_total_assets": 265.11,
+    "median_debt_ratio": 0.712,
+    "sector_stats": null,
+    "size_distribution": {
+      "large_cap": 15,
+      "mid_cap": 33,
+      "small_cap": 8
+    }
+  }
+}

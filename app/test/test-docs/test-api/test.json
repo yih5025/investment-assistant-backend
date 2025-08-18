@@ -1,0 +1,8 @@
+{
+  "request_url": "http://localhost:30888/api/v1/test",
+  "data": {
+    "message": "API v1 연결 테스트 성공",
+    "timestamp": "2025-01-27",
+    "status": "ok"
+  }
+}

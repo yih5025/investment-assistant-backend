@@ -1,0 +1,834 @@
+{
+  "request_url": "http://localhost:30888/api/v1/market-news-sentiment/bearish",
+  "data": {
+    "total_count": 20,
+    "batch_info": {
+      "latest_batch_id": 22,
+      "collection_date": "2025-08-11",
+      "total_batches": 22
+    },
+    "news": [
+      {
+        "batch_id": 22,
+        "url": "https://cointelegraph.com/news/1-bitcoiner-kidnapped-every-week-cyrpto-exec",
+        "title": "At least 1 Bitcoiner gets kidnapped every week - Crypto exec",
+        "time_published": "2025-08-10T22:09:24",
+        "authors": "Vince Quill",
+        "summary": "Alena Vranova said that personal safety measures should not be ignored by Bitcoin and crypto investors with modest holdings.",
+        "source": "Cointelegraph",
+        "overall_sentiment_score": -0.444,
+        "overall_sentiment_label": "Bearish",
+        "query_type": "technology_markets",
+        "query_params": "topics=technology",
+        "created_at": "2025-08-11T00:01:24.289064",
+        "sentiment_interpretation": "매우부정적",
+        "sentiment_emoji": "🔻",
+        "related_tickers": [
+          {
+            "ticker": "GOOG",
+            "relevance_score": 0.126119,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.105281
+          },
+          {
+            "ticker": "META",
+            "relevance_score": 0.126119,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.105281
+          },
+          {
+            "ticker": "COIN",
+            "relevance_score": 0.249106,
+            "ticker_sentiment_label": "Somewhat-Bearish",
+            "ticker_sentiment_score": -0.306715
+          },
+          {
+            "ticker": "CRYPTO:BTC",
+            "relevance_score": 0.366061,
+            "ticker_sentiment_label": "Bearish",
+            "ticker_sentiment_score": -0.627796
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Technology",
+            "relevance_score": 0.5
+          },
+          {
+            "topic": "Finance",
+            "relevance_score": 0.5
+          },
+          {
+            "topic": "Blockchain",
+            "relevance_score": 0.310843
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.benzinga.com/news/politics/25/08/47021799/vance-predicts-numerous-indictments-following-trumps-treason-accusations-against-obama",
+        "title": "Vance Predicts Numerous Indictments Following Trump's Treason Accusations Against Obama",
+        "time_published": "2025-08-10T20:13:54",
+        "authors": "Bibhu Pattnaik",
+        "summary": "JD Vance forecasts a storm of legal actions in the wake of Trump's explosive treason claims against Obama. Political rifts deepen as Vance supports Trump's call for Obama's prosecution, citing illegal conduct and media manipulation. This simple system has nailed 1,000+ post-earnings winners.",
+        "source": "Benzinga",
+        "overall_sentiment_score": -0.1038,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "technology_markets",
+        "query_params": "topics=technology",
+        "created_at": "2025-08-11T00:01:23.702128",
+        "sentiment_interpretation": "부정적",
+        "sentiment_emoji": "📉",
+        "related_tickers": [
+          {
+            "ticker": "FOX",
+            "relevance_score": 0.089462,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.090448
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Technology",
+            "relevance_score": 1.0
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.benzinga.com/markets/tech/25/08/47021370/strategist-warns-key-ai-stock-index-is-flashing-bubble-warning-this-bull-market-in-equities-has-a-se",
+        "title": "Strategist Warns Key AI Stock Index Is Flashing Bubble Warning: 'This Bull Market in Equities Has a Serious Problem'",
+        "time_published": "2025-08-10T16:15:15",
+        "authors": "Bibhu Pattnaik",
+        "summary": "The PHLX Semiconductor Index ( SOX ) , Essaye suggests, is a key indicator of this looming threat. Investors and market watchers would do well to heed Essaye's advice and closely monitor economic data. The next 100%+ earnings move could hit this month. See how to find it live on Wednesday →",
+        "source": "Benzinga",
+        "overall_sentiment_score": -0.1513,
+        "overall_sentiment_label": "Somewhat-Bearish",
+        "query_type": "earnings_markets",
+        "query_params": "topics=earnings",
+        "created_at": "2025-08-11T00:01:25.382137",
+        "sentiment_interpretation": "부정적",
+        "sentiment_emoji": "📉",
+        "related_tickers": [],
+        "related_topics": [
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.992549
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://cointelegraph.com/news/embargo-ransomware-34m-crypto-blackcat-links",
+        "title": "Embargo ransomware group moved $34M in crypto since April: TRM Labs",
+        "time_published": "2025-08-10T07:44:08",
+        "authors": "Amin Haqshanas",
+        "summary": "TRM Labs says the Embargo ransomware group has moved over $34 million in ransom-linked crypto since April, targeting US hospitals and critical infrastructure.",
+        "source": "Cointelegraph",
+        "overall_sentiment_score": -0.279,
+        "overall_sentiment_label": "Somewhat-Bearish",
+        "query_type": "blockchain_markets",
+        "query_params": "topics=blockchain",
+        "created_at": "2025-08-11T00:01:26.313897",
+        "sentiment_interpretation": "부정적",
+        "sentiment_emoji": "📉",
+        "related_tickers": [],
+        "related_topics": [
+          {
+            "topic": "Blockchain",
+            "relevance_score": 0.158519
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.fool.com/investing/2025/08/09/president-trump-stock-investors-worry-market-crash/",
+        "title": "President Trump Just Gave Stock Investors 2 Reasons to Worry About Another Market Crash",
+        "time_published": "2025-08-09T08:02:00",
+        "authors": "Trevor Jennewine",
+        "summary": "President Trump's tariffs and his decision to fire the BLS commissioner could drag the stock market lower.",
+        "source": "Motley Fool",
+        "overall_sentiment_score": -0.1403,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "finance_markets",
+        "query_params": "topics=finance",
+        "created_at": "2025-08-11T00:01:24.855430",
+        "sentiment_interpretation": "부정적",
+        "sentiment_emoji": "📉",
+        "related_tickers": [
+          {
+            "ticker": "GS",
+            "relevance_score": 0.041538,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.006847
+          },
+          {
+            "ticker": "BCS",
+            "relevance_score": 0.041538,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.058838
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Economy - Monetary",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.997902
+          },
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.682689
+          },
+          {
+            "topic": "Finance",
+            "relevance_score": 1.0
+          }
+        ]
+      },
+      {
+        "batch_id": 20,
+        "url": "https://www.fool.com/investing/2025/08/08/whats-going-on-with-amazon-stock/",
+        "title": "What's Going on With Amazon Stock?",
+        "time_published": "2025-08-08T13:46:47",
+        "authors": "Parkev Tatevosian, CFA",
+        "summary": "A sequential decline in profit margins in Amazon's most lucrative segment spooked investors.",
+        "source": "Motley Fool",
+        "overall_sentiment_score": -0.4079,
+        "overall_sentiment_label": "Bearish",
+        "query_type": "retail_general",
+        "query_params": "topics=retail_wholesale&sort=LATEST",
+        "created_at": "2025-08-09T00:01:22.533524",
+        "sentiment_interpretation": "매우부정적",
+        "sentiment_emoji": "🔻",
+        "related_tickers": [
+          {
+            "ticker": "AMZN",
+            "relevance_score": 0.535653,
+            "ticker_sentiment_label": "Bearish",
+            "ticker_sentiment_score": -0.53564
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Retail & Wholesale",
+            "relevance_score": 1.0
+          }
+        ]
+      },
+      {
+        "batch_id": 20,
+        "url": "https://www.fool.com/investing/2025/08/08/why-is-everyone-talking-about-amazon-stock/",
+        "title": "Why Is Everyone Talking About Amazon Stock?",
+        "time_published": "2025-08-08T13:25:44",
+        "authors": "CFA, Parkev Tatevosian",
+        "summary": "The company benefits from a diverse set of sellers on its platform.",
+        "source": "Motley Fool",
+        "overall_sentiment_score": -0.2103,
+        "overall_sentiment_label": "Somewhat-Bearish",
+        "query_type": "amazon_retail_news",
+        "query_params": "tickers=AMZN",
+        "created_at": "2025-08-09T00:01:26.101292",
+        "sentiment_interpretation": "부정적",
+        "sentiment_emoji": "📉",
+        "related_tickers": [
+          {
+            "ticker": "AMZN",
+            "relevance_score": 0.481177,
+            "ticker_sentiment_label": "Bearish",
+            "ticker_sentiment_score": -0.459985
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Retail & Wholesale",
+            "relevance_score": 1.0
+          }
+        ]
+      },
+      {
+        "batch_id": 19,
+        "url": "https://www.benzinga.com/pressreleases/25/08/g46982879/sarepta-therapeutics-inc-investors-please-contact-the-portnoy-law-firm-to-recover-your-losses-augu",
+        "title": "Sarepta Therapeutics, Inc. Investors: Please contact the Portnoy Law Firm to recover your losses. August 25, 2025 Deadline to file Lead Plaintiff Motion.",
+        "time_published": "2025-08-07T21:01:19",
+        "authors": "Globe Newswire",
+        "summary": "Investors can contact the law firm at no cost to learn more about recovering their losses LOS ANGELES, Aug. 07, 2025 ( GLOBE NEWSWIRE ) -- The Portnoy Law Firm advises Sarepta Therapeutics, Inc. ( \"Sarepta Therapeutics\" or the \"Company\" ) ( NASDAQ.",
+        "source": "Benzinga",
+        "overall_sentiment_score": -0.1626,
+        "overall_sentiment_label": "Somewhat-Bearish",
+        "query_type": "healthcare_general",
+        "query_params": "topics=life_sciences&sort=LATEST",
+        "created_at": "2025-08-08T00:01:25.741451",
+        "sentiment_interpretation": "부정적",
+        "sentiment_emoji": "📉",
+        "related_tickers": [
+          {
+            "ticker": "SRPT",
+            "relevance_score": 0.348592,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.054391
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Life Sciences",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.266143
+          }
+        ]
+      },
+      {
+        "batch_id": 19,
+        "url": "https://www.fool.com/investing/2025/08/07/disneys-massive-nfl-deal-could-make-it-bigger-than/",
+        "title": "Is Disney About to Beat Netflix in Streaming?",
+        "time_published": "2025-08-07T10:15:00",
+        "authors": "Travis Hoium",
+        "summary": "Disney's deal with the NFL could catapult it to the lead in streaming.",
+        "source": "Motley Fool",
+        "overall_sentiment_score": -0.1886,
+        "overall_sentiment_label": "Somewhat-Bearish",
+        "query_type": "apple_earnings_news",
+        "query_params": "tickers=AAPL",
+        "created_at": "2025-08-08T00:01:26.481212",
+        "sentiment_interpretation": "부정적",
+        "sentiment_emoji": "📉",
+        "related_tickers": [
+          {
+            "ticker": "NFLX",
+            "relevance_score": 0.331765,
+            "ticker_sentiment_label": "Somewhat-Bearish",
+            "ticker_sentiment_score": -0.239346
+          },
+          {
+            "ticker": "AAPL",
+            "relevance_score": 0.169676,
+            "ticker_sentiment_label": "Somewhat-Bearish",
+            "ticker_sentiment_score": -0.228258
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.495866
+          },
+          {
+            "topic": "Technology",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.684621
+          }
+        ]
+      },
+      {
+        "batch_id": 19,
+        "url": "https://www.benzinga.com/markets/tech/25/08/46955003/google-confirms-its-salesforce-database-hacked-shinyhunters-strike-again",
+        "title": "Google Confirms Its Salesforce Database Hacked - 'ShinyHunters' Strike Again - Apple  ( NASDAQ:AAPL ) , Salesforce  ( NYSE:CRM ) ",
+        "time_published": "2025-08-07T09:41:14",
+        "authors": "Namrata Sen",
+        "summary": "Google GOOGL GOOG has confirmed a data breach that has affected some of its customers. The breach was attributed to a hacking group known as ShinyHunters, also referred to as UNC6040.",
+        "source": "Benzinga",
+        "overall_sentiment_score": -0.3098,
+        "overall_sentiment_label": "Somewhat-Bearish",
+        "query_type": "apple_earnings_news",
+        "query_params": "tickers=AAPL",
+        "created_at": "2025-08-08T00:01:26.494594",
+        "sentiment_interpretation": "매우부정적",
+        "sentiment_emoji": "🔻",
+        "related_tickers": [
+          {
+            "ticker": "GOOG",
+            "relevance_score": 0.636698,
+            "ticker_sentiment_label": "Bearish",
+            "ticker_sentiment_score": -0.481433
+          },
+          {
+            "ticker": "META",
+            "relevance_score": 0.350564,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.112802
+          },
+          {
+            "ticker": "AAPL",
+            "relevance_score": 0.238133,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.083723
+          },
+          {
+            "ticker": "CSCO",
+            "relevance_score": 0.238133,
+            "ticker_sentiment_label": "Bearish",
+            "ticker_sentiment_score": -0.422599
+          },
+          {
+            "ticker": "ALIZF",
+            "relevance_score": 0.120431,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.138544
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Technology",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.161647
+          }
+        ]
+      },
+      {
+        "batch_id": 18,
+        "url": "https://www.fool.com/investing/2025/08/06/if-youd-invested-1000-in-unh-3510-years-ago-heres/",
+        "title": "If You'd Invested $1,000 in UnitedHealth Group 3 Years Ago, Here's How Much You'd Have Today",
+        "time_published": "2025-08-06T22:05:00",
+        "authors": "Lawrence Rothman, CFA",
+        "summary": "UnitedHealth Group has been hit with a series of bad news lately.",
+        "source": "Motley Fool",
+        "overall_sentiment_score": -0.2517,
+        "overall_sentiment_label": "Somewhat-Bearish",
+        "query_type": "finance_general",
+        "query_params": "topics=finance&sort=LATEST",
+        "created_at": "2025-08-07T00:01:23.671138",
+        "sentiment_interpretation": "부정적",
+        "sentiment_emoji": "📉",
+        "related_tickers": [
+          {
+            "ticker": "UNH",
+            "relevance_score": 0.616842,
+            "ticker_sentiment_label": "Bearish",
+            "ticker_sentiment_score": -0.496228
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.714479
+          },
+          {
+            "topic": "Finance",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.796627
+          }
+        ]
+      },
+      {
+        "batch_id": 18,
+        "url": "https://www.economist.com/finance-and-economics/2025/08/06/want-better-returns-forget-risk-focus-on-fear",
+        "title": "Want better returns? Forget risk. Focus on fear",
+        "time_published": "2025-08-06T19:08:11",
+        "authors": "The Economist",
+        "summary": "A recent study suggests a new paradigm for asset pricing ...",
+        "source": "The Economist",
+        "overall_sentiment_score": -0.1719,
+        "overall_sentiment_label": "Somewhat-Bearish",
+        "query_type": "blockchain_general",
+        "query_params": "topics=blockchain&sort=LATEST",
+        "created_at": "2025-08-07T00:01:22.824875",
+        "sentiment_interpretation": "부정적",
+        "sentiment_emoji": "📉",
+        "related_tickers": [],
+        "related_topics": [
+          {
+            "topic": "Blockchain",
+            "relevance_score": 0.158519
+          }
+        ]
+      },
+      {
+        "batch_id": 18,
+        "url": "https://decrypt.co/333764/meta-6-8-million-whatsapp-accounts-pig-butchering",
+        "title": "Meta Removes 6.8 Million WhatsApp Accounts Linked to Pig Butchering Scam Rings",
+        "time_published": "2025-08-06T15:37:00",
+        "authors": "Callan Quinn",
+        "summary": "Tech giant Meta touts new anti-scam features as platforms face growing pressure to tackle organized fraud networks stealing crypto from users.",
+        "source": "Decrypt.co",
+        "overall_sentiment_score": -0.3536,
+        "overall_sentiment_label": "Bearish",
+        "query_type": "blockchain_general",
+        "query_params": "topics=blockchain&sort=LATEST",
+        "created_at": "2025-08-07T00:01:22.871160",
+        "sentiment_interpretation": "매우부정적",
+        "sentiment_emoji": "🔻",
+        "related_tickers": [
+          {
+            "ticker": "META",
+            "relevance_score": 0.061949,
+            "ticker_sentiment_label": "Somewhat-Bearish",
+            "ticker_sentiment_score": -0.226227
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Technology",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Blockchain",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.161647
+          }
+        ]
+      },
+      {
+        "batch_id": 18,
+        "url": "https://cointelegraph.com/explained/this-man-used-a-coinbase-like-url-now-hes-facing-a-major-lawsuit",
+        "title": "This man used a Coinbase-like URL - Now he's facing a major lawsuit",
+        "time_published": "2025-08-06T14:35:00",
+        "authors": null,
+        "summary": "A German man is facing a US federal lawsuit after allegedly using a Coinbase‑like domain name to earn affiliate commissions and pose phishing risks.",
+        "source": "Cointelegraph",
+        "overall_sentiment_score": -0.2276,
+        "overall_sentiment_label": "Somewhat-Bearish",
+        "query_type": "blockchain_general",
+        "query_params": "topics=blockchain&sort=LATEST",
+        "created_at": "2025-08-07T00:01:22.497368",
+        "sentiment_interpretation": "부정적",
+        "sentiment_emoji": "📉",
+        "related_tickers": [
+          {
+            "ticker": "COIN",
+            "relevance_score": 0.807885,
+            "ticker_sentiment_label": "Bearish",
+            "ticker_sentiment_score": -0.372766
+          },
+          {
+            "ticker": "CRYPTO:ETH",
+            "relevance_score": 0.103778,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.134661
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Finance",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Blockchain",
+            "relevance_score": 0.769861
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.108179
+          }
+        ]
+      },
+      {
+        "batch_id": 18,
+        "url": "https://cfo.economictimes.indiatimes.com/news/economy/goldman-sachs-cuts-indias-growth-projections-amid-us-tariff-concerns/123140187",
+        "title": "Goldman Sachs lowers India's growth rate on U.S tariff concerns",
+        "time_published": "2025-08-06T10:01:53",
+        "authors": "ETCFO",
+        "summary": "Trump's tariff on trade action has forced a downward revision in India's real GDP growth forecasts. now pegged at 6.5% year-on-year for calendar year (CY) 2025 and 6.4% for 2026, a reduction of 0.1 and 0.2 percentage points, respectively.",
+        "source": "Economic Times",
+        "overall_sentiment_score": -0.1892,
+        "overall_sentiment_label": "Somewhat-Bearish",
+        "query_type": "goldman_news",
+        "query_params": "tickers=GS",
+        "created_at": "2025-08-07T00:01:26.895837",
+        "sentiment_interpretation": "부정적",
+        "sentiment_emoji": "📉",
+        "related_tickers": [
+          {
+            "ticker": "GS",
+            "relevance_score": 0.122269,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.093999
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Economy - Monetary",
+            "relevance_score": 0.838487
+          },
+          {
+            "topic": "Finance",
+            "relevance_score": 1.0
+          }
+        ]
+      },
+      {
+        "batch_id": 18,
+        "url": "https://cointelegraph.com/news/binance-zhao-dismissal-ftx-clawback-lawsuit",
+        "title": "Binance founder Changpeng Zhao seeks dismissal from $1.8B FTX lawsuit",
+        "time_published": "2025-08-06T06:42:34",
+        "authors": "Jesse Coghlan",
+        "summary": "Changpeng Zhao has asked to dismiss a lawsuit from FTX seeking to recover $1.8 billion the bankrupt crypto exchange said it used in a share repurchase deal.",
+        "source": "Cointelegraph",
+        "overall_sentiment_score": -0.2852,
+        "overall_sentiment_label": "Somewhat-Bearish",
+        "query_type": "coinbase_news",
+        "query_params": "tickers=COIN",
+        "created_at": "2025-08-07T00:01:27.600615",
+        "sentiment_interpretation": "부정적",
+        "sentiment_emoji": "📉",
+        "related_tickers": [
+          {
+            "ticker": "COIN",
+            "relevance_score": 0.064623,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.0
+          },
+          {
+            "ticker": "CRYPTO:XCP",
+            "relevance_score": 0.064623,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.0
+          },
+          {
+            "ticker": "CRYPTO:BUSD",
+            "relevance_score": 0.128822,
+            "ticker_sentiment_label": "Somewhat-Bullish",
+            "ticker_sentiment_score": 0.204127
+          },
+          {
+            "ticker": "CRYPTO:FTT",
+            "relevance_score": 0.31482,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.103041
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Finance",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Blockchain",
+            "relevance_score": 0.576289
+          }
+        ]
+      },
+      {
+        "batch_id": 18,
+        "url": "https://decrypt.co/333705/india-freezes-assets-man-jailed-us-20m-crypto-fraud",
+        "title": "India Freezes Assets Linked to Man Jailed in US Over $20M Crypto Fraud",
+        "time_published": "2025-08-06T04:52:38",
+        "authors": "Vismaya V",
+        "summary": "Chirag Tomar, convicted in the U.S. for a $20M crypto scam using fake Coinbase websites, ran a phishing network targeting global victims.",
+        "source": "Decrypt.co",
+        "overall_sentiment_score": -0.2273,
+        "overall_sentiment_label": "Somewhat-Bearish",
+        "query_type": "coinbase_news",
+        "query_params": "tickers=COIN",
+        "created_at": "2025-08-07T00:01:27.614709",
+        "sentiment_interpretation": "부정적",
+        "sentiment_emoji": "📉",
+        "related_tickers": [
+          {
+            "ticker": "COIN",
+            "relevance_score": 0.266828,
+            "ticker_sentiment_label": "Somewhat-Bearish",
+            "ticker_sentiment_score": -0.326111
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Finance",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Blockchain",
+            "relevance_score": 0.310843
+          }
+        ]
+      },
+      {
+        "batch_id": 18,
+        "url": "https://cointelegraph.com/news/my-constant-founder-settle-sec-claims-terrausd-bet",
+        "title": "Crypto exec to pay $10M to settle SEC claims over betting on TerraUSD",
+        "time_published": "2025-08-06T03:45:36",
+        "authors": "Jesse Coghlan",
+        "summary": "The founder of the lending firm MyConstant agreed to pay over $10 million to the SEC to settle claims he stole millions to buy the now-collapsed Terra stablecoin.",
+        "source": "Cointelegraph",
+        "overall_sentiment_score": -0.1164,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "coinbase_news",
+        "query_params": "tickers=COIN",
+        "created_at": "2025-08-07T00:01:27.639748",
+        "sentiment_interpretation": "부정적",
+        "sentiment_emoji": "📉",
+        "related_tickers": [
+          {
+            "ticker": "COIN",
+            "relevance_score": 0.073321,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.0
+          },
+          {
+            "ticker": "CRYPTO:UST",
+            "relevance_score": 0.538389,
+            "ticker_sentiment_label": "Somewhat-Bearish",
+            "ticker_sentiment_score": -0.199562
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Finance",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Blockchain",
+            "relevance_score": 0.769861
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.684621
+          }
+        ]
+      },
+      {
+        "batch_id": 17,
+        "url": "https://www.benzinga.com/pressreleases/25/08/g46875781/3d-systems-corporation-investors-please-contact-the-portnoy-law-firm-to-recover-your-losses-august",
+        "title": "3D Systems Corporation Investors: Please contact the Portnoy Law Firm to recover your losses; August 12, 2025 Deadline to file Lead Plaintiff Motion - 3D Sys  ( NYSE:DDD ) ",
+        "time_published": "2025-08-05T22:05:22",
+        "authors": "Globe Newswire",
+        "summary": "Investors can contact the law firm at no cost to learn more about recovering their losses",
+        "source": "Benzinga",
+        "overall_sentiment_score": -0.1623,
+        "overall_sentiment_label": "Somewhat-Bearish",
+        "query_type": "technology_general",
+        "query_params": "topics=technology&sort=LATEST",
+        "created_at": "2025-08-06T00:01:20.825082",
+        "sentiment_interpretation": "부정적",
+        "sentiment_emoji": "📉",
+        "related_tickers": [
+          {
+            "ticker": "DDD",
+            "relevance_score": 0.581269,
+            "ticker_sentiment_label": "Somewhat-Bearish",
+            "ticker_sentiment_score": -0.316118
+          },
+          {
+            "ticker": "UTHR",
+            "relevance_score": 0.064449,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.135762
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Life Sciences",
+            "relevance_score": 0.5
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.266143
+          },
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.929393
+          },
+          {
+            "topic": "Technology",
+            "relevance_score": 0.5
+          }
+        ]
+      },
+      {
+        "batch_id": 18,
+        "url": "https://www.benzinga.com/crypto/cryptocurrency/25/08/46868845/bitcoin-ethereum-xrp-dogecoin-reverse-as-market-dips-on-weak-macro-data",
+        "title": "Bitcoin, Ethereum, XRP, Dogecoin Reverse As Market Dips On Weak Macro Data",
+        "time_published": "2025-08-05T18:55:04",
+        "authors": "Khyathi Dalal",
+        "summary": "Global cryptocurrency market capitalization slips 2.4% lower to $3.7 trillion. Traders split: one sees slow upward grind before breakout, another warns of a new low to grab liquidity. The next correction is closer than you think. Find out how Tom Gentile plans to trade it, live on Wednesday.",
+        "source": "Benzinga",
+        "overall_sentiment_score": -0.1006,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "coinbase_news",
+        "query_params": "tickers=COIN",
+        "created_at": "2025-08-07T00:01:27.699353",
+        "sentiment_interpretation": "부정적",
+        "sentiment_emoji": "📉",
+        "related_tickers": [
+          {
+            "ticker": "COIN",
+            "relevance_score": 0.089129,
+            "ticker_sentiment_label": "Bearish",
+            "ticker_sentiment_score": -0.482359
+          },
+          {
+            "ticker": "MEIP",
+            "relevance_score": 0.089129,
+            "ticker_sentiment_label": "Somewhat-Bullish",
+            "ticker_sentiment_score": 0.317853
+          },
+          {
+            "ticker": "PLSQF",
+            "relevance_score": 0.089129,
+            "ticker_sentiment_label": "Somewhat-Bullish",
+            "ticker_sentiment_score": 0.268525
+          },
+          {
+            "ticker": "CRYPTO:BTC",
+            "relevance_score": 0.686288,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.003902
+          },
+          {
+            "ticker": "CRYPTO:ETH",
+            "relevance_score": 0.17715,
+            "ticker_sentiment_label": "Bullish",
+            "ticker_sentiment_score": 0.451714
+          },
+          {
+            "ticker": "CRYPTO:LTC",
+            "relevance_score": 0.089129,
+            "ticker_sentiment_label": "Somewhat-Bullish",
+            "ticker_sentiment_score": 0.317853
+          },
+          {
+            "ticker": "CRYPTO:BTG",
+            "relevance_score": 0.089129,
+            "ticker_sentiment_label": "Bearish",
+            "ticker_sentiment_score": -0.470882
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Economy - Monetary",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Life Sciences",
+            "relevance_score": 0.5
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.214378
+          },
+          {
+            "topic": "Finance",
+            "relevance_score": 0.5
+          },
+          {
+            "topic": "Blockchain",
+            "relevance_score": 0.451494
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "request_url": "http://localhost:30888/api/v1/treasury-yield/recent",
+  "data": {
+    "latest_date": "2025-06-01",
+    "data": [
+      {
+        "date": "2025-06-01",
+        "maturity": "10year",
+        "interval_type": "monthly",
+        "yield_rate": "4.3800",
+        "created_at": "2025-07-23T05:37:02.487095",
+        "updated_at": "2025-08-01T00:02:35.148176"
+      },
+      {
+        "date": "2025-06-01",
+        "maturity": "2year",
+        "interval_type": "monthly",
+        "yield_rate": "3.8900",
+        "created_at": "2025-07-23T05:36:54.575956",
+        "updated_at": "2025-08-01T00:01:16.060082"
+      },
+      {
+        "date": "2025-06-01",
+        "maturity": "30year",
+        "interval_type": "monthly",
+        "yield_rate": "4.8900",
+        "created_at": "2025-07-23T05:37:18.397664",
+        "updated_at": "2025-08-01T00:03:15.058086"
+      }
+    ],
+    "previous_data": [],
+    "changes": {}
+  }
+}

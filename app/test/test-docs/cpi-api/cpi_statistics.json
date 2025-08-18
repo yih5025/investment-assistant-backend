@@ -1,0 +1,16 @@
+{
+  "request_url": "http://localhost:30888/api/v1/cpi/statistics",
+  "data": {
+    "latest_date": "2025-06-01",
+    "latest_cpi": 322.561,
+    "previous_month_cpi": 321.465,
+    "monthly_change": 0.341,
+    "monthly_change_value": 1.096,
+    "annual_inflation": 2.67,
+    "avg_12_months": 317.46,
+    "max_12_months": 322.561,
+    "min_12_months": 314.175,
+    "trend": "rising",
+    "total_months": 24
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "request_url": "http://localhost:30888/api/v1/cpi/current",
+  "data": {
+    "date": "2025-06-01",
+    "cpi_value": 322.561,
+    "interval_type": "monthly",
+    "unit": "index 1982-1984=100",
+    "name": "Consumer Price Index for all Urban Consumers"
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "items": [
+    {
+      "tweet_id": "1951258192874258874",
+      "author_id": "244647486",
+      "text": "$MSTR is Amplified Bitcoin.\n$STRK is Structured Bitcoin.\n$STRC is Treasury Bitcoin. https://t.co/iv5O6NkIol",
+      "created_at": "2025-08-01T12:26:20Z",
+      "lang": "en",
+      "author": {
+        "username": "saylor",
+        "display_name": "Michael Saylor",
+        "verified": false,
+        "followers_count": 4505437,
+        "following_count": 745,
+        "tweet_count": 6450
+      },
+      "engagement": {
+        "likes": 7006,
+        "retweets": 1086,
+        "replies": 697,
+        "quotes": 112,
+        "bookmarks": 1430,
+        "impressions": 605983,
+        "engagement_score": 12923
+      },
+      "metadata": {
+        "hashtags": null,
+        "mentions": null,
+        "urls": [
+          {
+            "end": 107,
+            "url": "https://t.co/iv5O6NkIol",
+            "start": 84,
+            "media_key": "13_1951257099003973633",
+            "display_url": "pic.x.com/iv5O6NkIol",
+            "expanded_url": "https://x.com/BitcoinNews2905/status/1951257329460003100/video/1"
+          }
+        ],
+        "cashtags": [
+          {
+            "end": 5,
+            "tag": "MSTR",
+            "start": 0
+          },
+          {
+            "end": 33,
+            "tag": "STRK",
+            "start": 28
+          },
+          {
+            "end": 62,
+            "tag": "STRC",
+            "start": 57
+          }
+        ]
+      },
+      "classification": {
+        "account_category": "crypto",
+        "collection_source": "secondary_token",
+        "source_account": "saylor"
+      },
+      "tweet_url": "https://x.com/saylor/status/1951258192874258874"
+    },
+    {
+      "tweet_id": "1951444082477375827",
+      "author_id": "44196397",
+      "text": "Starlink now dynamically connects to the satellite with the best connection updating 10 times a second! https://t.co/BA1xojuevQ",
+      "created_at": "2025-08-02T00:44:59Z",
+      "lang": "en",
+      "author": {
+        "username": "elonmusk",
+        "display_name": "Elon Musk",
+        "verified": false,
+        "followers_count": 223505937,
+        "following_count": 1172,
+        "tweet_count": 82351
+      },
+      "engagement": {
+        "likes": 15972,
+        "retweets": 2384,
+        "replies": 1796,
+        "quotes": 124,
+        "bookmarks": 704,
+        "impressions": 1552691,
+        "engagement_score": 27080
+      },
+      "metadata": {
+        "hashtags": null,
+        "mentions": null,
+        "urls": [
+          {
+            "end": 127,
+            "url": "https://t.co/BA1xojuevQ",
+            "start": 104,
+            "display_url": "x.com/starlink/statu…",
+            "expanded_url": "https://twitter.com/starlink/status/1951398415973449902"
+          }
+        ],
+        "cashtags": null
+      },
+      "classification": {
+        "account_category": "core_investors",
+        "collection_source": "primary_token",
+        "source_account": "elonmusk"
+      },
+      "tweet_url": "https://x.com/elonmusk/status/1951444082477375827"
+    },
+    {
+      "tweet_id": "1951401912605061556",
+      "author_id": "244647486",
+      "text": "In the short term, Bitcoin is a trading asset. Over the long term, it’s a treasury asset.",
+      "created_at": "2025-08-01T21:57:25Z",
+      "lang": "en",
+      "author": {
+        "username": "saylor",
+        "display_name": "Michael Saylor",
+        "verified": false,
+        "followers_count": 4505437,
+        "following_count": 745,
+        "tweet_count": 6450
+      },
+      "engagement": {
+        "likes": 10474,
+        "retweets": 1060,
+        "replies": 892,
+        "quotes": 125,
+        "bookmarks": 259,
+        "impressions": 396593,
+        "engagement_score": 15779
+      },
+      "metadata": {
+        "hashtags": null,
+        "mentions": null,
+        "urls": null,
+        "cashtags": null
+      },
+      "classification": {
+        "account_category": "crypto",
+        "collection_source": "secondary_token",
+        "source_account": "saylor"
+      },
+      "tweet_url": "https://x.com/saylor/status/1951401912605061556"
+    }
+  ],
+  "ranking_type": "most-bookmarked",
+  "period": "24h",
+  "total_count": 3
+}

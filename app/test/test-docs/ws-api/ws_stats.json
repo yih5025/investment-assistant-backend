@@ -1,0 +1,47 @@
+{
+  "request_url": "http://localhost:30888/api/v1/ws/stats",
+  "data": {
+    "timestamp": "2025-08-11T07:16:59.828542",
+    "service_stats": {
+      "performance": {
+        "total_queries": 0,
+        "db_queries": 0,
+        "redis_queries": 0,
+        "cache_hit_rate": "0.0%",
+        "changes_detected": 0,
+        "errors": 0
+      },
+      "data_status": {
+        "last_update": null,
+        "cached_datasets": 0,
+        "data_hashes": 0
+      },
+      "health": {
+        "redis_available": false,
+        "error_rate": 0.0
+      }
+    },
+    "connection_stats": {
+      "total_connections": 0,
+      "total_disconnections": 0,
+      "total_messages_sent": 0,
+      "total_errors": 0,
+      "start_time": "2025-08-07T05:40:35.634399",
+      "uptime_seconds": 351384.194124,
+      "uptime_str": "4 days, 1:36:24.194124",
+      "subscription_breakdown": {
+        "topgainers": 0,
+        "crypto": 0,
+        "sp500": 0,
+        "dashboard": 0,
+        "symbols": {}
+      },
+      "error_rate": 0.0
+    },
+    "performance": {
+      "average_response_time": "< 500ms",
+      "data_freshness": "500ms",
+      "uptime": "running"
+    }
+  }
+}

@@ -1,0 +1,910 @@
+{
+  "request_url": "http://localhost:30888/api/v1/market-news-sentiment/neutral",
+  "data": {
+    "total_count": 20,
+    "batch_info": {
+      "latest_batch_id": 22,
+      "collection_date": "2025-08-11",
+      "total_batches": 22
+    },
+    "news": [
+      {
+        "batch_id": 22,
+        "url": "https://www.benzinga.com/pressreleases/25/08/g47021994/rosen-leading-trial-attorneys-encourages-alto-neuroscience-inc-investors-to-secure-counsel-before-",
+        "title": "ROSEN, LEADING TRIAL ATTORNEYS, Encourages Alto Neuroscience, Inc. Investors to Secure Counsel Before Important Deadline in Securities Class Action - ANRO - Alto Neuroscience  ( NYSE:ANRO ) ",
+        "time_published": "2025-08-10T22:52:45",
+        "authors": "Globe Newswire",
+        "summary": "NEW YORK, Aug. 10, 2025 ( GLOBE NEWSWIRE ) -- WHY: Rosen Law Firm, a global investor rights law firm, reminds purchasers of common stock of Alto Neuroscience, Inc. ANRO: ( i ) pursuant and/or traceable to Alto's initial public offering conducted on or about February 2, 2024 ( the \"IPO\" ).",
+        "source": "Benzinga",
+        "overall_sentiment_score": 0.0939,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "technology_markets",
+        "query_params": "topics=technology",
+        "created_at": "2025-08-11T00:01:23.669642",
+        "sentiment_interpretation": "중립적",
+        "sentiment_emoji": "➡️",
+        "related_tickers": [
+          {
+            "ticker": "ANRO",
+            "relevance_score": 0.122894,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.093712
+          },
+          {
+            "ticker": "META",
+            "relevance_score": 0.061631,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.0
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "IPO",
+            "relevance_score": 0.310843
+          },
+          {
+            "topic": "Technology",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.839681
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.fool.com/investing/2025/08/10/could-buying-ups-stock-today-set-you-up-for-life/",
+        "title": "Could Buying UPS Stock Today Set You Up for Life?",
+        "time_published": "2025-08-10T22:32:00",
+        "authors": "Leo Sun",
+        "summary": "The shipping giant still faces difficult long-term challenges.",
+        "source": "Motley Fool",
+        "overall_sentiment_score": -0.0363,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "earnings_markets",
+        "query_params": "topics=earnings",
+        "created_at": "2025-08-11T00:01:25.118028",
+        "sentiment_interpretation": "중립적",
+        "sentiment_emoji": "➡️",
+        "related_tickers": [
+          {
+            "ticker": "AMZN",
+            "relevance_score": 0.19117,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.024831
+          },
+          {
+            "ticker": "FDX",
+            "relevance_score": 0.128135,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.106659
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Economy - Monetary",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Retail & Wholesale",
+            "relevance_score": 0.5
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.962106
+          },
+          {
+            "topic": "Earnings",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Energy & Transportation",
+            "relevance_score": 0.5
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.fool.com/investing/2025/08/10/rivian-faces-a-dreaded-triple-whammy-can-the-stock/",
+        "title": "Rivian Faces a Dreaded Triple Whammy. Can the Stock Recover?",
+        "time_published": "2025-08-10T22:14:00",
+        "authors": "Daniel Miller",
+        "summary": "2025 is shaping up as a rough year for Rivian with no vehicle launches and multiple negative developments.",
+        "source": "Motley Fool",
+        "overall_sentiment_score": 0.0122,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "earnings_markets",
+        "query_params": "topics=earnings",
+        "created_at": "2025-08-11T00:01:25.259280",
+        "sentiment_interpretation": "중립적",
+        "sentiment_emoji": "➡️",
+        "related_tickers": [],
+        "related_topics": [
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.77141
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.scmp.com/news/china/diplomacy/article/3321394/trump-may-impose-more-tariffs-china-punishment-beijing-buying-russian-oil",
+        "title": "Trump may hit China with punitive tariffs over purchases of Russian oil",
+        "time_published": "2025-08-10T21:37:46",
+        "authors": "Robert Delaney",
+        "summary": "US Vice-President J.D. Vance said on Sunday that President Donald Trump is \"thinking\" about slapping new tariffs on imports from China in response to the country's purchases of Russian oil. Vance was asked in a Fox News interview whether Trump would move against Beijing as he did against New ...",
+        "source": "South China Morning Post",
+        "overall_sentiment_score": 0.0072,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "technology_markets",
+        "query_params": "topics=technology",
+        "created_at": "2025-08-11T00:01:23.682502",
+        "sentiment_interpretation": "중립적",
+        "sentiment_emoji": "➡️",
+        "related_tickers": [
+          {
+            "ticker": "FOX",
+            "relevance_score": 0.084423,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.011438
+          },
+          {
+            "ticker": "BNXYF",
+            "relevance_score": 0.084423,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.092187
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Technology",
+            "relevance_score": 1.0
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.benzinga.com/pressreleases/25/08/g47021884/rosen-recognized-investor-counsel-encourages-luminar-technologies-inc-investors-to-secure-counsel-",
+        "title": "ROSEN, RECOGNIZED INVESTOR COUNSEL, Encourages Luminar Technologies, Inc. Investors to Secure Counsel Before Important Deadline in Securities Class Action - LAZR - Luminar Technologies  ( NASDAQ:LAZR ) ",
+        "time_published": "2025-08-10T21:08:00",
+        "authors": "Globe Newswire",
+        "summary": "NEW YORK, Aug. 10, 2025 ( GLOBE NEWSWIRE ) -- WHY: Rosen Law Firm, a global investor rights law firm, reminds purchasers of securities of Luminar Technologies, Inc. LAZR between March 20, 2025 and May 14, 2025, both dates inclusive ( the \"Class Period\" ) , of the important September 22, 2025 ...",
+        "source": "Benzinga",
+        "overall_sentiment_score": 0.0627,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "technology_markets",
+        "query_params": "topics=technology",
+        "created_at": "2025-08-11T00:01:24.307443",
+        "sentiment_interpretation": "중립적",
+        "sentiment_emoji": "➡️",
+        "related_tickers": [
+          {
+            "ticker": "META",
+            "relevance_score": 0.056943,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.0
+          },
+          {
+            "ticker": "LAZR",
+            "relevance_score": 0.113597,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.144278
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Real Estate & Construction",
+            "relevance_score": 0.5
+          },
+          {
+            "topic": "Technology",
+            "relevance_score": 0.5
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.650727
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.cnbc.com/2025/08/10/nvidia-china-h20-chips.html",
+        "title": "Nvidia claps back against Chinese accusations its H20 chips pose a security risk",
+        "time_published": "2025-08-10T19:47:28",
+        "authors": null,
+        "summary": "Nvidia pushed back Sunday in response to allegations from Chinese state media that its H20 artificial intelligence chips are a national security risk for China.",
+        "source": "CNBC",
+        "overall_sentiment_score": 0.0384,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "nvidia_sunday",
+        "query_params": "tickers=NVDA",
+        "created_at": "2025-08-11T00:01:27.432109",
+        "sentiment_interpretation": "중립적",
+        "sentiment_emoji": "➡️",
+        "related_tickers": [
+          {
+            "ticker": "NVDA",
+            "relevance_score": 0.746902,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.031625
+          },
+          {
+            "ticker": "ON",
+            "relevance_score": 0.075874,
+            "ticker_sentiment_label": "Somewhat-Bearish",
+            "ticker_sentiment_score": -0.157923
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Manufacturing",
+            "relevance_score": 1.0
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://cointelegraph.com/news/world-mobile-launch-world-mobile-stratospheric",
+        "title": "World Mobile launches drone-based, decentralized telecom project",
+        "time_published": "2025-08-10T19:45:49",
+        "authors": "Vince Quill",
+        "summary": "The decentralized telecommunication project uses unmanned aerial drones in the stratosphere to provide wireless services to users.",
+        "source": "Cointelegraph",
+        "overall_sentiment_score": -0.0192,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "blockchain_markets",
+        "query_params": "topics=blockchain",
+        "created_at": "2025-08-11T00:01:26.195018",
+        "sentiment_interpretation": "중립적",
+        "sentiment_emoji": "➡️",
+        "related_tickers": [],
+        "related_topics": [
+          {
+            "topic": "Blockchain",
+            "relevance_score": 0.310843
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.benzinga.com/news/politics/25/08/47021735/trump-on-pelosis-investments-inside-information-is-anybody-looking-into-this",
+        "title": "Trump on Pelosi's Investments: 'INSIDE INFORMATION,' 'Is Anybody Looking Into This?'",
+        "time_published": "2025-08-10T19:36:03",
+        "authors": "Bibhu Pattnaik",
+        "summary": "Trump accuses Pelosi and her husband of insider trading, sparking fresh controversy over politicians' stock trades. Nancy Pelosi backs the HONEST Act to ban Congress and executive members from stock trading, amidst personal scrutiny.",
+        "source": "Benzinga",
+        "overall_sentiment_score": -0.0049,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "retail_markets",
+        "query_params": "topics=retail_wholesale",
+        "created_at": "2025-08-11T00:01:26.405931",
+        "sentiment_interpretation": "중립적",
+        "sentiment_emoji": "➡️",
+        "related_tickers": [
+          {
+            "ticker": "HNST",
+            "relevance_score": 0.301933,
+            "ticker_sentiment_label": "Somewhat-Bearish",
+            "ticker_sentiment_score": -0.193119
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Economy - Monetary",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Retail & Wholesale",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 1.0
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.benzinga.com/markets/large-cap/25/08/47021653/gartner-eli-lilly-and-the-trade-desk-are-among-top-10-large-cap-losers-last-week-august-4-augus",
+        "title": "Gartner, Eli Lilly, And The Trade Desk Are Among Top 10 Large Cap Losers Last Week  ( August 4-August 8 ) : Are The Others In Your Portfolio? - Figma  ( NYSE:FIG ) , Fortinet  ( NASDAQ:FTNT ) ",
+        "time_published": "2025-08-10T18:41:59",
+        "authors": "Nabaparna Bhattacharya",
+        "summary": "Ad-tech, cybersecurity and AI hardware led declines on weak results and guidance. Pharma and platforms fell on trial updates, note offerings and IPO volatility. This simple system has nailed 1,000+ post-earnings winners. Get in before Q3 trades take off →",
+        "source": "Benzinga",
+        "overall_sentiment_score": -0.0463,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "earnings_markets",
+        "query_params": "topics=earnings",
+        "created_at": "2025-08-11T00:01:25.362502",
+        "sentiment_interpretation": "중립적",
+        "sentiment_emoji": "➡️",
+        "related_tickers": [],
+        "related_topics": [
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "IPO",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.161647
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://decrypt.co/resources/grok-ai-elon-musk-controversial-chatgpt-rival",
+        "title": "What Is Grok AI? Elon Musk's Controversial ChatGPT Rival",
+        "time_published": "2025-08-10T17:01:02",
+        "authors": "Jason Nelson",
+        "summary": "Built into social media platform X, Grok is Musk's edgy AI chatbot-real-time, irreverent, and mired in controversy.",
+        "source": "Decrypt.co",
+        "overall_sentiment_score": -0.0649,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "technology_markets",
+        "query_params": "topics=technology",
+        "created_at": "2025-08-11T00:01:23.761011",
+        "sentiment_interpretation": "중립적",
+        "sentiment_emoji": "➡️",
+        "related_tickers": [
+          {
+            "ticker": "GOOG",
+            "relevance_score": 0.069495,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.045379
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Technology",
+            "relevance_score": 1.0
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.cnbc.com/2025/08/10/trump-crime-washington-dc-border-.html",
+        "title": "Trump warns homeless to leave Washington, D.C., 'immediately'",
+        "time_published": "2025-08-10T16:57:06",
+        "authors": null,
+        "summary": "President Donald Trump's remarks come as he has increased his rhetoric about countering crime in the District in recent days.",
+        "source": "CNBC",
+        "overall_sentiment_score": -0.0667,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "technology_markets",
+        "query_params": "topics=technology",
+        "created_at": "2025-08-11T00:01:23.778116",
+        "sentiment_interpretation": "중립적",
+        "sentiment_emoji": "➡️",
+        "related_tickers": [
+          {
+            "ticker": "CCZ",
+            "relevance_score": 0.073546,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.111911
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Technology",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.108179
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.fool.com/investing/2025/08/10/where-will-walgreens-be-in-1-year/",
+        "title": "Where Will Walgreens Be in 1 Year?",
+        "time_published": "2025-08-10T16:32:00",
+        "authors": "Reuben Gregg Brewer",
+        "summary": "Walgreens has agreed to be taken private, but the agreement is a bit complex. There's a reason to buy the stock despite the deal.",
+        "source": "Motley Fool",
+        "overall_sentiment_score": 0.0891,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "ipo_markets",
+        "query_params": "topics=ipo",
+        "created_at": "2025-08-11T00:01:25.566835",
+        "sentiment_interpretation": "중립적",
+        "sentiment_emoji": "➡️",
+        "related_tickers": [
+          {
+            "ticker": "WBA",
+            "relevance_score": 0.122269,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.059805
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "IPO",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Retail & Wholesale",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.316726
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.cnbc.com/2025/08/10/texas-redistricting-trump-abbott-democrats-.html",
+        "title": "Democrats slam GOP redistricting fight as 'cheating' as Texas Gov. Abbott threatens arrests",
+        "time_published": "2025-08-10T16:26:30",
+        "authors": null,
+        "summary": "Democratic lawmakers said the party has \"got to fight back\" against the redistricting effort in Texas.",
+        "source": "CNBC",
+        "overall_sentiment_score": -0.0823,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "technology_markets",
+        "query_params": "topics=technology",
+        "created_at": "2025-08-11T00:01:23.795946",
+        "sentiment_interpretation": "중립적",
+        "sentiment_emoji": "➡️",
+        "related_tickers": [
+          {
+            "ticker": "WBD",
+            "relevance_score": 0.054983,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.082828
+          },
+          {
+            "ticker": "FOX",
+            "relevance_score": 0.109705,
+            "ticker_sentiment_label": "Somewhat-Bearish",
+            "ticker_sentiment_score": -0.200162
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Technology",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.108179
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.benzinga.com/markets/tech/25/08/47021272/investors-flee-companies-seen-as-most-at-risk-from-artificial-intelligence",
+        "title": "Investors Flee Companies Seen as Most at Risk From Artificial Intelligence - Adobe  ( NASDAQ:ADBE ) , ProShares Trust ProShares S&P 500 Dynamic Buffer ETF  ( BATS:FB ) ",
+        "time_published": "2025-08-10T15:16:24",
+        "authors": "Bibhu Pattnaik",
+        "summary": "Investor flight signals AI-induced market shake-up, with tech firms bearing the brunt. Big tech's AI investments cast long shadow on stock market's winners and losers. The next 100%+ earnings move could hit this month. See how to find it live on Wednesday →",
+        "source": "Benzinga",
+        "overall_sentiment_score": null,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "technology_markets",
+        "query_params": "topics=technology",
+        "created_at": "2025-08-11T00:01:24.354591",
+        "sentiment_interpretation": "알 수 없음",
+        "sentiment_emoji": "❓",
+        "related_tickers": [
+          {
+            "ticker": "MSFT",
+            "relevance_score": 0.160099,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.0
+          },
+          {
+            "ticker": "META",
+            "relevance_score": 0.080458,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.0
+          },
+          {
+            "ticker": "SSTK",
+            "relevance_score": 0.160099,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.090728
+          },
+          {
+            "ticker": "BAC",
+            "relevance_score": 0.080458,
+            "ticker_sentiment_label": "Somewhat-Bearish",
+            "ticker_sentiment_score": -0.189804
+          },
+          {
+            "ticker": "MS",
+            "relevance_score": 0.080458,
+            "ticker_sentiment_label": "Somewhat-Bearish",
+            "ticker_sentiment_score": -0.236049
+          },
+          {
+            "ticker": "ADBE",
+            "relevance_score": 0.160099,
+            "ticker_sentiment_label": "Somewhat-Bearish",
+            "ticker_sentiment_score": -0.245964
+          },
+          {
+            "ticker": "DUOL",
+            "relevance_score": 0.080458,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.139581
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.997405
+          },
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Technology",
+            "relevance_score": 0.5
+          },
+          {
+            "topic": "Finance",
+            "relevance_score": 0.5
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.benzinga.com/news/politics/25/08/47021221/donald-trumps-401k-executive-order-brings-major-changes-and-potential-risks-for-your-retirement",
+        "title": "Donald Trump's 401 ( k )  Executive Order Brings Major Changes - and Potential Risks for Your Retirement",
+        "time_published": "2025-08-10T14:31:08",
+        "authors": "Bibhu Pattnaik",
+        "summary": "Trump's executive order opens 401 ( k ) plans to private equity, sparking risk and fee concerns. Experts warn private equity's illiquidity and high fees could destabilize Americans' retirement savings. This simple system has nailed 1,000+ post-earnings winners. Get in before Q3 trades take ...",
+        "source": "Benzinga",
+        "overall_sentiment_score": 0.012,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "earnings_markets",
+        "query_params": "topics=earnings",
+        "created_at": "2025-08-11T00:01:25.417179",
+        "sentiment_interpretation": "중립적",
+        "sentiment_emoji": "➡️",
+        "related_tickers": [],
+        "related_topics": [
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.803643
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.benzinga.com/markets/equities/25/08/47021037/consumer-tech-news-august-4-august-8-earnings-from-palantir-uber-shopify-more-amid-trumps-tariff",
+        "title": "Consumer Tech News  ( August 4-August 8 ) : Earnings From Palantir, Uber, Shopify & More Amid Trump's Tariff Saga - Apple  ( NASDAQ:AAPL ) , Airbnb  ( NASDAQ:ABNB ) ",
+        "time_published": "2025-08-10T12:31:08",
+        "authors": "Nabaparna Bhattacharya",
+        "summary": "Ceasefire feelers and new U.S. tariffs on gold bars, India and Switzerland drove a record gold spread; crude briefly dipped sub-$64. Earnings prints from Palantir, Uber, Shopify, Datadog and more underpinned a rebound after weak jobs data and a June inflation uptick.",
+        "source": "Benzinga",
+        "overall_sentiment_score": 0.0362,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "technology_markets",
+        "query_params": "topics=technology",
+        "created_at": "2025-08-11T00:01:24.440642",
+        "sentiment_interpretation": "중립적",
+        "sentiment_emoji": "➡️",
+        "related_tickers": [
+          {
+            "ticker": "APP",
+            "relevance_score": 0.074576,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.146494
+          },
+          {
+            "ticker": "GOOG",
+            "relevance_score": 0.074576,
+            "ticker_sentiment_label": "Somewhat-Bearish",
+            "ticker_sentiment_score": -0.215566
+          },
+          {
+            "ticker": "AAPL",
+            "relevance_score": 0.074576,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.002125
+          },
+          {
+            "ticker": "TTD",
+            "relevance_score": 0.074576,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.110022
+          },
+          {
+            "ticker": "BSQKZ",
+            "relevance_score": 0.037329,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.0
+          },
+          {
+            "ticker": "F",
+            "relevance_score": 0.074576,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.057273
+          },
+          {
+            "ticker": "GM",
+            "relevance_score": 0.074576,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.059136
+          },
+          {
+            "ticker": "SMCI",
+            "relevance_score": 0.074576,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.0
+          },
+          {
+            "ticker": "DDOG",
+            "relevance_score": 0.11166,
+            "ticker_sentiment_label": "Somewhat-Bearish",
+            "ticker_sentiment_score": -0.159041
+          },
+          {
+            "ticker": "RIVN",
+            "relevance_score": 0.074576,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.0
+          },
+          {
+            "ticker": "ABNB",
+            "relevance_score": 0.074576,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.0
+          },
+          {
+            "ticker": "DASH",
+            "relevance_score": 0.074576,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.110022
+          },
+          {
+            "ticker": "DJT",
+            "relevance_score": 0.074576,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.120146
+          },
+          {
+            "ticker": "TSM",
+            "relevance_score": 0.074576,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.049385
+          },
+          {
+            "ticker": "SHOP",
+            "relevance_score": 0.11166,
+            "ticker_sentiment_label": "Somewhat-Bearish",
+            "ticker_sentiment_score": -0.182269
+          },
+          {
+            "ticker": "TSLA",
+            "relevance_score": 0.11166,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.108986
+          },
+          {
+            "ticker": "HYMLF",
+            "relevance_score": 0.037329,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.0
+          },
+          {
+            "ticker": "INTC",
+            "relevance_score": 0.074576,
+            "ticker_sentiment_label": "Somewhat-Bullish",
+            "ticker_sentiment_score": 0.259657
+          },
+          {
+            "ticker": "UBER",
+            "relevance_score": 0.11166,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.147302
+          },
+          {
+            "ticker": "ON",
+            "relevance_score": 0.037329,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.046748
+          },
+          {
+            "ticker": "PLTR",
+            "relevance_score": 0.074576,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.041348
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Economy - Monetary",
+            "relevance_score": 0.576289
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.918141
+          },
+          {
+            "topic": "Manufacturing",
+            "relevance_score": 0.5
+          },
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.999894
+          },
+          {
+            "topic": "Technology",
+            "relevance_score": 0.5
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.globenewswire.com/news-release/2025/08/10/3130545/0/en/IO-Biotech-to-Announce-Topline-Results-of-Pivotal-Phase-3-Trial-of-Cylembio-in-Combination-with-KEYTRUDA-pembrolizumab-as-a-First-Line-Treatment-for-Patients-with-Advanced-Melanoma.html",
+        "title": "IO Biotech to Announce Topline Results of Pivotal Phase 3 Trial of Cylembio® in Combination with KEYTRUDA®  ( pembrolizumab )  as a First-Line Treatment for Patients with Advanced Melanoma",
+        "time_published": "2025-08-10T12:00:00",
+        "authors": "IO Biotech",
+        "summary": "IO Biotech to Announce Topline Results of Pivotal Phase 3 Trial ...",
+        "source": "GlobeNewswire",
+        "overall_sentiment_score": 0.0169,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "technology_markets",
+        "query_params": "topics=technology",
+        "created_at": "2025-08-11T00:01:23.897374",
+        "sentiment_interpretation": "중립적",
+        "sentiment_emoji": "➡️",
+        "related_tickers": [
+          {
+            "ticker": "IOBT",
+            "relevance_score": 0.743681,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.003952
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Technology",
+            "relevance_score": 1.0
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://cointelegraph.com/news/crypto-debanking-persists-despite-trump-pro-crypto-push",
+        "title": "Crypto debanking is 'still occurring' as banks stick to Chokepoint policies",
+        "time_published": "2025-08-10T11:11:52",
+        "authors": "Amin Haqshanas",
+        "summary": "Despite Trump's pro-crypto stance, Unicoin CEO says US banks continue closing accounts for crypto firms under \"Operation ...",
+        "source": "Cointelegraph",
+        "overall_sentiment_score": 0.0121,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "finance_markets",
+        "query_params": "topics=finance",
+        "created_at": "2025-08-11T00:01:24.733803",
+        "sentiment_interpretation": "중립적",
+        "sentiment_emoji": "➡️",
+        "related_tickers": [
+          {
+            "ticker": "WFC",
+            "relevance_score": 0.05749,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.041956
+          },
+          {
+            "ticker": "COIN",
+            "relevance_score": 0.05749,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.045955
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Finance",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Blockchain",
+            "relevance_score": 0.158519
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.benzinga.com/markets/tech/25/08/47020905/tesla-leads-used-ev-sales-in-record-setting-week-as-rivian-misses-lyft-stock-falls-lucid-faces-headw",
+        "title": "Tesla Leads Used EV Sales In Record-Setting Week As Rivian Misses, Lyft Stock Falls, Lucid Faces Headwinds - This Week In Mobility - Lucid Group  ( NASDAQ:LCID ) , Lyft  ( NASDAQ:LYFT ) ",
+        "time_published": "2025-08-10T11:01:19",
+        "authors": "Ananya Gairola",
+        "summary": "The past week was a rollercoaster ride for the market, with significant developments in the electric vehicle ( EV ) sector. From Rivian's second-quarter earnings report to Lyft's stock drop, the EV market hitting new records, Lucid facing near-term headwinds, and Tesla dominating used EV sales, ...",
+        "source": "Benzinga",
+        "overall_sentiment_score": 0.0239,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "earnings_markets",
+        "query_params": "topics=earnings",
+        "created_at": "2025-08-11T00:01:25.222619",
+        "sentiment_interpretation": "중립적",
+        "sentiment_emoji": "➡️",
+        "related_tickers": [
+          {
+            "ticker": "LCID",
+            "relevance_score": 0.465901,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.146937
+          },
+          {
+            "ticker": "RIVN",
+            "relevance_score": 0.244109,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.0
+          },
+          {
+            "ticker": "TSLA",
+            "relevance_score": 0.244109,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.039155
+          },
+          {
+            "ticker": "UBER",
+            "relevance_score": 0.244109,
+            "ticker_sentiment_label": "Somewhat-Bearish",
+            "ticker_sentiment_score": -0.200697
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.266143
+          },
+          {
+            "topic": "Manufacturing",
+            "relevance_score": 0.5
+          },
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.875462
+          },
+          {
+            "topic": "Real Estate & Construction",
+            "relevance_score": 0.5
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.cnbc.com/2025/08/10/trumps-no-tax-on-tips-worker-questions.html",
+        "title": "Trump's 'no tax on tips' raises worker questions: One bartender says it feels 'too good to be true'",
+        "time_published": "2025-08-10T11:00:01",
+        "authors": null,
+        "summary": "President Donald Trump's \"big beautiful bill\" includes a provision called \"no tax on tips.\" There are lingering questions about who qualifies for the deduction.",
+        "source": "CNBC",
+        "overall_sentiment_score": 0.0837,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "earnings_markets",
+        "query_params": "topics=earnings",
+        "created_at": "2025-08-11T00:01:25.283650",
+        "sentiment_interpretation": "중립적",
+        "sentiment_emoji": "➡️",
+        "related_tickers": [],
+        "related_topics": [
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.310843
+          },
+          {
+            "topic": "Economy - Fiscal",
+            "relevance_score": 0.158519
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "request_url": "http://localhost:30888/api/v1/",
+  "data": {
+    "service": "Investment Assistant API",
+    "version": "1.0.0",
+    "description": "투자 도우미 서비스의 메인 API",
+    "total_endpoints": 14,
+    "categories": {
+      "뉴스": [
+        "market-news",
+        "financial-news",
+        "company-news",
+        "market-news-sentiment"
+      ],
+      "소셜미디어": [
+        "truth-social",
+        "x-posts"
+      ],
+      "실적정보": [
+        "earnings-calendar",
+        "earnings-calendar-news"
+      ],
+      "경제지표": [
+        "inflation",
+        "federal-funds-rate",
+        "cpi"
+      ],
+      "재무제표": [
+        "balance-sheet"
+      ],
+      "국채수익률": [
+        "treasury-yield"
+      ]
+    },
+    "available_endpoints": {
+      "market-news": {
+        "description": "시장 뉴스 API",
+        "prefix": "/market-news",
+        "tag": "market-news"
+      },
+      "financial-news": {
+        "description": "금융 뉴스 API",
+        "prefix": "/financial-news",
+        "tag": "financial-news"
+      },
+      "company-news": {
+        "description": "기업 뉴스 API",
+        "prefix": "/company-news",
+        "tag": "company-news"
+      },
+      "market-news-sentiment": {
+        "description": "시장 뉴스 감성 분석 API",
+        "prefix": "/market-news-sentiment",
+        "tag": "market-news-sentiment"
+      },
+      "truth-social": {
+        "description": "Truth Social API",
+        "prefix": "/truth-social",
+        "tag": "truth-social"
+      },
+      "x-posts": {
+        "description": "X Posts API",
+        "prefix": "/x-posts",
+        "tag": "x-posts"
+      },
+      "earnings-calendar": {
+        "description": "실적 발표 캘린더 API",
+        "prefix": "/earnings-calendar",
+        "tag": "earnings-calendar"
+      },
+      "earnings-calendar-news": {
+        "description": "실적 캘린더 뉴스 API",
+        "prefix": "/earnings-calendar-news",
+        "tag": "earnings-calendar-news"
+      },
+      "inflation": {
+        "description": "인플레이션 데이터 API",
+        "prefix": "/inflation",
+        "tag": "inflation"
+      },
+      "federal-funds-rate": {
+        "description": "연방기금금리 API",
+        "prefix": "/federal-funds-rate",
+        "tag": "federal-funds-rate"
+      },
+      "cpi": {
+        "description": "소비자물가지수 API",
+        "prefix": "/cpi",
+        "tag": "cpi"
+      },
+      "balance-sheet": {
+        "description": "재무제표 API",
+        "prefix": "/balance-sheet",
+        "tag": "balance-sheet"
+      },
+      "treasury-yield": {
+        "description": "국채 수익률 API",
+        "prefix": "/treasury-yield",
+        "tag": "treasury-yield"
+      },
+      "": {
+        "description": "실시간 WebSocket 데이터 API",
+        "prefix": "",
+        "tag": "websocket"
+      }
+    },
+    "documentation": {
+      "swagger_ui": "/docs",
+      "redoc": "/redoc",
+      "openapi_json": "/openapi.json"
+    }
+  }
+}

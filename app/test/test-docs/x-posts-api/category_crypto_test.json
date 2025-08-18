@@ -1,0 +1,41 @@
+{
+  "items": [
+    {
+      "tweet_id": "1951086414520787332",
+      "text": "@brian_armstrong ₿2,509 🔥",
+      "username": "saylor",
+      "display_name": "Michael Saylor",
+      "created_at": "2025-08-01T01:03:45Z",
+      "like_count": 507,
+      "retweet_count": 32,
+      "reply_count": 37,
+      "tweet_url": "https://x.com/saylor/status/1951086414520787332"
+    },
+    {
+      "tweet_id": "1951077331461873743",
+      "text": "Brooklyn hackathon - come learn how to build crypto apps https://t.co/QtClUecOlB",
+      "username": "brian_armstrong",
+      "display_name": "Brian Armstrong",
+      "created_at": "2025-08-01T00:27:39Z",
+      "like_count": 189,
+      "retweet_count": 18,
+      "reply_count": 46,
+      "tweet_url": "https://x.com/brian_armstrong/status/1951077331461873743"
+    },
+    {
+      "tweet_id": "1951063905448632382",
+      "text": "From the Spotify leak - I've been exposed for having a 7 hour long playlist with only one song on it.\n\nIt helps me do deep focused work, don't ask me why. https://t.co/c2sn44LXAI",
+      "username": "brian_armstrong",
+      "display_name": "Brian Armstrong",
+      "created_at": "2025-07-31T23:34:18Z",
+      "like_count": 2858,
+      "retweet_count": 55,
+      "reply_count": 357,
+      "tweet_url": "https://x.com/brian_armstrong/status/1951063905448632382"
+    }
+  ],
+  "total_count": 20,
+  "limit": 3,
+  "offset": 0,
+  "has_more": true
+}

@@ -1,0 +1,43 @@
+{
+  "request_url": "http://localhost:30888/api/v1/treasury-yield/statistics",
+  "data": {
+    "as_of_date": "2025-06-01",
+    "statistics": [
+      {
+        "maturity": "2year",
+        "current_rate": "3.8900",
+        "avg_1month": "3.8900000000000000",
+        "avg_3month": "3.8633333333333333",
+        "avg_1year": "4.1023076923076923",
+        "min_1year": "3.62",
+        "max_1year": "4.74",
+        "volatility": "0.3045530563014663"
+      },
+      {
+        "maturity": "10year",
+        "current_rate": "4.3800",
+        "avg_1month": "4.3800000000000000",
+        "avg_3month": "4.3600000000000000",
+        "avg_1year": "4.2646153846153846",
+        "min_1year": "3.72",
+        "max_1year": "4.63",
+        "volatility": "0.24363960353410608"
+      },
+      {
+        "maturity": "30year",
+        "current_rate": "4.8900",
+        "avg_1month": "4.8900000000000000",
+        "avg_3month": "4.8333333333333333",
+        "avg_1year": "4.5553846153846154",
+        "min_1year": "4.04",
+        "max_1year": "4.9",
+        "volatility": "0.26503507266697685"
+      }
+    ],
+    "market_summary": {
+      "analysis_date": "2025-06-01",
+      "total_data_points": 2037,
+      "latest_update": "2025-06-01"
+    }
+  }
+}

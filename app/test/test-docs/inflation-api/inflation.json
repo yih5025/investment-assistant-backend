@@ -1,0 +1,148 @@
+{
+  "request_url": "http://localhost:30888/api/v1/inflation/",
+  "data": {
+    "total_count": 20,
+    "items": [
+      {
+        "date": "2024-01-01",
+        "inflation_rate": 2.95,
+        "interval_type": "annual",
+        "unit": "percent",
+        "name": "Inflation - US Consumer Prices"
+      },
+      {
+        "date": "2023-01-01",
+        "inflation_rate": 4.116,
+        "interval_type": "annual",
+        "unit": "percent",
+        "name": "Inflation - US Consumer Prices"
+      },
+      {
+        "date": "2022-01-01",
+        "inflation_rate": 8.003,
+        "interval_type": "annual",
+        "unit": "percent",
+        "name": "Inflation - US Consumer Prices"
+      },
+      {
+        "date": "2021-01-01",
+        "inflation_rate": 4.698,
+        "interval_type": "annual",
+        "unit": "percent",
+        "name": "Inflation - US Consumer Prices"
+      },
+      {
+        "date": "2020-01-01",
+        "inflation_rate": 1.234,
+        "interval_type": "annual",
+        "unit": "percent",
+        "name": "Inflation - US Consumer Prices"
+      },
+      {
+        "date": "2019-01-01",
+        "inflation_rate": 1.812,
+        "interval_type": "annual",
+        "unit": "percent",
+        "name": "Inflation - US Consumer Prices"
+      },
+      {
+        "date": "2018-01-01",
+        "inflation_rate": 2.443,
+        "interval_type": "annual",
+        "unit": "percent",
+        "name": "Inflation - US Consumer Prices"
+      },
+      {
+        "date": "2017-01-01",
+        "inflation_rate": 2.13,
+        "interval_type": "annual",
+        "unit": "percent",
+        "name": "Inflation - US Consumer Prices"
+      },
+      {
+        "date": "2016-01-01",
+        "inflation_rate": 1.262,
+        "interval_type": "annual",
+        "unit": "percent",
+        "name": "Inflation - US Consumer Prices"
+      },
+      {
+        "date": "2015-01-01",
+        "inflation_rate": 0.119,
+        "interval_type": "annual",
+        "unit": "percent",
+        "name": "Inflation - US Consumer Prices"
+      },
+      {
+        "date": "2014-01-01",
+        "inflation_rate": 1.622,
+        "interval_type": "annual",
+        "unit": "percent",
+        "name": "Inflation - US Consumer Prices"
+      },
+      {
+        "date": "2013-01-01",
+        "inflation_rate": 1.465,
+        "interval_type": "annual",
+        "unit": "percent",
+        "name": "Inflation - US Consumer Prices"
+      },
+      {
+        "date": "2012-01-01",
+        "inflation_rate": 2.069,
+        "interval_type": "annual",
+        "unit": "percent",
+        "name": "Inflation - US Consumer Prices"
+      },
+      {
+        "date": "2011-01-01",
+        "inflation_rate": 3.157,
+        "interval_type": "annual",
+        "unit": "percent",
+        "name": "Inflation - US Consumer Prices"
+      },
+      {
+        "date": "2010-01-01",
+        "inflation_rate": 1.64,
+        "interval_type": "annual",
+        "unit": "percent",
+        "name": "Inflation - US Consumer Prices"
+      },
+      {
+        "date": "2009-01-01",
+        "inflation_rate": -0.356,
+        "interval_type": "annual",
+        "unit": "percent",
+        "name": "Inflation - US Consumer Prices"
+      },
+      {
+        "date": "2008-01-01",
+        "inflation_rate": 3.839,
+        "interval_type": "annual",
+        "unit": "percent",
+        "name": "Inflation - US Consumer Prices"
+      },
+      {
+        "date": "2007-01-01",
+        "inflation_rate": 2.853,
+        "interval_type": "annual",
+        "unit": "percent",
+        "name": "Inflation - US Consumer Prices"
+      },
+      {
+        "date": "2006-01-01",
+        "inflation_rate": 3.226,
+        "interval_type": "annual",
+        "unit": "percent",
+        "name": "Inflation - US Consumer Prices"
+      },
+      {
+        "date": "2005-01-01",
+        "inflation_rate": 3.393,
+        "interval_type": "annual",
+        "unit": "percent",
+        "name": "Inflation - US Consumer Prices"
+      }
+    ]
+  }
+}

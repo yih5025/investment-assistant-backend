@@ -1,0 +1,17 @@
+{
+  "request_url": "http://localhost:30888/api/v1/x-posts/stats/overview/",
+  "data": {
+    "total_posts": 189,
+    "total_users": 14,
+    "categories": {
+      "crypto": 28,
+      "core_investors": 109,
+      "tech_ceo": 20,
+      "institutional": 22,
+      "corporate": 10
+    },
+    "recent_24h_posts": 0,
+    "avg_engagement": 3444.153439153439,
+    "top_posts_today": []
+  }
+}

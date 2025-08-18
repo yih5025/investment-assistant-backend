@@ -1,0 +1,182 @@
+{
+  "request_url": "http://localhost:30888/api/v1/cpi/chart",
+  "data": {
+    "data": [
+      {
+        "year": 2023,
+        "month": 7,
+        "cpi_value": 305.691,
+        "date_str": "2023-07",
+        "inflation_rate": null
+      },
+      {
+        "year": 2023,
+        "month": 8,
+        "cpi_value": 307.026,
+        "date_str": "2023-08",
+        "inflation_rate": null
+      },
+      {
+        "year": 2023,
+        "month": 9,
+        "cpi_value": 307.789,
+        "date_str": "2023-09",
+        "inflation_rate": null
+      },
+      {
+        "year": 2023,
+        "month": 10,
+        "cpi_value": 307.671,
+        "date_str": "2023-10",
+        "inflation_rate": null
+      },
+      {
+        "year": 2023,
+        "month": 11,
+        "cpi_value": 307.051,
+        "date_str": "2023-11",
+        "inflation_rate": null
+      },
+      {
+        "year": 2023,
+        "month": 12,
+        "cpi_value": 306.746,
+        "date_str": "2023-12",
+        "inflation_rate": null
+      },
+      {
+        "year": 2024,
+        "month": 1,
+        "cpi_value": 308.417,
+        "date_str": "2024-01",
+        "inflation_rate": null
+      },
+      {
+        "year": 2024,
+        "month": 2,
+        "cpi_value": 310.326,
+        "date_str": "2024-02",
+        "inflation_rate": null
+      },
+      {
+        "year": 2024,
+        "month": 3,
+        "cpi_value": 312.332,
+        "date_str": "2024-03",
+        "inflation_rate": null
+      },
+      {
+        "year": 2024,
+        "month": 4,
+        "cpi_value": 313.548,
+        "date_str": "2024-04",
+        "inflation_rate": null
+      },
+      {
+        "year": 2024,
+        "month": 5,
+        "cpi_value": 314.069,
+        "date_str": "2024-05",
+        "inflation_rate": null
+      },
+      {
+        "year": 2024,
+        "month": 6,
+        "cpi_value": 314.175,
+        "date_str": "2024-06",
+        "inflation_rate": null
+      },
+      {
+        "year": 2024,
+        "month": 7,
+        "cpi_value": 314.54,
+        "date_str": "2024-07",
+        "inflation_rate": 2.89
+      },
+      {
+        "year": 2024,
+        "month": 8,
+        "cpi_value": 314.796,
+        "date_str": "2024-08",
+        "inflation_rate": 2.53
+      },
+      {
+        "year": 2024,
+        "month": 9,
+        "cpi_value": 315.301,
+        "date_str": "2024-09",
+        "inflation_rate": 2.44
+      },
+      {
+        "year": 2024,
+        "month": 10,
+        "cpi_value": 315.664,
+        "date_str": "2024-10",
+        "inflation_rate": 2.6
+      },
+      {
+        "year": 2024,
+        "month": 11,
+        "cpi_value": 315.493,
+        "date_str": "2024-11",
+        "inflation_rate": 2.75
+      },
+      {
+        "year": 2024,
+        "month": 12,
+        "cpi_value": 315.605,
+        "date_str": "2024-12",
+        "inflation_rate": 2.89
+      },
+      {
+        "year": 2025,
+        "month": 1,
+        "cpi_value": 317.671,
+        "date_str": "2025-01",
+        "inflation_rate": 3.0
+      },
+      {
+        "year": 2025,
+        "month": 2,
+        "cpi_value": 319.082,
+        "date_str": "2025-02",
+        "inflation_rate": 2.82
+      },
+      {
+        "year": 2025,
+        "month": 3,
+        "cpi_value": 319.799,
+        "date_str": "2025-03",
+        "inflation_rate": 2.39
+      },
+      {
+        "year": 2025,
+        "month": 4,
+        "cpi_value": 320.795,
+        "date_str": "2025-04",
+        "inflation_rate": 2.31
+      },
+      {
+        "year": 2025,
+        "month": 5,
+        "cpi_value": 321.465,
+        "date_str": "2025-05",
+        "inflation_rate": 2.35
+      },
+      {
+        "year": 2025,
+        "month": 6,
+        "cpi_value": 322.561,
+        "date_str": "2025-06",
+        "inflation_rate": 2.67
+      }
+    ],
+    "current_cpi": 322.561,
+    "previous_cpi": 321.465,
+    "monthly_change": 0.341,
+    "annual_inflation": 2.67,
+    "avg_cpi_12m": 317.73,
+    "max_cpi": 322.561,
+    "min_cpi": 305.691
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "request_url": "http://localhost:30888/api/v1/federal-funds-rate/",
+  "data": {
+    "total_count": 24,
+    "items": [
+      {
+        "date": "2025-06-01",
+        "rate": 4.33,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2025-05-01",
+        "rate": 4.33,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2025-04-01",
+        "rate": 4.33,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2025-03-01",
+        "rate": 4.33,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2025-02-01",
+        "rate": 4.33,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2025-01-01",
+        "rate": 4.33,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2024-12-01",
+        "rate": 4.48,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2024-11-01",
+        "rate": 4.64,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2024-10-01",
+        "rate": 4.83,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2024-09-01",
+        "rate": 5.13,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2024-08-01",
+        "rate": 5.33,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2024-07-01",
+        "rate": 5.33,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2024-06-01",
+        "rate": 5.33,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2024-05-01",
+        "rate": 5.33,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2024-04-01",
+        "rate": 5.33,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2024-03-01",
+        "rate": 5.33,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2024-02-01",
+        "rate": 5.33,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2024-01-01",
+        "rate": 5.33,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2023-12-01",
+        "rate": 5.33,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2023-11-01",
+        "rate": 5.33,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2023-10-01",
+        "rate": 5.33,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2023-09-01",
+        "rate": 5.33,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2023-08-01",
+        "rate": 5.33,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      },
+      {
+        "date": "2023-07-01",
+        "rate": 5.12,
+        "interval_type": "monthly",
+        "unit": "percent",
+        "name": "Effective Federal Funds Rate"
+      }
+    ]
+  }
+}

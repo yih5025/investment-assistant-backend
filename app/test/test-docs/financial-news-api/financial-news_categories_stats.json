@@ -1,0 +1,38 @@
+{
+  "request_url": "http://localhost:30888/api/v1/financial-news/categories/stats",
+  "data": {
+    "categories": [
+      {
+        "category": "crypto",
+        "category_display_name": "암호화폐",
+        "count": 1704,
+        "latest_news_date": "2025-08-11T06:16:26"
+      },
+      {
+        "category": "general",
+        "category_display_name": "일반 금융",
+        "count": 1004,
+        "latest_news_date": "2025-08-10T22:21:00"
+      },
+      {
+        "category": "merger",
+        "category_display_name": "인수합병",
+        "count": 988,
+        "latest_news_date": "2025-08-11T04:42:43"
+      },
+      {
+        "category": "forex",
+        "category_display_name": "외환",
+        "count": 339,
+        "latest_news_date": "2025-08-11T04:40:00"
+      }
+    ],
+    "total_news": 4035,
+    "available_categories": [
+      "crypto",
+      "forex",
+      "merger",
+      "general"
+    ]
+  }
+}

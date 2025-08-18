@@ -1,0 +1,985 @@
+{
+  "request_url": "http://localhost:30888/api/v1/market-news-sentiment/bullish",
+  "data": {
+    "total_count": 20,
+    "batch_info": {
+      "latest_batch_id": 22,
+      "collection_date": "2025-08-11",
+      "total_batches": 22
+    },
+    "news": [
+      {
+        "batch_id": 22,
+        "url": "https://www.scmp.com/business/banking-finance/article/3321187/goldman-sachs-champions-legacy-planning-us61-trillion-wealth-transfer-looms-asia",
+        "title": "Exclusive | Goldman Sachs highlights legacy planning amid huge generational wealth transfer",
+        "time_published": "2025-08-10T23:30:10",
+        "authors": "Aileen Chuang",
+        "summary": "Goldman Sachs is pushing legacy planning in Asia, including succession and philanthropy, as family offices boom and family-owned businesses continue to dominate the region. The changing regulatory landscape, growth of family offices and high proportion of family-owned businesses in the region ...",
+        "source": "South China Morning Post",
+        "overall_sentiment_score": 0.3168,
+        "overall_sentiment_label": "Somewhat-Bullish",
+        "query_type": "finance_markets",
+        "query_params": "topics=finance",
+        "created_at": "2025-08-11T00:01:24.710323",
+        "sentiment_interpretation": "매우긍정적",
+        "sentiment_emoji": "🚀",
+        "related_tickers": [
+          {
+            "ticker": "GS",
+            "relevance_score": 0.104911,
+            "ticker_sentiment_label": "Somewhat-Bullish",
+            "ticker_sentiment_score": 0.20517
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Finance",
+            "relevance_score": 1.0
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.benzinga.com/pressreleases/25/08/g47022049/western-union-to-acquire-international-money-express-inc",
+        "title": "Western Union to Acquire International Money Express, Inc. - Western Union  ( NYSE:WU ) , International Money  ( NASDAQ:IMXI ) ",
+        "time_published": "2025-08-10T23:20:16",
+        "authors": "Globe Newswire",
+        "summary": "DENVER and MIAMI, Aug. 10, 2025 ( GLOBE NEWSWIRE ) -- The Western Union Company ( \"Western Union\" ) WU and International Money Express, Inc. ( \"Intermex\" ) IMXI today announced they have entered into a definitive agreement under which Western Union will acquire Intermex in an all-cash ...",
+        "source": "Benzinga",
+        "overall_sentiment_score": 0.1993,
+        "overall_sentiment_label": "Somewhat-Bullish",
+        "query_type": "finance_markets",
+        "query_params": "topics=finance",
+        "created_at": "2025-08-11T00:01:24.949050",
+        "sentiment_interpretation": "긍정적",
+        "sentiment_emoji": "📈",
+        "related_tickers": [
+          {
+            "ticker": "0IJU",
+            "relevance_score": 0.050465,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.035912
+          },
+          {
+            "ticker": "PJT",
+            "relevance_score": 0.016832,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.147333
+          },
+          {
+            "ticker": "WU",
+            "relevance_score": 0.295867,
+            "ticker_sentiment_label": "Somewhat-Bullish",
+            "ticker_sentiment_score": 0.16028
+          },
+          {
+            "ticker": "IMXI",
+            "relevance_score": 0.084009,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.037184
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Economy - Monetary",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Economy - Fiscal",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.988915
+          },
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.77141
+          },
+          {
+            "topic": "Real Estate & Construction",
+            "relevance_score": 0.5
+          },
+          {
+            "topic": "Finance",
+            "relevance_score": 0.5
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.globenewswire.com/news-release/2025/08/10/3130575/0/en/Western-Union-to-Acquire-International-Money-Express-Inc.html",
+        "title": "Western Union to Acquire International Money Express, Inc.",
+        "time_published": "2025-08-10T23:20:00",
+        "authors": "Intermex Wire Transfer",
+        "summary": "Strategic acquisition strengthens North America retail presence and operating model, expands Intermex beyond its historically high growth Latin America corridors, and is expected to accelerate digital new customer acquisition Strategic acquisition strengthens North America retail presence and ...",
+        "source": "GlobeNewswire",
+        "overall_sentiment_score": 0.2017,
+        "overall_sentiment_label": "Somewhat-Bullish",
+        "query_type": "finance_markets",
+        "query_params": "topics=finance",
+        "created_at": "2025-08-11T00:01:24.961960",
+        "sentiment_interpretation": "긍정적",
+        "sentiment_emoji": "📈",
+        "related_tickers": [
+          {
+            "ticker": "0IJU",
+            "relevance_score": 0.051367,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.036943
+          },
+          {
+            "ticker": "PJT",
+            "relevance_score": 0.017133,
+            "ticker_sentiment_label": "Somewhat-Bullish",
+            "ticker_sentiment_score": 0.156023
+          },
+          {
+            "ticker": "WU",
+            "relevance_score": 0.268848,
+            "ticker_sentiment_label": "Somewhat-Bullish",
+            "ticker_sentiment_score": 0.186627
+          },
+          {
+            "ticker": "IMXI",
+            "relevance_score": 0.085507,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.038364
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Economy - Monetary",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Economy - Fiscal",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.95493
+          },
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.684621
+          },
+          {
+            "topic": "Real Estate & Construction",
+            "relevance_score": 0.5
+          },
+          {
+            "topic": "Finance",
+            "relevance_score": 0.5
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.benzinga.com/pressreleases/25/08/g47022013/rosen-recognized-investor-counsel-encourages-centene-corporation-investors-to-secure-counsel-befor",
+        "title": "ROSEN, RECOGNIZED INVESTOR COUNSEL, Encourages Centene Corporation Investors to Secure Counsel Before Important Deadline in Securities Class Action - CNC - Centene  ( NYSE:CNC ) ",
+        "time_published": "2025-08-10T23:09:25",
+        "authors": "Globe Newswire",
+        "summary": "NEW YORK, Aug. 10, 2025 ( GLOBE NEWSWIRE ) -- WHY: Rosen Law Firm, a global investor rights law firm, reminds purchasers of securities of Centene Corporation CNC between December 12, 2024 and June 30, 2025, both dates inclusive ( the \"Class Period\" ) , of the important September 8, 2025 lead ...",
+        "source": "Benzinga",
+        "overall_sentiment_score": 0.1895,
+        "overall_sentiment_label": "Somewhat-Bullish",
+        "query_type": "technology_markets",
+        "query_params": "topics=technology",
+        "created_at": "2025-08-11T00:01:24.183650",
+        "sentiment_interpretation": "긍정적",
+        "sentiment_emoji": "📈",
+        "related_tickers": [
+          {
+            "ticker": "CNC",
+            "relevance_score": 0.250386,
+            "ticker_sentiment_label": "Somewhat-Bullish",
+            "ticker_sentiment_score": 0.203526
+          },
+          {
+            "ticker": "META",
+            "relevance_score": 0.063594,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.0
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.650727
+          },
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.744043
+          },
+          {
+            "topic": "Technology",
+            "relevance_score": 0.5
+          },
+          {
+            "topic": "Finance",
+            "relevance_score": 0.5
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.benzinga.com/pressreleases/25/08/g47022012/rosen-recognized-investor-counsel-encourages-easterly-rocmuni-high-income-municipal-bond-fund-fka-",
+        "title": "ROSEN, RECOGNIZED INVESTOR COUNSEL, Encourages Easterly ROCMuni High Income Municipal Bond Fund f/k/a Principal Street High Income Municipal Fund Investors to Secure Counsel Before Important Deadline in Securities Class Action - RMJAX, RMHVX, RMHIX",
+        "time_published": "2025-08-10T23:05:53",
+        "authors": "Globe Newswire",
+        "summary": "NEW YORK, Aug. 10, 2025 ( GLOBE NEWSWIRE ) --",
+        "source": "Benzinga",
+        "overall_sentiment_score": 0.1776,
+        "overall_sentiment_label": "Somewhat-Bullish",
+        "query_type": "technology_markets",
+        "query_params": "topics=technology",
+        "created_at": "2025-08-11T00:01:23.656980",
+        "sentiment_interpretation": "긍정적",
+        "sentiment_emoji": "📈",
+        "related_tickers": [
+          {
+            "ticker": "META",
+            "relevance_score": 0.055236,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.0
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Technology",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.961735
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.globenewswire.com/news-release/2025/08/10/3130570/0/en/AVITA-Medical-to-Host-Investor-Webinar-Briefing.html",
+        "title": "AVITA Medical to Host Investor Webinar Briefing",
+        "time_published": "2025-08-10T23:00:00",
+        "authors": "AVITA Medical",
+        "summary": "VALENCIA, Calif., Aug. 10, 2025 ( GLOBE NEWSWIRE ) -- AVITA Medical, Inc. ( ASX: AVH, NASDAQ: RCEL ) , a leading therapeutic acute wound care company delivering transformative solutions, invites shareholders and prospective investors to attend its investor webinar briefing and presentation by ...",
+        "source": "GlobeNewswire",
+        "overall_sentiment_score": 0.1966,
+        "overall_sentiment_label": "Somewhat-Bullish",
+        "query_type": "earnings_markets",
+        "query_params": "topics=earnings",
+        "created_at": "2025-08-11T00:01:25.307742",
+        "sentiment_interpretation": "긍정적",
+        "sentiment_emoji": "📈",
+        "related_tickers": [
+          {
+            "ticker": "RCEL",
+            "relevance_score": 0.644033,
+            "ticker_sentiment_label": "Bullish",
+            "ticker_sentiment_score": 0.364948
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Life Sciences",
+            "relevance_score": 1.0
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.benzinga.com/pressreleases/25/08/g47022007/avita-medical-to-host-investor-webinar-briefing",
+        "title": "AVITA Medical to Host Investor Webinar Briefing - AVITA Medical  ( NASDAQ:RCEL ) ",
+        "time_published": "2025-08-10T23:00:00",
+        "authors": "Globe Newswire",
+        "summary": "VALENCIA, Calif., Aug. 10, 2025 ( GLOBE NEWSWIRE ) -- AVITA Medical, Inc. ( AVHRCEL, a leading therapeutic acute wound care company delivering transformative solutions, invites shareholders and prospective investors to attend its investor webinar briefing and presentation by Jim Corbett, Chief ...",
+        "source": "Benzinga",
+        "overall_sentiment_score": 0.191,
+        "overall_sentiment_label": "Somewhat-Bullish",
+        "query_type": "earnings_markets",
+        "query_params": "topics=earnings",
+        "created_at": "2025-08-11T00:01:25.294263",
+        "sentiment_interpretation": "긍정적",
+        "sentiment_emoji": "📈",
+        "related_tickers": [
+          {
+            "ticker": "RCEL",
+            "relevance_score": 0.516656,
+            "ticker_sentiment_label": "Somewhat-Bullish",
+            "ticker_sentiment_score": 0.324272
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Life Sciences",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.108179
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.fool.com/investing/2025/08/10/the-largest-space-tech-ipo-of-the-year-just-launch/",
+        "title": "The Largest Space Tech IPO of the Year Just Launched, With a $6.3 Billion Valuation. Can the Stock Go to the Moon?",
+        "time_published": "2025-08-10T22:50:00",
+        "authors": "John Bromels",
+        "summary": "Firefly Aerospace's lander has been to the moon, but that's no guarantee the stock will soar.",
+        "source": "Motley Fool",
+        "overall_sentiment_score": 0.1488,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "earnings_markets",
+        "query_params": "topics=earnings",
+        "created_at": "2025-08-11T00:01:25.320440",
+        "sentiment_interpretation": "긍정적",
+        "sentiment_emoji": "📈",
+        "related_tickers": [
+          {
+            "ticker": "SPCE",
+            "relevance_score": 0.098456,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.019208
+          },
+          {
+            "ticker": "FLY",
+            "relevance_score": 0.147216,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.096452
+          },
+          {
+            "ticker": "LMT",
+            "relevance_score": 0.098456,
+            "ticker_sentiment_label": "Somewhat-Bullish",
+            "ticker_sentiment_score": 0.204084
+          },
+          {
+            "ticker": "NOC",
+            "relevance_score": 0.098456,
+            "ticker_sentiment_label": "Somewhat-Bullish",
+            "ticker_sentiment_score": 0.204084
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "IPO",
+            "relevance_score": 0.576289
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.316726
+          },
+          {
+            "topic": "Manufacturing",
+            "relevance_score": 0.5
+          },
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Energy & Transportation",
+            "relevance_score": 0.5
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.fool.com/investing/2025/08/10/energy-transfer-is-this-high-yield-stock-a-buy-as/",
+        "title": "Energy Transfer: Is This High-Yield Stock a Buy as Growth Projects Pile Up?",
+        "time_published": "2025-08-10T22:41:00",
+        "authors": "Geoffrey Seiler",
+        "summary": "The company keeps finding attractive growth project opportunities.",
+        "source": "Motley Fool",
+        "overall_sentiment_score": 0.3275,
+        "overall_sentiment_label": "Somewhat-Bullish",
+        "query_type": "earnings_markets",
+        "query_params": "topics=earnings",
+        "created_at": "2025-08-11T00:01:25.333797",
+        "sentiment_interpretation": "매우긍정적",
+        "sentiment_emoji": "🚀",
+        "related_tickers": [
+          {
+            "ticker": "ET",
+            "relevance_score": 0.405651,
+            "ticker_sentiment_label": "Bullish",
+            "ticker_sentiment_score": 0.401923
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Energy & Transportation",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.214378
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.fool.com/investing/2025/08/10/after-sitting-on-the-sidelines-for-14-months-warre/",
+        "title": "After Sitting on the Sidelines For 14 Months, Warren Buffett Could Be Buying One of His Favorite Stocks Again",
+        "time_published": "2025-08-10T22:23:00",
+        "authors": "Adam Levy",
+        "summary": "Buffett bought shares of this stock for 23 straight quarters, but suddenly stopped last year.",
+        "source": "Motley Fool",
+        "overall_sentiment_score": 0.2652,
+        "overall_sentiment_label": "Somewhat-Bullish",
+        "query_type": "technology_markets",
+        "query_params": "topics=technology",
+        "created_at": "2025-08-11T00:01:24.668583",
+        "sentiment_interpretation": "긍정적",
+        "sentiment_emoji": "📈",
+        "related_tickers": [
+          {
+            "ticker": "AAPL",
+            "relevance_score": 0.045569,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.015931
+          },
+          {
+            "ticker": "BAC",
+            "relevance_score": 0.045569,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.015931
+          },
+          {
+            "ticker": "UNP",
+            "relevance_score": 0.045569,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.081822
+          },
+          {
+            "ticker": "BRK-A",
+            "relevance_score": 0.224903,
+            "ticker_sentiment_label": "Somewhat-Bullish",
+            "ticker_sentiment_score": 0.317196
+          },
+          {
+            "ticker": "KHC",
+            "relevance_score": 0.045569,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": -0.056917
+          },
+          {
+            "ticker": "NSC",
+            "relevance_score": 0.045569,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.081822
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Manufacturing",
+            "relevance_score": 0.25
+          },
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.928139
+          },
+          {
+            "topic": "Energy & Transportation",
+            "relevance_score": 0.25
+          },
+          {
+            "topic": "Technology",
+            "relevance_score": 0.25
+          },
+          {
+            "topic": "Finance",
+            "relevance_score": 0.25
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.cnbc.com/2025/08/10/nvidia-amd-15percent-of-china-chip-sales-revenues-to-us-ft-reports.html",
+        "title": "Nvidia and AMD to pay 15% of China chip sales revenues to the U.S. government, FT reports",
+        "time_published": "2025-08-10T22:20:44",
+        "authors": null,
+        "summary": "The arrangement comes as President Donald Trump's tariffs continue to reverberate through the global economy.",
+        "source": "CNBC",
+        "overall_sentiment_score": 0.2195,
+        "overall_sentiment_label": "Somewhat-Bullish",
+        "query_type": "nvidia_sunday",
+        "query_params": "tickers=NVDA",
+        "created_at": "2025-08-11T00:01:27.421103",
+        "sentiment_interpretation": "긍정적",
+        "sentiment_emoji": "📈",
+        "related_tickers": [
+          {
+            "ticker": "AMD",
+            "relevance_score": 0.247838,
+            "ticker_sentiment_label": "Somewhat-Bullish",
+            "ticker_sentiment_score": 0.326289
+          },
+          {
+            "ticker": "NVDA",
+            "relevance_score": 0.656549,
+            "ticker_sentiment_label": "Bullish",
+            "ticker_sentiment_score": 0.408485
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Manufacturing",
+            "relevance_score": 1.0
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.fool.com/investing/2025/08/10/why-reddit-stock-skyrocketed-this-week/",
+        "title": "Why Reddit Stock Skyrocketed This Week",
+        "time_published": "2025-08-10T22:13:11",
+        "authors": "Keith Noonan",
+        "summary": "Reddit stock is now up more than 300% over the last year.",
+        "source": "Motley Fool",
+        "overall_sentiment_score": 0.3883,
+        "overall_sentiment_label": "Bullish",
+        "query_type": "earnings_markets",
+        "query_params": "topics=earnings",
+        "created_at": "2025-08-11T00:01:25.271441",
+        "sentiment_interpretation": "매우긍정적",
+        "sentiment_emoji": "🚀",
+        "related_tickers": [
+          {
+            "ticker": "RDDT",
+            "relevance_score": 0.756655,
+            "ticker_sentiment_label": "Bullish",
+            "ticker_sentiment_score": 0.515556
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.714479
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.413559
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.fool.com/investing/2025/08/10/ceo-bob-iger-announces-joint-hulu-and-disney-plus/",
+        "title": "CEO Bob Iger Announces Joint Hulu and Disney+ Streaming Service. What Does It Mean for Investors?",
+        "time_published": "2025-08-10T22:05:00",
+        "authors": "James Brumley",
+        "summary": "The media giant is simplifying its direct-to-consumer offering -- and taking away a closely watched measure of its success.",
+        "source": "Motley Fool",
+        "overall_sentiment_score": 0.2113,
+        "overall_sentiment_label": "Somewhat-Bullish",
+        "query_type": "earnings_markets",
+        "query_params": "topics=earnings",
+        "created_at": "2025-08-11T00:01:25.174962",
+        "sentiment_interpretation": "긍정적",
+        "sentiment_emoji": "📈",
+        "related_tickers": [
+          {
+            "ticker": "NFLX",
+            "relevance_score": 0.103035,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.123715
+          },
+          {
+            "ticker": "DIS",
+            "relevance_score": 0.137083,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.137801
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.99676
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.161647
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.fool.com/investing/2025/08/10/thirsty-for-passive-income-pepsicos-dividend-yield/",
+        "title": "Thirsty for Passive Income? PepsiCo's Dividend Yield Continues to Deliver.",
+        "time_published": "2025-08-10T22:00:00",
+        "authors": "Reuben Gregg Brewer",
+        "summary": "PepsiCo has a lofty, market-beating yield and an incredible history of increasing its dividend annually.",
+        "source": "Motley Fool",
+        "overall_sentiment_score": 0.1652,
+        "overall_sentiment_label": "Somewhat-Bullish",
+        "query_type": "earnings_markets",
+        "query_params": "topics=earnings",
+        "created_at": "2025-08-11T00:01:25.348618",
+        "sentiment_interpretation": "긍정적",
+        "sentiment_emoji": "📈",
+        "related_tickers": [
+          {
+            "ticker": "KO",
+            "relevance_score": 0.066047,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.011104
+          },
+          {
+            "ticker": "PEP",
+            "relevance_score": 0.754041,
+            "ticker_sentiment_label": "Somewhat-Bullish",
+            "ticker_sentiment_score": 0.270539
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Economy - Monetary",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.503496
+          },
+          {
+            "topic": "Manufacturing",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.158519
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.globenewswire.com/news-release/2025/08/10/3130563/10985/en/RadNet-Reports-Second-Quarter-Financial-Results-with-Record-Quarterly-Revenue-and-Adjusted-EBITDA-and-Revises-Upwards-2025-Financial-Guidance-Ranges.html",
+        "title": "RadNet Reports Second Quarter Financial Results with Record Quarterly Revenue and Adjusted EBITDA¹ and Revises Upwards 2025 Financial Guidance Ranges",
+        "time_published": "2025-08-10T20:00:00",
+        "authors": "Inc., RadNet",
+        "summary": "LOS ANGELES, Aug. 10, 2025 ( GLOBE NEWSWIRE ) -- RadNet, Inc. ( NASDAQ: RDNT ) , a national leader in providing high-quality, cost-effective, fixed-site outpatient diagnostic imaging services through a network of 405 owned and operated outpatient imaging centers, today reported financial results ...",
+        "source": "GlobeNewswire",
+        "overall_sentiment_score": 0.1255,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "earnings_markets",
+        "query_params": "topics=earnings",
+        "created_at": "2025-08-11T00:01:25.136199",
+        "sentiment_interpretation": "긍정적",
+        "sentiment_emoji": "📈",
+        "related_tickers": [
+          {
+            "ticker": "RDNT",
+            "relevance_score": 0.213489,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.087564
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Economy - Monetary",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Life Sciences",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.986564
+          },
+          {
+            "topic": "Earnings",
+            "relevance_score": 1.0
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.benzinga.com/markets/tech/25/08/47021765/apples-new-siri-voice-control-feature-could-revolutionize-user-experience",
+        "title": "Apple's New Siri Voice-Control Feature Could Revolutionize User Experience - Apple  ( NASDAQ:AAPL ) ",
+        "time_published": "2025-08-10T19:43:01",
+        "authors": "Bibhu Pattnaik",
+        "summary": "Apple's Siri is set to become your hands-free assistant for every app on your iPhone. Revolutionary voice-control features could have you editing photos and logging into banking apps with just your voice. This simple system has nailed 1,000+ post-earnings winners. Get in before Q3 trades take off →",
+        "source": "Benzinga",
+        "overall_sentiment_score": 0.3519,
+        "overall_sentiment_label": "Bullish",
+        "query_type": "technology_markets",
+        "query_params": "topics=technology",
+        "created_at": "2025-08-11T00:01:23.722848",
+        "sentiment_interpretation": "매우긍정적",
+        "sentiment_emoji": "🚀",
+        "related_tickers": [
+          {
+            "ticker": "GOOG",
+            "relevance_score": 0.098255,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.100468
+          },
+          {
+            "ticker": "META",
+            "relevance_score": 0.098255,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.100468
+          },
+          {
+            "ticker": "AAPL",
+            "relevance_score": 0.288893,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.12646
+          },
+          {
+            "ticker": "UBER",
+            "relevance_score": 0.098255,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.100468
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Technology",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.108179
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.benzinga.com/crypto/cryptocurrency/25/08/47021736/binance-founder-zhao-seeks-pardon-from-trump-for-money-laundering-violations",
+        "title": "Binance Founder Zhao Seeks Pardon From Trump For Money-Laundering Violations",
+        "time_published": "2025-08-10T19:36:06",
+        "authors": "Bibhu Pattnaik",
+        "summary": "Binance founder's pardon plea puts Trump's crypto policies in the spotlight. Lobbyists with White House connections mobilized as Binance admits to compliance failures. Get ahead of next week's CPI & PPI with Chris Capre's live trading strategy session this Sunday. Register Now →",
+        "source": "Benzinga",
+        "overall_sentiment_score": 0.3417,
+        "overall_sentiment_label": "Somewhat-Bullish",
+        "query_type": "blockchain_markets",
+        "query_params": "topics=blockchain",
+        "created_at": "2025-08-11T00:01:26.012006",
+        "sentiment_interpretation": "매우긍정적",
+        "sentiment_emoji": "🚀",
+        "related_tickers": [
+          {
+            "ticker": "NYT",
+            "relevance_score": 0.089462,
+            "ticker_sentiment_label": "Somewhat-Bullish",
+            "ticker_sentiment_score": 0.230961
+          },
+          {
+            "ticker": "PLSQF",
+            "relevance_score": 0.089462,
+            "ticker_sentiment_label": "Somewhat-Bullish",
+            "ticker_sentiment_score": 0.268729
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Economy - Monetary",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.161647
+          },
+          {
+            "topic": "Manufacturing",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Blockchain",
+            "relevance_score": 0.451494
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.benzinga.com/news/topics/25/08/47021734/bringing-ai-to-fashion-these-startups-are-changing-how-we-approach-personal-style-and-cutting-costs-f",
+        "title": "Bringing AI To Fashion: These Startups Are Changing How We Approach Personal Style- And Cutting Costs For Retailers - Amazon.com  ( NASDAQ:AMZN ) ",
+        "time_published": "2025-08-10T19:36:00",
+        "authors": "Madison Troyer",
+        "summary": "The number of people using generative AI for online shopping has been steadily increasing for the past year, according to a study by Adobe A Several established tech companies have released fashion-related tools, but it's startups like Daydream and Raspberry that are really leadin",
+        "source": "Benzinga",
+        "overall_sentiment_score": 0.1437,
+        "overall_sentiment_label": "Neutral",
+        "query_type": "technology_markets",
+        "query_params": "topics=technology",
+        "created_at": "2025-08-11T00:01:24.537164",
+        "sentiment_interpretation": "긍정적",
+        "sentiment_emoji": "📈",
+        "related_tickers": [
+          {
+            "ticker": "WBD",
+            "relevance_score": 0.10607,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.047715
+          },
+          {
+            "ticker": "GOOG",
+            "relevance_score": 0.10607,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.08135
+          },
+          {
+            "ticker": "EBAY",
+            "relevance_score": 0.053153,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.040787
+          },
+          {
+            "ticker": "UBER",
+            "relevance_score": 0.053153,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.040787
+          },
+          {
+            "ticker": "AMZN",
+            "relevance_score": 0.10607,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.095128
+          },
+          {
+            "ticker": "CROX",
+            "relevance_score": 0.10607,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.037708
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "IPO",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Retail & Wholesale",
+            "relevance_score": 0.333333
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.684621
+          },
+          {
+            "topic": "Manufacturing",
+            "relevance_score": 0.333333
+          },
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Technology",
+            "relevance_score": 0.333333
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.benzinga.com/markets/asset-sales/25/08/47021654/arks-cathie-wood-sells-28-million-palantir-shares-at-record-highs",
+        "title": "Ark Investment's Cathie Wood Sells $28 Million Palantir Shares Amid Record Highs - Palantir Technologies  ( NASDAQ:PLTR ) ",
+        "time_published": "2025-08-10T18:42:01",
+        "authors": "Bibhu Pattnaik",
+        "summary": "Cathie Wood capitalizes on Palantir's peak, selling $28 million as shares hit record highs. Palantir retains a prominent spot in Ark's portfolio, despite recent sell-off signaling a profit-taking strategy. Get ahead of next week's CPI & PPI with Chris Capre's live trading strategy session this ...",
+        "source": "Benzinga",
+        "overall_sentiment_score": 0.3079,
+        "overall_sentiment_label": "Somewhat-Bullish",
+        "query_type": "technology_markets",
+        "query_params": "topics=technology",
+        "created_at": "2025-08-11T00:01:23.743667",
+        "sentiment_interpretation": "매우긍정적",
+        "sentiment_emoji": "🚀",
+        "related_tickers": [
+          {
+            "ticker": "PLTR",
+            "relevance_score": 0.182506,
+            "ticker_sentiment_label": "Somewhat-Bullish",
+            "ticker_sentiment_score": 0.293524
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Economy - Monetary",
+            "relevance_score": 0.158519
+          },
+          {
+            "topic": "Financial Markets",
+            "relevance_score": 0.999897
+          },
+          {
+            "topic": "Earnings",
+            "relevance_score": 0.310843
+          },
+          {
+            "topic": "Technology",
+            "relevance_score": 1.0
+          },
+          {
+            "topic": "Blockchain",
+            "relevance_score": 0.158519
+          }
+        ]
+      },
+      {
+        "batch_id": 22,
+        "url": "https://www.benzinga.com/markets/tech/25/08/47021348/jeff-bezos-once-said-great-leaders-need-more-sleep-not-more-hours-amazon-founder-then-explained-his-",
+        "title": "Jeff Bezos Once Said Great Leaders Need More Sleep, Not More Hours - Amazon Founder Then Explained His Point Using This Warren Buffett Rule",
+        "time_published": "2025-08-10T16:01:32",
+        "authors": "Ananya Gairola",
+        "summary": "Jeff Bezos, the Amazon.com, Inc. founder, once revealed that quality rest and fewer, smarter decisions-not hustle culture-are the keys to long-term leadership success. In a 2018 interview with billionaire investor David Rubenstein, Bezos explained why he structures his day around rest, family ...",
+        "source": "Benzinga",
+        "overall_sentiment_score": 0.2807,
+        "overall_sentiment_label": "Somewhat-Bullish",
+        "query_type": "finance_markets",
+        "query_params": "topics=finance",
+        "created_at": "2025-08-11T00:01:24.976630",
+        "sentiment_interpretation": "긍정적",
+        "sentiment_emoji": "📈",
+        "related_tickers": [
+          {
+            "ticker": "BRK-A",
+            "relevance_score": 0.097457,
+            "ticker_sentiment_label": "Somewhat-Bullish",
+            "ticker_sentiment_score": 0.232392
+          },
+          {
+            "ticker": "TSLA",
+            "relevance_score": 0.097457,
+            "ticker_sentiment_label": "Neutral",
+            "ticker_sentiment_score": 0.03371
+          }
+        ],
+        "related_topics": [
+          {
+            "topic": "Finance",
+            "relevance_score": 0.5
+          },
+          {
+            "topic": "Manufacturing",
+            "relevance_score": 0.5
+          }
+        ]
+      }
+    ]
+  }
+}

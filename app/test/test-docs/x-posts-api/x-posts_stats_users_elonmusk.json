@@ -1,0 +1,25 @@
+{
+  "request_url": "http://localhost:30888/api/v1/x-posts/stats/users/elonmusk/",
+  "data": {
+    "username": "elonmusk",
+    "display_name": "Elon Musk",
+    "account_category": "core_investors",
+    "total_posts": 40,
+    "total_likes": 120418,
+    "total_retweets": 21380,
+    "total_replies": 16654,
+    "avg_engagement_per_post": 3961.3,
+    "most_liked_post": {
+      "tweet_id": "1951074444761506252",
+      "text": "🇯🇵 https://t.co/8nzxOCgpAt",
+      "username": "elonmusk",
+      "display_name": "Elon Musk",
+      "created_at": "2025-08-01T00:16:11Z",
+      "like_count": 41520,
+      "retweet_count": 4276,
+      "reply_count": 2752,
+      "tweet_url": "https://x.com/elonmusk/status/1951074444761506252"
+    },
+    "followers_count": 223451057
+  }
+}

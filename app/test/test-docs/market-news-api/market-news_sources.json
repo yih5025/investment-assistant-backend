@@ -1,0 +1,2079 @@
+{
+  "request_url": "http://localhost:30888/api/v1/market-news/sources",
+  "data": {
+    "sources": [
+      {
+        "source": "Yahoo Entertainment",
+        "count": 289
+      },
+      {
+        "source": "Business Insider",
+        "count": 288
+      },
+      {
+        "source": "Forbes",
+        "count": 264
+      },
+      {
+        "source": "Al Jazeera English",
+        "count": 219
+      },
+      {
+        "source": "The Wall Street Journal",
+        "count": 137
+      },
+      {
+        "source": "BBC News",
+        "count": 128
+      },
+      {
+        "source": "Bloomberg",
+        "count": 123
+      },
+      {
+        "source": "ABC News",
+        "count": 106
+      },
+      {
+        "source": "Gizmodo.com",
+        "count": 96
+      },
+      {
+        "source": "Biztoc.com",
+        "count": 93
+      },
+      {
+        "source": "NPR",
+        "count": 88
+      },
+      {
+        "source": "Salon",
+        "count": 71
+      },
+      {
+        "source": "RT",
+        "count": 62
+      },
+      {
+        "source": "CBS News",
+        "count": 60
+      },
+      {
+        "source": "The Indian Express",
+        "count": 56
+      },
+      {
+        "source": "The Verge",
+        "count": 53
+      },
+      {
+        "source": "The Atlantic",
+        "count": 48
+      },
+      {
+        "source": "Nakedcapitalism.com",
+        "count": 42
+      },
+      {
+        "source": "The New Republic",
+        "count": 42
+      },
+      {
+        "source": "Kotaku",
+        "count": 39
+      },
+      {
+        "source": "Deadline",
+        "count": 36
+      },
+      {
+        "source": "The Times of India",
+        "count": 34
+      },
+      {
+        "source": "9to5Mac",
+        "count": 33
+      },
+      {
+        "source": "CBC News",
+        "count": 33
+      },
+      {
+        "source": "ABC News (AU)",
+        "count": 32
+      },
+      {
+        "source": "/FILM",
+        "count": 31
+      },
+      {
+        "source": "The Washington Post",
+        "count": 31
+      },
+      {
+        "source": "MacRumors",
+        "count": 30
+      },
+      {
+        "source": "Slashdot.org",
+        "count": 30
+      },
+      {
+        "source": "Cracked.com",
+        "count": 29
+      },
+      {
+        "source": "CNN",
+        "count": 28
+      },
+      {
+        "source": "Wired",
+        "count": 27
+      },
+      {
+        "source": "IGN",
+        "count": 27
+      },
+      {
+        "source": "Fortune",
+        "count": 27
+      },
+      {
+        "source": "Theregister.com",
+        "count": 27
+      },
+      {
+        "source": "NBC News",
+        "count": 26
+      },
+      {
+        "source": "Crooksandliars.com",
+        "count": 26
+      },
+      {
+        "source": "Space.com",
+        "count": 24
+      },
+      {
+        "source": "PCWorld",
+        "count": 24
+      },
+      {
+        "source": "Rolling Stone",
+        "count": 24
+      },
+      {
+        "source": "Boredpanda.com",
+        "count": 23
+      },
+      {
+        "source": "Techdirt",
+        "count": 23
+      },
+      {
+        "source": "Axios",
+        "count": 23
+      },
+      {
+        "source": "CNBC",
+        "count": 22
+      },
+      {
+        "source": "Americanthinker.com",
+        "count": 22
+      },
+      {
+        "source": "Windows Central",
+        "count": 22
+      },
+      {
+        "source": "Associated Press",
+        "count": 22
+      },
+      {
+        "source": "The Intercept",
+        "count": 20
+      },
+      {
+        "source": "New York Post",
+        "count": 19
+      },
+      {
+        "source": "TechRadar",
+        "count": 19
+      },
+      {
+        "source": "Fox News",
+        "count": 19
+      },
+      {
+        "source": "Politico",
+        "count": 18
+      },
+      {
+        "source": "The Points Guy",
+        "count": 18
+      },
+      {
+        "source": "TechCrunch",
+        "count": 18
+      },
+      {
+        "source": "Android Central",
+        "count": 17
+      },
+      {
+        "source": "Screen Rant",
+        "count": 17
+      },
+      {
+        "source": "AppleInsider",
+        "count": 16
+      },
+      {
+        "source": "Investor's Business Daily",
+        "count": 16
+      },
+      {
+        "source": "Yanko Design",
+        "count": 15
+      },
+      {
+        "source": "CoinDesk",
+        "count": 15
+      },
+      {
+        "source": "GameSpot",
+        "count": 15
+      },
+      {
+        "source": "Eurogamer.net",
+        "count": 15
+      },
+      {
+        "source": "Android Authority",
+        "count": 14
+      },
+      {
+        "source": "USA Today",
+        "count": 14
+      },
+      {
+        "source": "Project Syndicate",
+        "count": 14
+      },
+      {
+        "source": "Vox",
+        "count": 13
+      },
+      {
+        "source": "Barron's",
+        "count": 13
+      },
+      {
+        "source": "IndieWire",
+        "count": 13
+      },
+      {
+        "source": "Ars Technica",
+        "count": 13
+      },
+      {
+        "source": "Phys.Org",
+        "count": 13
+      },
+      {
+        "source": "Substack.com",
+        "count": 12
+      },
+      {
+        "source": "HYPEBEAST",
+        "count": 12
+      },
+      {
+        "source": "Barchart.com",
+        "count": 12
+      },
+      {
+        "source": "Hollywood Reporter",
+        "count": 12
+      },
+      {
+        "source": "Variety",
+        "count": 12
+      },
+      {
+        "source": "Spacewar.com",
+        "count": 11
+      },
+      {
+        "source": "Hackaday",
+        "count": 11
+      },
+      {
+        "source": "Juancole.com",
+        "count": 11
+      },
+      {
+        "source": "Nintendo Life",
+        "count": 11
+      },
+      {
+        "source": "Breitbart News",
+        "count": 11
+      },
+      {
+        "source": "Scientific American",
+        "count": 11
+      },
+      {
+        "source": "Globalsecurity.org",
+        "count": 11
+      },
+      {
+        "source": "BusinessLine",
+        "count": 10
+      },
+      {
+        "source": "Nintendoeverything.com",
+        "count": 10
+      },
+      {
+        "source": "Snopes.com",
+        "count": 10
+      },
+      {
+        "source": "CNET",
+        "count": 10
+      },
+      {
+        "source": "Seeking Alpha",
+        "count": 10
+      },
+      {
+        "source": "Naturalnews.com",
+        "count": 10
+      },
+      {
+        "source": "Calculatedriskblog.com",
+        "count": 10
+      },
+      {
+        "source": "Ritholtz.com",
+        "count": 10
+      },
+      {
+        "source": "CNA",
+        "count": 10
+      },
+      {
+        "source": "Rock Paper Shotgun",
+        "count": 9
+      },
+      {
+        "source": "International Business Times",
+        "count": 9
+      },
+      {
+        "source": "TMZ",
+        "count": 9
+      },
+      {
+        "source": "9to5google.com",
+        "count": 9
+      },
+      {
+        "source": "Mental Floss",
+        "count": 9
+      },
+      {
+        "source": "The New York Review of Books",
+        "count": 9
+      },
+      {
+        "source": "MarketWatch",
+        "count": 9
+      },
+      {
+        "source": "Saastr.com",
+        "count": 9
+      },
+      {
+        "source": "Jezebel",
+        "count": 9
+      },
+      {
+        "source": "NBCSports.com",
+        "count": 9
+      },
+      {
+        "source": "Daily Beast",
+        "count": 9
+      },
+      {
+        "source": "New Atlas",
+        "count": 9
+      },
+      {
+        "source": "The Hill",
+        "count": 8
+      },
+      {
+        "source": "ESPN",
+        "count": 8
+      },
+      {
+        "source": "UPI.com",
+        "count": 8
+      },
+      {
+        "source": "Slate Magazine",
+        "count": 8
+      },
+      {
+        "source": "Android Police",
+        "count": 8
+      },
+      {
+        "source": "Livemint",
+        "count": 8
+      },
+      {
+        "source": "Daily Signal",
+        "count": 8
+      },
+      {
+        "source": "PetaPixel",
+        "count": 8
+      },
+      {
+        "source": "Bleeding Cool News",
+        "count": 8
+      },
+      {
+        "source": "EventHubs",
+        "count": 7
+      },
+      {
+        "source": "Gamingbible.com",
+        "count": 7
+      },
+      {
+        "source": "XDA Developers",
+        "count": 7
+      },
+      {
+        "source": "BGR",
+        "count": 7
+      },
+      {
+        "source": "The New Yorker",
+        "count": 7
+      },
+      {
+        "source": "The Star Online",
+        "count": 7
+      },
+      {
+        "source": "Internet",
+        "count": 7
+      },
+      {
+        "source": "Democracy Now!",
+        "count": 7
+      },
+      {
+        "source": "TheStreet",
+        "count": 7
+      },
+      {
+        "source": "Video Games Chronicle",
+        "count": 7
+      },
+      {
+        "source": "Sputnikglobe.com",
+        "count": 6
+      },
+      {
+        "source": "Cointelegraph",
+        "count": 6
+      },
+      {
+        "source": "MakeUseOf",
+        "count": 6
+      },
+      {
+        "source": "Gothamist",
+        "count": 6
+      },
+      {
+        "source": "Newsweek",
+        "count": 6
+      },
+      {
+        "source": "Science Daily",
+        "count": 6
+      },
+      {
+        "source": "The Cut",
+        "count": 6
+      },
+      {
+        "source": "Japan Today",
+        "count": 6
+      },
+      {
+        "source": "The American Conservative",
+        "count": 6
+      },
+      {
+        "source": "RTE",
+        "count": 6
+      },
+      {
+        "source": "Cheezburger.com",
+        "count": 5
+      },
+      {
+        "source": "Highsnobiety",
+        "count": 5
+      },
+      {
+        "source": "Techpinions.com",
+        "count": 5
+      },
+      {
+        "source": "9to5Toys",
+        "count": 5
+      },
+      {
+        "source": "Digiday",
+        "count": 5
+      },
+      {
+        "source": "New York Magazine",
+        "count": 5
+      },
+      {
+        "source": "Live Science",
+        "count": 5
+      },
+      {
+        "source": "The Daily Caller",
+        "count": 5
+      },
+      {
+        "source": "Fark.com",
+        "count": 5
+      },
+      {
+        "source": "Hyperallergic",
+        "count": 5
+      },
+      {
+        "source": "Jalopnik",
+        "count": 5
+      },
+      {
+        "source": "DW (English)",
+        "count": 5
+      },
+      {
+        "source": "Financial Times",
+        "count": 5
+      },
+      {
+        "source": "PBS",
+        "count": 5
+      },
+      {
+        "source": "Memeorandum.com",
+        "count": 5
+      },
+      {
+        "source": "Slickdeals.net",
+        "count": 5
+      },
+      {
+        "source": "Core77.com",
+        "count": 5
+      },
+      {
+        "source": "Thoughtcatalog.com",
+        "count": 5
+      },
+      {
+        "source": "Grist",
+        "count": 5
+      },
+      {
+        "source": "Raw Story",
+        "count": 5
+      },
+      {
+        "source": "Flowingdata.com",
+        "count": 4
+      },
+      {
+        "source": "GamesIndustry.biz",
+        "count": 4
+      },
+      {
+        "source": "Econbrowser.com",
+        "count": 4
+      },
+      {
+        "source": "Tom's Hardware UK",
+        "count": 4
+      },
+      {
+        "source": "kottke.org",
+        "count": 4
+      },
+      {
+        "source": "Torrentfreak.com",
+        "count": 4
+      },
+      {
+        "source": "NASA",
+        "count": 4
+      },
+      {
+        "source": "Polygon",
+        "count": 4
+      },
+      {
+        "source": "Videocardz.com",
+        "count": 4
+      },
+      {
+        "source": "Neowin",
+        "count": 4
+      },
+      {
+        "source": "CBS Sports",
+        "count": 4
+      },
+      {
+        "source": "Realtor.com News",
+        "count": 4
+      },
+      {
+        "source": "GSMArena.com",
+        "count": 4
+      },
+      {
+        "source": "Push Square",
+        "count": 4
+      },
+      {
+        "source": "Israelnationalnews.com",
+        "count": 4
+      },
+      {
+        "source": "Investopedia",
+        "count": 4
+      },
+      {
+        "source": "Tipranks.com",
+        "count": 4
+      },
+      {
+        "source": "Google News",
+        "count": 4
+      },
+      {
+        "source": "Creative Bloq",
+        "count": 4
+      },
+      {
+        "source": "Sky Sports",
+        "count": 4
+      },
+      {
+        "source": "Skift",
+        "count": 4
+      },
+      {
+        "source": "Futurism",
+        "count": 4
+      },
+      {
+        "source": "Nep123.com",
+        "count": 4
+      },
+      {
+        "source": "Upenn.edu",
+        "count": 4
+      },
+      {
+        "source": "Boston Herald",
+        "count": 4
+      },
+      {
+        "source": "ProPublica",
+        "count": 3
+      },
+      {
+        "source": "The-sun.com",
+        "count": 3
+      },
+      {
+        "source": "Nintendo.com",
+        "count": 3
+      },
+      {
+        "source": "Twistedsifter.com",
+        "count": 3
+      },
+      {
+        "source": "Autoblog",
+        "count": 3
+      },
+      {
+        "source": "MIT Technology Review",
+        "count": 3
+      },
+      {
+        "source": "Openai.com",
+        "count": 3
+      },
+      {
+        "source": "Bitcoinist",
+        "count": 3
+      },
+      {
+        "source": "Just Jared",
+        "count": 3
+      },
+      {
+        "source": "Ndtvprofit.com",
+        "count": 3
+      },
+      {
+        "source": "CleanTechnica",
+        "count": 3
+      },
+      {
+        "source": "Nofilmschool.com",
+        "count": 3
+      },
+      {
+        "source": "Dexerto",
+        "count": 3
+      },
+      {
+        "source": "The Jerusalem Post",
+        "count": 3
+      },
+      {
+        "source": "Derekthompson.org",
+        "count": 3
+      },
+      {
+        "source": "Justice.gov",
+        "count": 3
+      },
+      {
+        "source": "GlobeNewswire",
+        "count": 3
+      },
+      {
+        "source": "Dpa-international.com",
+        "count": 3
+      },
+      {
+        "source": "ZDNet",
+        "count": 3
+      },
+      {
+        "source": "Phoronix",
+        "count": 3
+      },
+      {
+        "source": "Bethesda.net",
+        "count": 3
+      },
+      {
+        "source": "PC Gamer",
+        "count": 3
+      },
+      {
+        "source": "Bringatrailer.com",
+        "count": 3
+      },
+      {
+        "source": "Pokemon GO Hub",
+        "count": 3
+      },
+      {
+        "source": "Histalk2.com",
+        "count": 3
+      },
+      {
+        "source": "ComicBook.com",
+        "count": 3
+      },
+      {
+        "source": "The Next Web",
+        "count": 3
+      },
+      {
+        "source": "Psychology Today",
+        "count": 3
+      },
+      {
+        "source": "Space Daily",
+        "count": 3
+      },
+      {
+        "source": "New Scientist",
+        "count": 3
+      },
+      {
+        "source": "Thenation.com",
+        "count": 3
+      },
+      {
+        "source": "TheBlaze",
+        "count": 3
+      },
+      {
+        "source": "TechSpot",
+        "count": 3
+      },
+      {
+        "source": "Reason",
+        "count": 3
+      },
+      {
+        "source": "Pitchfork",
+        "count": 3
+      },
+      {
+        "source": "BleepingComputer",
+        "count": 3
+      },
+      {
+        "source": "http://mp1st.com/category/news",
+        "count": 3
+      },
+      {
+        "source": "Harvard Business Review",
+        "count": 2
+      },
+      {
+        "source": "Whyevolutionistrue.com",
+        "count": 2
+      },
+      {
+        "source": "MSNBC",
+        "count": 2
+      },
+      {
+        "source": "TVLine",
+        "count": 2
+      },
+      {
+        "source": "Truthout",
+        "count": 2
+      },
+      {
+        "source": "Help Net Security",
+        "count": 2
+      },
+      {
+        "source": "Rlsbb.cc",
+        "count": 2
+      },
+      {
+        "source": "The Texas Tribune",
+        "count": 2
+      },
+      {
+        "source": "Twz.com",
+        "count": 2
+      },
+      {
+        "source": "Canarymedia.com",
+        "count": 2
+      },
+      {
+        "source": "Advocate.com",
+        "count": 2
+      },
+      {
+        "source": "SamMobile",
+        "count": 2
+      },
+      {
+        "source": "Cool Hunting",
+        "count": 2
+      },
+      {
+        "source": "Blizzard.com",
+        "count": 2
+      },
+      {
+        "source": "TODAY",
+        "count": 2
+      },
+      {
+        "source": "Buzzfeed",
+        "count": 2
+      },
+      {
+        "source": "OregonLive",
+        "count": 2
+      },
+      {
+        "source": "Lookout Landing",
+        "count": 2
+      },
+      {
+        "source": "Mediagazer.com",
+        "count": 2
+      },
+      {
+        "source": "The Drive",
+        "count": 2
+      },
+      {
+        "source": "Fstoppers",
+        "count": 2
+      },
+      {
+        "source": "Martinfowler.com",
+        "count": 2
+      },
+      {
+        "source": "Rudebaguette.com",
+        "count": 2
+      },
+      {
+        "source": "The Cincinnati Enquirer",
+        "count": 2
+      },
+      {
+        "source": "Ygorganization.com",
+        "count": 2
+      },
+      {
+        "source": "SiliconANGLE News",
+        "count": 2
+      },
+      {
+        "source": "Lifehacker.com",
+        "count": 2
+      },
+      {
+        "source": "Daringfireball.net",
+        "count": 2
+      },
+      {
+        "source": "Decrypt",
+        "count": 2
+      },
+      {
+        "source": "Fast Company",
+        "count": 2
+      },
+      {
+        "source": "Vanity Fair",
+        "count": 2
+      },
+      {
+        "source": "nj.com",
+        "count": 2
+      },
+      {
+        "source": "PCMag.com",
+        "count": 2
+      },
+      {
+        "source": "Sports Illustrated",
+        "count": 2
+      },
+      {
+        "source": "Wordpress.com",
+        "count": 2
+      },
+      {
+        "source": "Thegatewaypundit.com",
+        "count": 2
+      },
+      {
+        "source": "Artofmanliness.com",
+        "count": 2
+      },
+      {
+        "source": "Wccftech",
+        "count": 2
+      },
+      {
+        "source": "HuffPost",
+        "count": 2
+      },
+      {
+        "source": "Oreilly.com",
+        "count": 2
+      },
+      {
+        "source": "Whitehouse.gov",
+        "count": 2
+      },
+      {
+        "source": "AL.com",
+        "count": 2
+      },
+      {
+        "source": "FOX 5 Atlanta",
+        "count": 2
+      },
+      {
+        "source": "The-independent.com",
+        "count": 2
+      },
+      {
+        "source": "Vulture",
+        "count": 2
+      },
+      {
+        "source": "Poynter",
+        "count": 2
+      },
+      {
+        "source": "Electrek",
+        "count": 2
+      },
+      {
+        "source": "InsideClimate News",
+        "count": 2
+      },
+      {
+        "source": "Pokemon.com",
+        "count": 2
+      },
+      {
+        "source": "ETF Daily News",
+        "count": 2
+      },
+      {
+        "source": "Amtrak.com",
+        "count": 1
+      },
+      {
+        "source": "Block Club Chicago",
+        "count": 1
+      },
+      {
+        "source": "Medical Device Network",
+        "count": 1
+      },
+      {
+        "source": "PEOPLE",
+        "count": 1
+      },
+      {
+        "source": "Milwaukee Journal Sentinel",
+        "count": 1
+      },
+      {
+        "source": "newsBTC",
+        "count": 1
+      },
+      {
+        "source": "Techpowerup.com",
+        "count": 1
+      },
+      {
+        "source": "Offshore Technology",
+        "count": 1
+      },
+      {
+        "source": "The Register-Guard",
+        "count": 1
+      },
+      {
+        "source": "Seuros.com",
+        "count": 1
+      },
+      {
+        "source": "HODINKEE",
+        "count": 1
+      },
+      {
+        "source": "Defector.com",
+        "count": 1
+      },
+      {
+        "source": "Bolde.com",
+        "count": 1
+      },
+      {
+        "source": "Thegamepost.com",
+        "count": 1
+      },
+      {
+        "source": "Hurriyet Daily News",
+        "count": 1
+      },
+      {
+        "source": "The Action Network",
+        "count": 1
+      },
+      {
+        "source": "Typeforyou.org",
+        "count": 1
+      },
+      {
+        "source": "The Ringer",
+        "count": 1
+      },
+      {
+        "source": "Wattsupwiththat.com",
+        "count": 1
+      },
+      {
+        "source": "Sun Sentinel",
+        "count": 1
+      },
+      {
+        "source": "Mit.edu",
+        "count": 1
+      },
+      {
+        "source": "Universe Today",
+        "count": 1
+      },
+      {
+        "source": "Sammyfans.com",
+        "count": 1
+      },
+      {
+        "source": "Eonline.com",
+        "count": 1
+      },
+      {
+        "source": "NDTV News",
+        "count": 1
+      },
+      {
+        "source": "Blogspot.com",
+        "count": 1
+      },
+      {
+        "source": "Telotrucks.com",
+        "count": 1
+      },
+      {
+        "source": "Medscape",
+        "count": 1
+      },
+      {
+        "source": "Wonkette.com",
+        "count": 1
+      },
+      {
+        "source": "Psu.edu",
+        "count": 1
+      },
+      {
+        "source": "Whereisthebuzz.com",
+        "count": 1
+      },
+      {
+        "source": "Spring.org.uk",
+        "count": 1
+      },
+      {
+        "source": "Travel+Leisure",
+        "count": 1
+      },
+      {
+        "source": "Politicalwire.com",
+        "count": 1
+      },
+      {
+        "source": "ScienceAlert",
+        "count": 1
+      },
+      {
+        "source": "Jyn.dev",
+        "count": 1
+      },
+      {
+        "source": "Masswerk.at",
+        "count": 1
+      },
+      {
+        "source": "Googleblog.com",
+        "count": 1
+      },
+      {
+        "source": "Columbia Journalism Review",
+        "count": 1
+      },
+      {
+        "source": "Bea.gov",
+        "count": 1
+      },
+      {
+        "source": "SPIN",
+        "count": 1
+      },
+      {
+        "source": "Anamariecox.com",
+        "count": 1
+      },
+      {
+        "source": "Themirror.com",
+        "count": 1
+      },
+      {
+        "source": "Theaviationist.com",
+        "count": 1
+      },
+      {
+        "source": "Mickeyvisit.com",
+        "count": 1
+      },
+      {
+        "source": "Nber.org",
+        "count": 1
+      },
+      {
+        "source": "HousingWire",
+        "count": 1
+      },
+      {
+        "source": "Tante.cc",
+        "count": 1
+      },
+      {
+        "source": "Prtimes.jp",
+        "count": 1
+      },
+      {
+        "source": "fox26houston.com",
+        "count": 1
+      },
+      {
+        "source": "Dallasexpress.com",
+        "count": 1
+      },
+      {
+        "source": "WWD",
+        "count": 1
+      },
+      {
+        "source": "Gobankingrates.com",
+        "count": 1
+      },
+      {
+        "source": "Antiwar.com",
+        "count": 1
+      },
+      {
+        "source": "Artsjournal.com",
+        "count": 1
+      },
+      {
+        "source": "Men's Journal",
+        "count": 1
+      },
+      {
+        "source": "Archaeologymag.com",
+        "count": 1
+      },
+      {
+        "source": "Fluxus.io",
+        "count": 1
+      },
+      {
+        "source": "Next Big Future",
+        "count": 1
+      },
+      {
+        "source": "Freerepublic.com",
+        "count": 1
+      },
+      {
+        "source": "The Boston Globe",
+        "count": 1
+      },
+      {
+        "source": "DualShockers",
+        "count": 1
+      },
+      {
+        "source": "Geeksaresexy.net",
+        "count": 1
+      },
+      {
+        "source": "Blackstone.com",
+        "count": 1
+      },
+      {
+        "source": "Dailycoffeenews.com",
+        "count": 1
+      },
+      {
+        "source": "Symphonicdigital.com",
+        "count": 1
+      },
+      {
+        "source": "POLITICO.eu",
+        "count": 1
+      },
+      {
+        "source": "Loopinsight.com",
+        "count": 1
+      },
+      {
+        "source": "Detroit Free Press",
+        "count": 1
+      },
+      {
+        "source": "Parade",
+        "count": 1
+      },
+      {
+        "source": "Bloomberg.co.jp",
+        "count": 1
+      },
+      {
+        "source": "Dewesoft.com",
+        "count": 1
+      },
+      {
+        "source": "Business Wire",
+        "count": 1
+      },
+      {
+        "source": "The Daily Dot",
+        "count": 1
+      },
+      {
+        "source": "Faa.gov",
+        "count": 1
+      },
+      {
+        "source": "Platformonomics.com",
+        "count": 1
+      },
+      {
+        "source": "Outside",
+        "count": 1
+      },
+      {
+        "source": "Robb Report",
+        "count": 1
+      },
+      {
+        "source": "Cmtext.com",
+        "count": 1
+      },
+      {
+        "source": "Atlanta Journal Constitution",
+        "count": 1
+      },
+      {
+        "source": "The Chronicle of Higher Education",
+        "count": 1
+      },
+      {
+        "source": "Task & Purpose",
+        "count": 1
+      },
+      {
+        "source": "Electronicpaymentsinternational.com",
+        "count": 1
+      },
+      {
+        "source": "Baldurbjarnason.com",
+        "count": 1
+      },
+      {
+        "source": "Cpb.org",
+        "count": 1
+      },
+      {
+        "source": "Consequence.net",
+        "count": 1
+      },
+      {
+        "source": "Blogger.com",
+        "count": 1
+      },
+      {
+        "source": "BroBible",
+        "count": 1
+      },
+      {
+        "source": "Mediaite",
+        "count": 1
+      },
+      {
+        "source": "Palm Beach Post",
+        "count": 1
+      },
+      {
+        "source": "City Journal",
+        "count": 1
+      },
+      {
+        "source": "Asu.edu",
+        "count": 1
+      },
+      {
+        "source": "Fadeaway World",
+        "count": 1
+      },
+      {
+        "source": "Skepticalscience.com",
+        "count": 1
+      },
+      {
+        "source": "Lilly.com",
+        "count": 1
+      },
+      {
+        "source": "The Conversation Africa",
+        "count": 1
+      },
+      {
+        "source": "KOMO News",
+        "count": 1
+      },
+      {
+        "source": "The Week Magazine",
+        "count": 1
+      },
+      {
+        "source": "Applefirst50.com",
+        "count": 1
+      },
+      {
+        "source": "Aboutamazon.com",
+        "count": 1
+      },
+      {
+        "source": "Almanacnews.com",
+        "count": 1
+      },
+      {
+        "source": "Greater Baton Rouge Business Report",
+        "count": 1
+      },
+      {
+        "source": "Fangraphs.com",
+        "count": 1
+      },
+      {
+        "source": "Saturn.land",
+        "count": 1
+      },
+      {
+        "source": "Neatorama.com",
+        "count": 1
+      },
+      {
+        "source": "Adweek",
+        "count": 1
+      },
+      {
+        "source": "Wfxrtv.com",
+        "count": 1
+      },
+      {
+        "source": "PhoneArena",
+        "count": 1
+      },
+      {
+        "source": "Cowboystatedaily.com",
+        "count": 1
+      },
+      {
+        "source": "Time Out",
+        "count": 1
+      },
+      {
+        "source": "Thefp.com",
+        "count": 1
+      },
+      {
+        "source": "Everything-everywhere.com",
+        "count": 1
+      },
+      {
+        "source": "Stanford.edu",
+        "count": 1
+      },
+      {
+        "source": "Newsday",
+        "count": 1
+      },
+      {
+        "source": "InsideEVs ",
+        "count": 1
+      },
+      {
+        "source": "The Florida Times-Union",
+        "count": 1
+      },
+      {
+        "source": "UploadVR",
+        "count": 1
+      },
+      {
+        "source": "cleveland.com",
+        "count": 1
+      },
+      {
+        "source": "Lawyersgunsmoneyblog.com",
+        "count": 1
+      },
+      {
+        "source": "INFORUM",
+        "count": 1
+      },
+      {
+        "source": "The Bulwark",
+        "count": 1
+      },
+      {
+        "source": "Tinybuddha.com",
+        "count": 1
+      },
+      {
+        "source": "Atlas Obscura",
+        "count": 1
+      },
+      {
+        "source": "The Spun",
+        "count": 1
+      },
+      {
+        "source": "The Real News Network",
+        "count": 1
+      },
+      {
+        "source": "Digitimes",
+        "count": 1
+      },
+      {
+        "source": "Post Magazine",
+        "count": 1
+      },
+      {
+        "source": "Ahouseinthehills.com",
+        "count": 1
+      },
+      {
+        "source": "Dougmacdowell.com",
+        "count": 1
+      },
+      {
+        "source": "Videogamer.com",
+        "count": 1
+      },
+      {
+        "source": "Tom's Guide",
+        "count": 1
+      },
+      {
+        "source": "Colincornaby.me",
+        "count": 1
+      },
+      {
+        "source": "Nordot.app",
+        "count": 1
+      },
+      {
+        "source": "Foodrepublic.com",
+        "count": 1
+      },
+      {
+        "source": "Positivityblog.com",
+        "count": 1
+      },
+      {
+        "source": "Mining Technology",
+        "count": 1
+      },
+      {
+        "source": "The Mercury News",
+        "count": 1
+      },
+      {
+        "source": "Bleacher Report",
+        "count": 1
+      },
+      {
+        "source": "Gear Patrol",
+        "count": 1
+      },
+      {
+        "source": "Worldsoccertalk.com",
+        "count": 1
+      },
+      {
+        "source": "Siliconera",
+        "count": 1
+      },
+      {
+        "source": "Theness.com",
+        "count": 1
+      },
+      {
+        "source": "Chron.com",
+        "count": 1
+      },
+      {
+        "source": "Prideofdetroit.com",
+        "count": 1
+      },
+      {
+        "source": "TCPalm",
+        "count": 1
+      },
+      {
+        "source": "Nickbostrom.com",
+        "count": 1
+      },
+      {
+        "source": "Homesandgardens.com",
+        "count": 1
+      },
+      {
+        "source": "PlayStation LifeStyle",
+        "count": 1
+      },
+      {
+        "source": "gcaptain.com",
+        "count": 1
+      },
+      {
+        "source": "Halowaypoint.com",
+        "count": 1
+      },
+      {
+        "source": "Liveandletsfly.com",
+        "count": 1
+      },
+      {
+        "source": "Tistory.com",
+        "count": 1
+      },
+      {
+        "source": "Semafor.com",
+        "count": 1
+      },
+      {
+        "source": "Shtfplan.com",
+        "count": 1
+      },
+      {
+        "source": "Mansion Global",
+        "count": 1
+      },
+      {
+        "source": "PRNewswire",
+        "count": 1
+      },
+      {
+        "source": "MMA Fighting",
+        "count": 1
+      },
+      {
+        "source": "Infosecurity Magazine",
+        "count": 1
+      },
+      {
+        "source": "Omgubuntu.co.uk",
+        "count": 1
+      },
+      {
+        "source": "Butwhytho.net",
+        "count": 1
+      },
+      {
+        "source": "chiefs.com",
+        "count": 1
+      },
+      {
+        "source": "Postsecret.com",
+        "count": 1
+      },
+      {
+        "source": "Corpus Christi Caller-Times",
+        "count": 1
+      },
+      {
+        "source": "Cult of Mac",
+        "count": 1
+      },
+      {
+        "source": "Dailykos.com",
+        "count": 1
+      },
+      {
+        "source": "WALB",
+        "count": 1
+      },
+      {
+        "source": "Leger360.com",
+        "count": 1
+      },
+      {
+        "source": "Asbury Park Press",
+        "count": 1
+      },
+      {
+        "source": "Samsung.com",
+        "count": 1
+      },
+      {
+        "source": "Socialmediaexplorer.com",
+        "count": 1
+      },
+      {
+        "source": "Pure Xbox",
+        "count": 1
+      },
+      {
+        "source": "WTHR",
+        "count": 1
+      },
+      {
+        "source": "AZCentral",
+        "count": 1
+      },
+      {
+        "source": "Greptile.com",
+        "count": 1
+      },
+      {
+        "source": "AdExchanger",
+        "count": 1
+      },
+      {
+        "source": "Bloody Elbow",
+        "count": 1
+      },
+      {
+        "source": "Soatok.blog",
+        "count": 1
+      },
+      {
+        "source": "Pew.org",
+        "count": 1
+      },
+      {
+        "source": "Charleston Post Courier",
+        "count": 1
+      },
+      {
+        "source": "Needtoknow.co.uk",
+        "count": 1
+      },
+      {
+        "source": "Ghost.org",
+        "count": 1
+      },
+      {
+        "source": "Cvshealth.com",
+        "count": 1
+      },
+      {
+        "source": "Fincen.gov",
+        "count": 1
+      },
+      {
+        "source": "Vegoutmag.com",
+        "count": 1
+      },
+      {
+        "source": "Viewfromthewing.com",
+        "count": 1
+      },
+      {
+        "source": "Finextra",
+        "count": 1
+      },
+      {
+        "source": "9News.com KUSA",
+        "count": 1
+      },
+      {
+        "source": "Supercarblondie.com",
+        "count": 1
+      },
+      {
+        "source": "Baldursgate3.game",
+        "count": 1
+      },
+      {
+        "source": "Mother Jones",
+        "count": 1
+      },
+      {
+        "source": "jaguars.com",
+        "count": 1
+      },
+      {
+        "source": "GIVEMESPORT",
+        "count": 1
+      },
+      {
+        "source": "MLB Trade Rumors",
+        "count": 1
+      },
+      {
+        "source": "Billboard",
+        "count": 1
+      },
+      {
+        "source": "Jacobin.com",
+        "count": 1
+      },
+      {
+        "source": "VentureBeat",
+        "count": 1
+      },
+      {
+        "source": "Paul Tan's Automotive News",
+        "count": 1
+      },
+      {
+        "source": "The Official Website of the Ultimate Fighting Championship",
+        "count": 1
+      },
+      {
+        "source": "Mashable",
+        "count": 1
+      },
+      {
+        "source": "ExchangeWire",
+        "count": 1
+      },
+      {
+        "source": "Verdict",
+        "count": 1
+      },
+      {
+        "source": "The Japan Times",
+        "count": 1
+      },
+      {
+        "source": "Tacoma News Tribune",
+        "count": 1
+      },
+      {
+        "source": "Overcomingbias.com",
+        "count": 1
+      },
+      {
+        "source": "CounterPunch",
+        "count": 1
+      },
+      {
+        "source": "EURACTIV",
+        "count": 1
+      },
+      {
+        "source": "HackRead",
+        "count": 1
+      },
+      {
+        "source": "Hindustan Times",
+        "count": 1
+      },
+      {
+        "source": "Gamedeveloper.com",
+        "count": 1
+      },
+      {
+        "source": "Silver And Black Pride",
+        "count": 1
+      },
+      {
+        "source": "NextShark",
+        "count": 1
+      },
+      {
+        "source": "MassLive.com",
+        "count": 1
+      },
+      {
+        "source": "ExtremeTech",
+        "count": 1
+      },
+      {
+        "source": "Econteen.com",
+        "count": 1
+      },
+      {
+        "source": "ArchDaily",
+        "count": 1
+      },
+      {
+        "source": "IFLScience",
+        "count": 1
+      },
+      {
+        "source": "Radaronline.com",
+        "count": 1
+      },
+      {
+        "source": "Abduzeedo.com",
+        "count": 1
+      },
+      {
+        "source": "Bloodinthemachine.com",
+        "count": 1
+      },
+      {
+        "source": "Popular Science",
+        "count": 1
+      },
+      {
+        "source": "Doomsdayscenario.co",
+        "count": 1
+      },
+      {
+        "source": "DSOGaming",
+        "count": 1
+      },
+      {
+        "source": "Muslimmatters.org",
+        "count": 1
+      },
+      {
+        "source": "Richmonder.org",
+        "count": 1
+      },
+      {
+        "source": "TheWrap",
+        "count": 1
+      },
+      {
+        "source": "Archives.gov",
+        "count": 1
+      },
+      {
+        "source": "Search Engine Land",
+        "count": 1
+      },
+      {
+        "source": "Rocketleague.com",
+        "count": 1
+      },
+      {
+        "source": "Themarginalian.org",
+        "count": 1
+      },
+      {
+        "source": "FOX 4 News",
+        "count": 1
+      },
+      {
+        "source": "NME",
+        "count": 1
+      },
+      {
+        "source": "iLounge",
+        "count": 1
+      },
+      {
+        "source": "Adamnash.blog",
+        "count": 1
+      },
+      {
+        "source": "STAT",
+        "count": 1
+      },
+      {
+        "source": "Wrestling Inc.",
+        "count": 1
+      },
+      {
+        "source": "Alexharri.com",
+        "count": 1
+      },
+      {
+        "source": "Columbia.edu",
+        "count": 1
+      },
+      {
+        "source": "Legalinsurrection.com",
+        "count": 1
+      },
+      {
+        "source": "Motor1 ",
+        "count": 1
+      },
+      {
+        "source": "Slrpnk.net",
+        "count": 1
+      },
+      {
+        "source": "FOX 10 News Phoenix",
+        "count": 1
+      },
+      {
+        "source": "mlive.com",
+        "count": 1
+      },
+      {
+        "source": "Shreveport Times",
+        "count": 1
+      },
+      {
+        "source": "Smartdatacollective.com",
+        "count": 1
+      },
+      {
+        "source": "Time",
+        "count": 1
+      },
+      {
+        "source": "Dronexl.co",
+        "count": 1
+      },
+      {
+        "source": "Boston 25 News",
+        "count": 1
+      },
+      {
+        "source": "Ducttapemarketing.com",
+        "count": 1
+      },
+      {
+        "source": "Nature.com",
+        "count": 1
+      },
+      {
+        "source": "PhillyVoice.com",
+        "count": 1
+      },
+      {
+        "source": "Channel3000.com - WISC-TV3",
+        "count": 1
+      },
+      {
+        "source": "Thegoodphight.com",
+        "count": 1
+      },
+      {
+        "source": "WAFB",
+        "count": 1
+      },
+      {
+        "source": "Adventure.com",
+        "count": 1
+      }
+    ]
+  }
+}
