@@ -4,209 +4,278 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models.top_gainers_model import TopGainers
-from app.schemas.common import PaginatedResponse
-from app.schemas.websocket_schema import TopGainerData, db_to_topgainer_data
+from app.services.topgainers_service import TopGainersService
+from app.schemas.websocket_schema import TopGainerData
 
+# 라우터 생성
 router = APIRouter()
 
-@router.get("/", response_model=PaginatedResponse[TopGainerData])
-async def get_topgainers_list(
-    category: Optional[str] = Query(None, description="카테고리 필터 (top_gainers, top_losers, most_actively_traded)"),
+# 🎯 TopGainers 전용 서비스 인스턴스
+topgainers_service = TopGainersService()
+
+async def get_topgainers_service() -> TopGainersService:
+    """TopGainers 서비스 의존성 주입"""
+    if not topgainers_service.redis_client:
+        await topgainers_service.init_redis()
+    return topgainers_service
+
+@router.get("/", response_model=List[TopGainerData])
+async def get_topgainers_data(
+    category: Optional[str] = Query(
+        None, 
+        description="카테고리 필터",
+        regex="^(top_gainers|top_losers|most_actively_traded)$"
+    ),
     limit: int = Query(50, ge=1, le=100, description="반환할 최대 개수"),
-    page: int = Query(1, ge=1, description="페이지 번호"),
-    db: Session = Depends(get_db)
+    service: TopGainersService = Depends(get_topgainers_service)
 ):
     """
-    TopGainers 리스트 조회
+    🎯 TopGainers 메인 데이터 조회 API
     
-    - **category**: 특정 카테고리 필터링 (선택사항)
-    - **limit**: 페이지당 항목 수 (1-100)
-    - **page**: 페이지 번호
+    **핵심 기능:**
+    - 최신 batch_id의 50개 심볼 데이터 조회
+    - 장중: Redis 실시간 데이터 / 장마감: PostgreSQL 종가 데이터  
+    - 카테고리별 필터링 지원
+    - 카테고리 정보 포함하여 프론트엔드 배너 표시 지원
+    
+    **Parameters:**
+    - **category**: 카테고리 필터 (선택사항)
+        - `top_gainers`: 상승 주식 (약 20개)
+        - `top_losers`: 하락 주식 (약 10개) 
+        - `most_actively_traded`: 활발히 거래되는 주식 (약 20개)
+        - `None`: 전체 50개 심볼
+    - **limit**: 반환할 최대 개수 (1-100)
+    
+    **Response:**
+    ```json
+    [
+        {
+            "batch_id": 32,
+            "symbol": "GXAI",
+            "category": "top_gainers",
+            "price": 2.06,
+            "change_amount": 0.96,
+            "change_percentage": "87.27%",
+            "volume": 246928896,
+            "rank_position": 2,
+            "last_updated": "2025-08-21T10:30:00Z"
+        }
+    ]
+    ```
     """
     try:
-        # 최신 batch_id 조회
-        latest_batch = TopGainers.get_latest_batch_id(db)
-        if not latest_batch:
-            return PaginatedResponse(
-                items=[],
-                total=0,
-                page=page,
-                limit=limit,
-                total_pages=0
-            )
+        # 🎯 시장 상태에 따른 최적화된 데이터 조회
+        data = await service.get_market_data_with_categories(category, limit)
         
-        batch_id = latest_batch[0]
+        if not data:
+            # 데이터가 없어도 에러가 아닌 빈 배열 반환
+            return []
         
-        # 페이징 계산
-        offset = (page - 1) * limit
+        return data
         
-        # 데이터 조회
-        if category:
-            # 특정 카테고리만 조회
-            db_objects = TopGainers.get_by_category(db, category, batch_id, limit, offset)
-            # 총 개수 조회
-            total_query = db.query(TopGainers).filter(
-                TopGainers.batch_id == batch_id,
-                TopGainers.category == category
-            )
-        else:
-            # 모든 카테고리 조회
-            db_objects = db.query(TopGainers).filter(
-                TopGainers.batch_id == batch_id
-            ).order_by(TopGainers.rank_position).offset(offset).limit(limit).all()
-            
-            # 총 개수 조회
-            total_query = db.query(TopGainers).filter(
-                TopGainers.batch_id == batch_id
-            )
-        
-        total = total_query.count()
-        total_pages = (total + limit - 1) // limit
-        
-        # Pydantic 모델로 변환
-        items = [db_to_topgainer_data(obj) for obj in db_objects]
-        
-        return PaginatedResponse(
-            items=items,
-            total=total,
-            page=page,
-            limit=limit,
-            total_pages=total_pages
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, 
+            detail=f"TopGainers 데이터 조회 실패: {str(e)}"
         )
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"TopGainers 조회 실패: {str(e)}")
 
-@router.get("/latest", response_model=List[TopGainerData])
-async def get_latest_topgainers(
-    category: Optional[str] = Query(None, description="카테고리 필터"),
-    limit: int = Query(10, ge=1, le=100, description="반환할 최대 개수"),
-    db: Session = Depends(get_db)
+@router.get("/categories", response_model=dict)
+async def get_topgainers_categories(
+    service: TopGainersService = Depends(get_topgainers_service)
 ):
     """
-    최신 TopGainers 데이터 조회 (WebSocket API fallback용)
+    🎯 TopGainers 카테고리 정보 조회
     
-    이 엔드포인트는 장 마감 시간에 WebSocket 대신 사용됩니다.
+    **용도:**
+    - 프론트엔드에서 배너 구성 시 사용
+    - 각 카테고리별 심볼 개수 확인
+    - 데이터 업데이트 상태 확인
+    
+    **Response:**
+    ```json
+    {
+        "categories": {
+            "top_gainers": 20,
+            "top_losers": 10,
+            "most_actively_traded": 20
+        },
+        "total": 50,
+        "batch_id": 32,
+        "last_updated": "2025-08-21T10:30:00Z",
+        "market_status": "OPEN",
+        "data_source": "redis"
+    }
+    ```
     """
     try:
-        # 최신 batch_id 조회
-        latest_batch = TopGainers.get_latest_batch_id(db)
-        if not latest_batch:
-            return []
-        
-        batch_id = latest_batch[0]
-        
-        # 데이터 조회
-        if category:
-            db_objects = TopGainers.get_by_category(db, category, batch_id, limit)
-        else:
-            # 기본적으로 top_gainers 카테고리 우선
-            db_objects = db.query(TopGainers).filter(
-                TopGainers.batch_id == batch_id
-            ).order_by(
-                TopGainers.category.desc(),  # top_gainers가 먼저 오도록
-                TopGainers.rank_position
-            ).limit(limit).all()
-        
-        # Pydantic 모델로 변환
-        return [db_to_topgainer_data(obj) for obj in db_objects]
+        stats = service.get_category_statistics()
+        return stats
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"최신 TopGainers 조회 실패: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"카테고리 정보 조회 실패: {str(e)}"
+        )
 
-@router.get("/categories", response_model=List[str])
-async def get_topgainers_categories(db: Session = Depends(get_db)):
-    """사용 가능한 TopGainers 카테고리 목록 조회"""
+@router.get("/stats", response_model=dict)
+async def get_topgainers_stats(
+    service: TopGainersService = Depends(get_topgainers_service)
+):
+    """
+    🎯 TopGainers 서비스 통계 및 성능 정보
+    
+    **용도:**
+    - 서비스 성능 모니터링
+    - API 호출 통계 확인  
+    - Redis/DB 사용률 분석
+    - 에러율 추적
+    
+    **Response:**
+    ```json
+    {
+        "performance": {
+            "api_calls": 1250,
+            "redis_calls": 800,
+            "db_calls": 450,
+            "cache_hits": 750,
+            "market_closed_calls": 200,
+            "errors": 5
+        },
+        "data_status": {
+            "last_update": "2025-08-21T10:30:00Z",
+            "cached_symbols": 50,
+            "cache_age_seconds": 120
+        },
+        "health": {
+            "redis_available": true,
+            "market_status": "OPEN",
+            "error_rate": 0.4
+        }
+    }
+    ```
+    """
     try:
-        # 최신 batch에서 사용 가능한 카테고리들 조회
-        latest_batch = TopGainers.get_latest_batch_id(db)
-        if not latest_batch:
-            return []
-        
-        batch_id = latest_batch[0]
-        
-        categories = db.query(TopGainers.category).filter(
-            TopGainers.batch_id == batch_id
-        ).distinct().all()
-        
-        return [cat[0] for cat in categories if cat[0]]
+        stats = service.get_service_stats()
+        return stats
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"카테고리 조회 실패: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"통계 정보 조회 실패: {str(e)}"
+        )
 
 @router.get("/symbol/{symbol}", response_model=Optional[TopGainerData])
-async def get_topgainers_by_symbol(
+async def get_topgainers_symbol(
     symbol: str,
-    db: Session = Depends(get_db)
+    category: Optional[str] = Query(None, description="카테고리 필터"),
+    service: TopGainersService = Depends(get_topgainers_service)
 ):
-    """특정 심볼의 TopGainers 데이터 조회"""
+    """
+    🎯 특정 심볼의 TopGainers 데이터 조회
+    
+    **용도:**
+    - 개별 주식 상세 정보 조회
+    - 특정 심볼이 어떤 카테고리에 속하는지 확인
+    
+    **Parameters:**
+    - **symbol**: 주식 심볼 (예: GXAI, NVDA)
+    - **category**: 카테고리 필터 (선택사항)
+    
+    **Response:**
+    - 데이터가 있으면 TopGainerData 객체
+    - 없으면 null
+    """
     try:
-        # 최신 batch_id 조회
-        latest_batch = TopGainers.get_latest_batch_id(db)
-        if not latest_batch:
-            return None
+        # 심볼 유효성 검사
+        symbol = symbol.upper().strip()
+        if not symbol or len(symbol) > 10:
+            raise HTTPException(status_code=400, detail="유효하지 않은 심볼입니다")
         
-        batch_id = latest_batch[0]
+        data = await service.get_symbol_data(symbol, category)
         
-        # 심볼로 조회
-        db_object = db.query(TopGainers).filter(
-            TopGainers.batch_id == batch_id,
-            TopGainers.symbol == symbol.upper()
-        ).first()
+        if not data:
+            raise HTTPException(
+                status_code=404, 
+                detail=f"심볼 '{symbol}'{f' (카테고리: {category})' if category else ''} 데이터를 찾을 수 없습니다"
+            )
         
-        if not db_object:
-            raise HTTPException(status_code=404, detail=f"심볼 {symbol} 데이터 없음")
-        
-        return db_to_topgainer_data(db_object)
+        return data
         
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"심볼 조회 실패: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"심볼 조회 실패: {str(e)}"
+        )
 
-@router.get("/stats", response_model=dict)
-async def get_topgainers_stats(db: Session = Depends(get_db)):
-    """TopGainers 통계 정보 조회"""
-    try:
-        # 최신 batch_id 조회
-        latest_batch = TopGainers.get_latest_batch_id(db)
-        if not latest_batch:
-            return {"total": 0, "categories": {}, "last_updated": None}
-        
-        batch_id = latest_batch[0]
-        
-        # 전체 개수
-        total = db.query(TopGainers).filter(TopGainers.batch_id == batch_id).count()
-        
-        # 카테고리별 개수
-        category_counts = {}
-        categories = db.query(
-            TopGainers.category,
-            db.func.count(TopGainers.symbol)
-        ).filter(
-            TopGainers.batch_id == batch_id
-        ).group_by(TopGainers.category).all()
-        
-        for category, count in categories:
-            if category:
-                category_counts[category] = count
-        
-        # 마지막 업데이트 시간
-        last_updated_obj = db.query(TopGainers).filter(
-            TopGainers.batch_id == batch_id
-        ).order_by(TopGainers.last_updated.desc()).first()
-        
-        last_updated = None
-        if last_updated_obj:
-            last_updated = last_updated_obj.last_updated.isoformat()
-        
-        return {
-            "total": total,
-            "batch_id": batch_id,
-            "categories": category_counts,
-            "last_updated": last_updated
+@router.get("/health", response_model=dict)
+async def get_topgainers_health(
+    service: TopGainersService = Depends(get_topgainers_service)
+):
+    """
+    🎯 TopGainers 서비스 헬스체크
+    
+    **용도:**
+    - 서비스 상태 모니터링
+    - Redis/DB 연결 상태 확인
+    - 데이터 최신성 검증
+    
+    **Response:**
+    ```json
+    {
+        "timestamp": "2025-08-21T10:30:00Z",
+        "status": "healthy",
+        "services": {
+            "redis": {"status": "connected"},
+            "database": {"status": "connected", "latest_batch": 32}
         }
+    }
+    ```
+    """
+    try:
+        health_info = await service.health_check()
+        return health_info
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"통계 조회 실패: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"헬스체크 실패: {str(e)}"
+        )
+
+# =========================
+# 🎯 간소화된 엔드포인트 설명
+# =========================
+
+"""
+📋 TopGainers API 엔드포인트 요약
+
+1. GET /topgainers/
+   - 메인 데이터 조회 API
+   - 장중: Redis 실시간 / 장마감: DB 종가
+   - 카테고리 필터링 지원
+   - 프론트엔드 배너용 데이터 제공
+
+2. GET /topgainers/categories  
+   - 카테고리 정보 (top_gainers: 20개, top_losers: 10개, most_actively_traded: 20개)
+   - 프론트엔드에서 배너 구성할 때 사용
+   
+3. GET /topgainers/stats
+   - 서비스 통계 및 성능 정보  
+   - API 호출수, 에러율, 캐시 히트율 등
+   
+4. GET /topgainers/symbol/{symbol} (추가)
+   - 개별 심볼 조회
+   - 심볼이 어떤 카테고리에 속하는지 확인용
+   
+5. GET /topgainers/health (추가)
+   - 헬스체크용
+   - Redis/DB 연결 상태 확인
+
+🎯 핵심 개선 사항:
+- 불필요한 페이징 제거 (배치 기반이므로 최대 50개)
+- 배치별 조회 제거 (최신 배치만 사용)  
+- 복잡한 필터링 제거 (카테고리만 지원)
+- WebSocket 의존성 제거 (TopGainersService로 분리)
+- 명확한 용도별 API 구분
+"""

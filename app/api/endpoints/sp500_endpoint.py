@@ -31,17 +31,17 @@ async def get_sp500_list(
         # 페이징 계산
         offset = (page - 1) * limit
         
-        # 각 심볼의 최신 데이터만 조회하는 서브쿼리
-        latest_trades_subquery = db.query(
+        # 🎯 모델 메서드 활용: 각 심볼의 최신 데이터만 조회
+        latest_prices_query = db.query(
             FinnhubTrades.symbol,
             func.max(FinnhubTrades.timestamp_ms).label('max_timestamp')
         ).group_by(FinnhubTrades.symbol).subquery()
         
         # 메인 쿼리
         query = db.query(FinnhubTrades).join(
-            latest_trades_subquery,
-            (FinnhubTrades.symbol == latest_trades_subquery.c.symbol) &
-            (FinnhubTrades.timestamp_ms == latest_trades_subquery.c.max_timestamp)
+            latest_prices_query,
+            (FinnhubTrades.symbol == latest_prices_query.c.symbol) &
+            (FinnhubTrades.timestamp_ms == latest_prices_query.c.max_timestamp)
         )
         
         # 카테고리 필터링
@@ -58,8 +58,12 @@ async def get_sp500_list(
         else:
             query = query.order_by(desc(FinnhubTrades.volume))  # 기본값
         
-        # 총 개수 조회
-        total = query.count()
+        # 총 개수 조회 (서브쿼리 없이)
+        total_query = db.query(FinnhubTrades.symbol).distinct()
+        if category:
+            total_query = total_query.filter(FinnhubTrades.category == category)
+        total = total_query.count()
+        
         total_pages = (total + limit - 1) // limit
         
         # 페이징 적용
@@ -93,35 +97,22 @@ async def get_latest_sp500(
     각 심볼의 가장 최신 거래 데이터를 반환합니다.
     """
     try:
-        # 각 심볼의 최신 데이터만 조회하는 서브쿼리
-        latest_trades_subquery = db.query(
-            FinnhubTrades.symbol,
-            func.max(FinnhubTrades.timestamp_ms).label('max_timestamp')
-        ).group_by(FinnhubTrades.symbol).subquery()
-        
-        # 메인 쿼리
-        query = db.query(FinnhubTrades).join(
-            latest_trades_subquery,
-            (FinnhubTrades.symbol == latest_trades_subquery.c.symbol) &
-            (FinnhubTrades.timestamp_ms == latest_trades_subquery.c.max_timestamp)
-        )
-        
-        # 카테고리 필터링
+        # 🎯 모델 메서드 직접 활용
         if category:
-            query = query.filter(FinnhubTrades.category == category)
-        
-        # 정렬
-        if sort_by == "volume":
-            query = query.order_by(desc(FinnhubTrades.volume))
-        elif sort_by == "price":
-            query = query.order_by(desc(FinnhubTrades.price))
-        elif sort_by == "timestamp":
-            query = query.order_by(desc(FinnhubTrades.timestamp_ms))
+            db_objects = FinnhubTrades.get_latest_prices(db, category=category)
         else:
-            query = query.order_by(desc(FinnhubTrades.volume))  # 기본값
+            db_objects = FinnhubTrades.get_latest_prices_by_symbols(db, limit)
+        
+        # 추가 정렬 처리
+        if sort_by == "price":
+            db_objects = sorted(db_objects, key=lambda x: x.price or 0, reverse=True)
+        elif sort_by == "timestamp":
+            db_objects = sorted(db_objects, key=lambda x: x.timestamp_ms or 0, reverse=True)
+        else:  # volume (기본값)
+            db_objects = sorted(db_objects, key=lambda x: x.volume or 0, reverse=True)
         
         # 제한 적용
-        db_objects = query.limit(limit).all()
+        db_objects = db_objects[:limit]
         
         # Pydantic 모델로 변환
         return [db_to_sp500_data(obj) for obj in db_objects]
@@ -136,15 +127,13 @@ async def get_sp500_by_symbol(
 ):
     """특정 심볼의 SP500 최신 데이터 조회"""
     try:
-        # 해당 심볼의 최신 데이터 조회
-        db_object = db.query(FinnhubTrades).filter(
-            FinnhubTrades.symbol == symbol.upper()
-        ).order_by(desc(FinnhubTrades.timestamp_ms)).first()
+        # 🎯 모델 메서드 활용
+        db_objects = FinnhubTrades.get_latest_by_symbol(db, symbol.upper(), 1)
         
-        if not db_object:
+        if not db_objects:
             raise HTTPException(status_code=404, detail=f"심볼 {symbol} 데이터 없음")
         
-        return db_to_sp500_data(db_object)
+        return db_to_sp500_data(db_objects[0])
         
     except HTTPException:
         raise
@@ -204,7 +193,8 @@ async def get_sp500_stats(db: Session = Depends(get_db)):
             "total_symbols": total_symbols,
             "total_records": total_records,
             "categories": category_counts,
-            "last_updated": last_updated
+            "last_updated": last_updated,
+            "available_categories": list(category_counts.keys())
         }
         
     except Exception as e:
@@ -218,29 +208,40 @@ async def get_most_active_sp500(
 ):
     """최근 가장 활발한 SP500 종목들 조회 (거래량 기준)"""
     try:
-        from datetime import datetime, timedelta
+        # 🎯 모델 메서드 활용
+        db_objects = FinnhubTrades.get_recent_activity(db, hours * 60)  # 분 단위로 변환
         
-        # 시간 범위 계산
-        cutoff_time = datetime.utcnow() - timedelta(hours=hours)
-        cutoff_timestamp_ms = int(cutoff_time.timestamp() * 1000)
+        if not db_objects:
+            # 대안: 전체 데이터에서 최신 활발한 종목 조회
+            db_objects = FinnhubTrades.get_latest_prices_by_symbols(db, limit)
         
-        # 각 심볼별 최신 데이터 중 거래량이 높은 순으로 조회
-        latest_trades_subquery = db.query(
-            FinnhubTrades.symbol,
-            func.max(FinnhubTrades.timestamp_ms).label('max_timestamp')
-        ).filter(
-            FinnhubTrades.timestamp_ms >= cutoff_timestamp_ms
-        ).group_by(FinnhubTrades.symbol).subquery()
-        
-        query = db.query(FinnhubTrades).join(
-            latest_trades_subquery,
-            (FinnhubTrades.symbol == latest_trades_subquery.c.symbol) &
-            (FinnhubTrades.timestamp_ms == latest_trades_subquery.c.max_timestamp)
-        ).order_by(desc(FinnhubTrades.volume)).limit(limit)
-        
-        db_objects = query.all()
+        # 거래량 기준 정렬
+        db_objects = sorted(db_objects, key=lambda x: x.volume or 0, reverse=True)
+        db_objects = db_objects[:limit]
         
         return [db_to_sp500_data(obj) for obj in db_objects]
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"활발한 종목 조회 실패: {str(e)}")
+
+@router.get("/recent", response_model=List[SP500Data])
+async def get_recent_sp500_trades(
+    symbol: Optional[str] = Query(None, description="특정 심볼 필터"),
+    limit: int = Query(20, ge=1, le=100, description="반환할 최대 개수"),
+    db: Session = Depends(get_db)
+):
+    """최근 SP500 거래 데이터 조회"""
+    try:
+        if symbol:
+            # 특정 심볼의 최근 거래
+            db_objects = FinnhubTrades.get_latest_by_symbol(db, symbol.upper(), limit)
+        else:
+            # 전체 최근 거래
+            db_objects = db.query(FinnhubTrades).order_by(
+                desc(FinnhubTrades.timestamp_ms)
+            ).limit(limit).all()
+        
+        return [db_to_sp500_data(obj) for obj in db_objects]
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"최근 거래 조회 실패: {str(e)}")

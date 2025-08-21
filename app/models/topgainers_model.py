@@ -62,8 +62,8 @@ class TopGainers(BaseModel):
         return db_session.query(cls.batch_id).order_by(cls.batch_id.desc()).first()
     
     @classmethod
-    def get_by_category(cls, db_session, category: str, batch_id: int = None, limit: int = 50):
-        """카테고리별 데이터 조회"""
+    def get_by_category(cls, db_session, category: str, batch_id: int = None, limit: int = 50, offset: int = 0):
+        """카테고리별 데이터 조회 - offset 파라미터 추가"""
         query = db_session.query(cls).filter(cls.category == category)
         
         if batch_id:
@@ -74,7 +74,7 @@ class TopGainers(BaseModel):
             if latest_batch:
                 query = query.filter(cls.batch_id == latest_batch[0])
         
-        return query.order_by(cls.rank_position).limit(limit).all()
+        return query.order_by(cls.rank_position).offset(offset).limit(limit).all()
     
     @classmethod 
     def get_symbol_data(cls, db_session, symbol: str, category: str = None):
