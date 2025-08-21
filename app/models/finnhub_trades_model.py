@@ -124,3 +124,35 @@ class FinnhubTrades(BaseModel):
             query = query.filter(cls.category == category)
             
         return query.order_by(cls.timestamp_ms.desc()).all()
+    
+    @classmethod
+    def get_latest_prices_by_symbols(cls, db_session, limit: int = 100):
+        """
+        각 심볼의 최신 가격 조회 (장 마감 시 사용)
+        
+        Args:
+            db_session: 데이터베이스 세션
+            limit: 반환할 최대 개수
+            
+        Returns:
+            List[FinnhubTrades]: 각 심볼의 최신 거래 데이터 리스트
+        """
+        from sqlalchemy import func
+        
+        # 서브쿼리: 각 심볼별 최신 timestamp 조회
+        subquery = db_session.query(
+            cls.symbol,
+            func.max(cls.timestamp_ms).label('max_timestamp')
+        ).group_by(cls.symbol).subquery()
+        
+        # 메인 쿼리: 최신 timestamp의 데이터 조회
+        query = db_session.query(cls).join(
+            subquery,
+            (cls.symbol == subquery.c.symbol) & 
+            (cls.timestamp_ms == subquery.c.max_timestamp)
+        )
+        
+        # 가격 기준 정렬 (높은 가격 순)
+        query = query.order_by(cls.price.desc().nulls_last())
+        
+        return query.limit(limit).all()

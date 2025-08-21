@@ -90,3 +90,43 @@ class TopGainers(BaseModel):
             query = query.filter(cls.batch_id == latest_batch[0])
         
         return query.first()
+    
+    @classmethod
+    def get_latest_data_by_symbols(cls, db_session, category: str = None, limit: int = 50):
+        """
+        각 심볼의 최신 데이터 조회 (장 마감 시 사용)
+        
+        Args:
+            db_session: 데이터베이스 세션
+            category: 카테고리 필터 (top_gainers, top_losers, most_actively_traded)
+            limit: 반환할 최대 개수
+            
+        Returns:
+            List[TopGainers]: 각 심볼의 최신 데이터 리스트
+        """
+        from sqlalchemy import func
+        
+        # 서브쿼리: 각 심볼별 최신 batch_id 조회
+        subquery = db_session.query(
+            cls.symbol,
+            func.max(cls.batch_id).label('max_batch_id')
+        ).group_by(cls.symbol).subquery()
+        
+        # 메인 쿼리: 최신 batch_id의 데이터 조회
+        query = db_session.query(cls).join(
+            subquery,
+            (cls.symbol == subquery.c.symbol) & 
+            (cls.batch_id == subquery.c.max_batch_id)
+        )
+        
+        # 카테고리 필터링
+        if category:
+            query = query.filter(cls.category == category)
+        
+        # 순위 또는 가격 기준 정렬
+        query = query.order_by(
+            cls.rank_position.asc().nulls_last(),
+            cls.price.desc().nulls_last()
+        )
+        
+        return query.limit(limit).all()

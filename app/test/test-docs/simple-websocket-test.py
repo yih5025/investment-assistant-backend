@@ -12,7 +12,7 @@ async def test_websocket_connection():
     test_urls = [
         "ws://localhost:30888/api/v1/ws/crypto",
         "ws://localhost:30888/api/v1/ws/stocks/topgainers", 
-        "ws://localhost:30888/api/v1/ws/dashboard"
+        "ws://localhost:30888/api/v1/ws/stocks/sp500"
     ]
     
     for url in test_urls:

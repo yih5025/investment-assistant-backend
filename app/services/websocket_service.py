@@ -5,6 +5,7 @@ import logging
 from typing import List, Optional, Dict, Any, Tuple
 from datetime import datetime, timedelta
 import hashlib
+import pytz
 
 from app.database import get_db
 from app.config import settings
@@ -18,12 +19,77 @@ from app.schemas.websocket_schema import (
 
 logger = logging.getLogger(__name__)
 
+class MarketTimeChecker:
+    """미국 주식 시장 시간 체크 클래스"""
+    
+    def __init__(self):
+        self.us_eastern = pytz.timezone('US/Eastern')
+        
+        # 미국 공휴일 (주식시장 휴장일)
+        self.market_holidays = {
+            '2024-01-01', '2024-01-15', '2024-02-19', '2024-03-29',
+            '2024-05-27', '2024-06-19', '2024-07-04', '2024-09-02',
+            '2024-11-28', '2024-12-25',
+            '2025-01-01', '2025-01-20', '2025-02-17', '2025-04-18',
+            '2025-05-26', '2025-06-19', '2025-07-04', '2025-09-01',
+            '2025-11-27', '2025-12-25'
+        }
+    
+    def is_market_open(self) -> bool:
+        """현재 미국 주식 시장이 열려있는지 확인"""
+        try:
+            now_utc = datetime.utcnow().replace(tzinfo=pytz.UTC)
+            now_et = now_utc.astimezone(self.us_eastern)
+            
+            # 주말 체크
+            if now_et.weekday() >= 5:  # 5=토요일, 6=일요일
+                return False
+            
+            # 공휴일 체크
+            today_str = now_et.strftime('%Y-%m-%d')
+            if today_str in self.market_holidays:
+                return False
+            
+            # 정규 거래시간: 9:30 AM - 4:00 PM ET
+            market_open = now_et.replace(hour=9, minute=30, second=0, microsecond=0)
+            market_close = now_et.replace(hour=16, minute=0, second=0, microsecond=0)
+            
+            return market_open <= now_et <= market_close
+            
+        except Exception as e:
+            logger.error(f"❌ 시장 시간 확인 중 오류: {e}")
+            return False  # 안전하게 장 마감으로 처리
+    
+    def get_market_status(self) -> Dict[str, Any]:
+        """상세한 시장 상태 정보 반환"""
+        try:
+            now_utc = datetime.utcnow().replace(tzinfo=pytz.UTC)
+            now_et = now_utc.astimezone(self.us_eastern)
+            
+            is_open = self.is_market_open()
+            
+            return {
+                'is_open': is_open,
+                'current_time_et': now_et.strftime('%Y-%m-%d %H:%M:%S %Z'),
+                'current_time_utc': now_utc.strftime('%Y-%m-%d %H:%M:%S UTC'),
+                'status': 'OPEN' if is_open else 'CLOSED',
+                'timezone': 'US/Eastern'
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ 시장 상태 조회 오류: {e}")
+            return {
+                'is_open': False,
+                'status': 'UNKNOWN',
+                'error': str(e)
+            }
+
 class WebSocketService:
     """
-    WebSocket 실시간 데이터 서비스
+    WebSocket 실시간 데이터 서비스 - 장 마감 시 DB fallback 강화
     
     이 클래스는 데이터베이스와 Redis에서 실시간 데이터를 조회하고,
-    변경 감지 및 캐싱 기능을 제공합니다.
+    미국 장 마감 시간에는 Redis 대신 PostgreSQL에서 최신 데이터를 제공합니다.
     """
     
     def __init__(self):
@@ -31,6 +97,7 @@ class WebSocketService:
         self.redis_client = None
         self.last_data_cache: Dict[str, Any] = {}
         self.data_hashes: Dict[str, str] = {}
+        self.market_checker = MarketTimeChecker()
         
         # 성능 통계
         self.stats = {
@@ -40,10 +107,12 @@ class WebSocketService:
             "cache_misses": 0,
             "changes_detected": 0,
             "last_update": None,
-            "errors": 0
+            "errors": 0,
+            "market_closed_fallbacks": 0,
+            "db_fallback_count": 0
         }
         
-        logger.info("✅ WebSocketService 초기화 완료")
+        logger.info("✅ WebSocketService 초기화 완료 (장 마감 시 DB fallback 지원)")
     
     async def init_redis(self) -> bool:
         """
@@ -76,12 +145,36 @@ class WebSocketService:
             return False
     
     # =========================
-    # Top Gainers 데이터 처리
+    # 🎯 장 마감 시 DB fallback 로직
+    # =========================
+    
+    def should_use_db_fallback(self) -> bool:
+        """
+        DB fallback을 사용해야 하는지 판단
+        
+        Returns:
+            bool: DB fallback 사용 여부
+        """
+        # Redis가 없으면 항상 DB 사용
+        if not self.redis_client:
+            return True
+        
+        # 미국 장이 마감된 경우 DB 사용 (최신 가격 유지)
+        market_status = self.market_checker.get_market_status()
+        if not market_status['is_open']:
+            logger.debug("🕐 미국 장 마감 시간 - DB fallback 모드")
+            self.stats["market_closed_fallbacks"] += 1
+            return True
+        
+        return False
+    
+    # =========================
+    # TopGainers 데이터 처리 (강화)
     # =========================
     
     async def get_topgainers_from_db(self, category: str = None, limit: int = 50) -> List[TopGainerData]:
         """
-        데이터베이스에서 TopGainers 데이터 조회
+        데이터베이스에서 TopGainers 데이터 조회 (장 마감 시 최신 데이터 보장)
         
         Args:
             category: 카테고리 필터 (top_gainers, top_losers, most_actively_traded)
@@ -93,22 +186,26 @@ class WebSocketService:
         try:
             db = next(get_db())
             
-            # 최신 batch_id 조회
-            latest_batch = TopGainers.get_latest_batch_id(db)
-            if not latest_batch:
-                logger.warning("📊 TopGainers 데이터 없음")
-                return []
-            
-            batch_id = latest_batch[0]
-            
-            if category:
-                # 특정 카테고리만 조회
-                db_objects = TopGainers.get_by_category(db, category, batch_id, limit)
+            # 🎯 시장 상태에 따른 데이터 조회 전략
+            if self.should_use_db_fallback():
+                # 장 마감 시: 각 심볼의 최신 데이터 조회
+                db_objects = TopGainers.get_latest_data_by_symbols(db, category, limit)
+                logger.debug(f"📊 장 마감 시 TopGainers 최신 데이터 조회: {len(db_objects)}개")
             else:
-                # 모든 카테고리 조회
-                db_objects = db.query(TopGainers).filter(
-                    TopGainers.batch_id == batch_id
-                ).order_by(TopGainers.rank_position).limit(limit).all()
+                # 장 개장 시: 최신 batch_id 기준 조회
+                latest_batch = TopGainers.get_latest_batch_id(db)
+                if not latest_batch:
+                    logger.warning("📊 TopGainers 데이터 없음")
+                    return []
+                
+                batch_id = latest_batch[0]
+                
+                if category:
+                    db_objects = TopGainers.get_by_category(db, category, batch_id, limit)
+                else:
+                    db_objects = db.query(TopGainers).filter(
+                        TopGainers.batch_id == batch_id
+                    ).order_by(TopGainers.rank_position).limit(limit).all()
             
             # Pydantic 모델로 변환
             data = [db_to_topgainer_data(obj) for obj in db_objects]
@@ -128,7 +225,7 @@ class WebSocketService:
     
     async def get_topgainers_from_redis(self, category: str = None, limit: int = 50) -> List[TopGainerData]:
         """
-        Redis에서 TopGainers 데이터 조회
+        Redis에서 TopGainers 데이터 조회 (장 마감 시 DB fallback)
         
         Args:
             category: 카테고리 필터
@@ -137,7 +234,9 @@ class WebSocketService:
         Returns:
             List[TopGainerData]: TopGainers 데이터 리스트
         """
-        if not self.redis_client:
+        # 🎯 장 마감 시 또는 Redis 없으면 DB fallback
+        if self.should_use_db_fallback():
+            self.stats["db_fallback_count"] += 1
             return await self.get_topgainers_from_db(category, limit)
         
         try:
@@ -190,7 +289,129 @@ class WebSocketService:
             return await self.get_topgainers_from_db(category, limit)
     
     # =========================
-    # 암호화폐 데이터 처리
+    # SP500 데이터 처리 (강화)
+    # =========================
+    
+    async def get_sp500_from_db(self, category: str = None, limit: int = 100) -> List[SP500Data]:
+        """
+        데이터베이스에서 SP500 데이터 조회 (장 마감 시 최신 데이터 보장)
+        
+        Args:
+            category: 카테고리 필터 (top_gainers, most_actively_traded, top_losers)
+            limit: 반환할 최대 개수
+            
+        Returns:
+            List[SP500Data]: SP500 데이터 리스트
+        """
+        try:
+            db = next(get_db())
+            
+            # 🎯 시장 상태에 따른 조회 전략
+            if self.should_use_db_fallback():
+                # 장 마감 시: 각 심볼의 최신 가격 조회
+                db_objects = FinnhubTrades.get_latest_prices_by_symbols(db, limit)
+                logger.debug(f"📊 장 마감 시 SP500 최신 데이터 조회: {len(db_objects)}개")
+            else:
+                # 장 개장 시: 카테고리별 최신 가격들 조회
+                if category:
+                    db_objects = FinnhubTrades.get_latest_prices(db, category=category)
+                else:
+                    db_objects = FinnhubTrades.get_latest_prices(db)
+                
+                # 결과 제한
+                db_objects = db_objects[:limit]
+            
+            # Pydantic 모델로 변환
+            data = [db_to_sp500_data(obj) for obj in db_objects]
+            
+            self.stats["db_queries"] += 1
+            self.stats["last_update"] = datetime.utcnow()
+            
+            logger.debug(f"📊 SP500 데이터 조회 완료: {len(data)}개")
+            return data
+            
+        except Exception as e:
+            logger.error(f"❌ SP500 DB 조회 실패: {e}")
+            self.stats["errors"] += 1
+            return []
+        finally:
+            db.close()
+    
+    async def get_sp500_from_redis(self, category: str = None, limit: int = 100) -> List[SP500Data]:
+        """
+        Redis에서 SP500 데이터 조회 (장 마감 시 DB fallback)
+        
+        Args:
+            category: 카테고리 필터
+            limit: 반환할 최대 개수
+            
+        Returns:
+            List[SP500Data]: SP500 데이터 리스트
+        """
+        # 🎯 장 마감 시 또는 Redis 없으면 DB fallback
+        if self.should_use_db_fallback():
+            self.stats["db_fallback_count"] += 1
+            return await self.get_sp500_from_db(category, limit)
+        
+        try:
+            # Redis 키 패턴: latest:stocks:sp500:{symbol}
+            pattern = "latest:stocks:sp500:*"
+            keys = await self.redis_client.keys(pattern)
+            
+            if not keys:
+                logger.debug("📊 Redis SP500 데이터 없음, DB fallback")
+                return await self.get_sp500_from_db(category, limit)
+            
+            # 모든 키의 데이터 가져오기
+            pipeline = self.redis_client.pipeline()
+            for key in keys:
+                pipeline.get(key)
+            
+            results = await pipeline.execute()
+            
+            # JSON 파싱 및 필터링
+            data = []
+            for i, result in enumerate(results):
+                if result:
+                    try:
+                        json_data = json.loads(result)
+                        
+                        # 카테고리 필터링
+                        if category and json_data.get('category') != category:
+                            continue
+                        
+                        # SP500Data 생성
+                        sp500_data = SP500Data(
+                            symbol=json_data.get('symbol', keys[i].split(':')[-1]),
+                            price=json_data.get('price'),
+                            volume=json_data.get('volume'),
+                            timestamp_ms=json_data.get('timestamp'),
+                            category=json_data.get('category'),
+                            source=json_data.get('source', 'finnhub_websocket')
+                        )
+                        data.append(sp500_data)
+                        
+                    except (json.JSONDecodeError, ValueError) as e:
+                        logger.warning(f"⚠️ Redis SP500 데이터 파싱 실패: {e}")
+                        continue
+            
+            # 거래량별 정렬 및 제한
+            data.sort(key=lambda x: x.volume or 0, reverse=True)
+            data = data[:limit]
+            
+            self.stats["redis_queries"] += 1
+            self.stats["last_update"] = datetime.utcnow()
+            
+            logger.debug(f"📊 Redis SP500 데이터 조회 완료: {len(data)}개")
+            return data
+            
+        except Exception as e:
+            logger.error(f"❌ Redis SP500 조회 실패: {e}, DB fallback")
+            self.stats["errors"] += 1
+            return await self.get_sp500_from_db(category, limit)
+    
+    # =========================
+    # 암호화폐 데이터 처리 (기존 유지 - 항상 데이터 있음)
     # =========================
     
     async def get_crypto_from_db(self, limit: int = 100) -> List[CryptoData]:
@@ -227,7 +448,7 @@ class WebSocketService:
     
     async def get_crypto_from_redis(self, limit: int = 100) -> List[CryptoData]:
         """
-        Redis에서 암호화폐 데이터 조회
+        Redis에서 암호화폐 데이터 조회 (암호화폐는 24시간 거래이므로 Redis 우선)
         
         Args:
             limit: 반환할 최대 개수
@@ -293,241 +514,104 @@ class WebSocketService:
             return await self.get_crypto_from_db(limit)
     
     # =========================
-    # SP500 데이터 처리
+    # 🎯 시장별 최적화된 데이터 조회
     # =========================
     
-    async def get_sp500_from_db(self, category: str = None, limit: int = 100) -> List[SP500Data]:
+    async def get_market_optimized_data(self, data_type: str, limit: int = 50) -> List[Any]:
         """
-        데이터베이스에서 SP500 데이터 조회
+        시장 상태에 따른 최적화된 데이터 조회
         
         Args:
-            category: 카테고리 필터 (top_gainers, most_actively_traded, top_losers)
+            data_type: 데이터 타입 (topgainers, sp500, crypto)
             limit: 반환할 최대 개수
             
         Returns:
-            List[SP500Data]: SP500 데이터 리스트
+            List[Any]: 데이터 리스트
         """
-        try:
-            db = next(get_db())
-            
-            if category:
-                # 특정 카테고리 최신 가격들 조회
-                db_objects = FinnhubTrades.get_latest_prices(db, category=category)
+        market_status = self.market_checker.get_market_status()
+        
+        logger.debug(f"🕐 시장 상태: {market_status['status']} - {data_type} 데이터 조회")
+        
+        if data_type == "topgainers":
+            if market_status['is_open']:
+                # 개장 시: Redis 우선
+                return await self.get_topgainers_from_redis(limit=limit)
             else:
-                # 모든 심볼의 최신 가격들 조회
-                db_objects = FinnhubTrades.get_latest_prices(db)
-            
-            # 결과 제한
-            db_objects = db_objects[:limit]
-            
-            # Pydantic 모델로 변환
-            data = [db_to_sp500_data(obj) for obj in db_objects]
-            
-            self.stats["db_queries"] += 1
-            self.stats["last_update"] = datetime.utcnow()
-            
-            logger.debug(f"📊 SP500 데이터 조회 완료: {len(data)}개")
-            return data
-            
-        except Exception as e:
-            logger.error(f"❌ SP500 DB 조회 실패: {e}")
-            self.stats["errors"] += 1
+                # 장 마감 시: DB에서 최신 데이터
+                return await self.get_topgainers_from_db(limit=limit)
+                
+        elif data_type == "sp500":
+            if market_status['is_open']:
+                # 개장 시: Redis 우선
+                return await self.get_sp500_from_redis(limit=limit)
+            else:
+                # 장 마감 시: DB에서 최신 데이터
+                return await self.get_sp500_from_db(limit=limit)
+                
+        elif data_type == "crypto":
+            # 암호화폐는 24시간 거래이므로 항상 Redis 우선
+            return await self.get_crypto_from_redis(limit=limit)
+        
+        else:
+            logger.warning(f"⚠️ 알 수 없는 데이터 타입: {data_type}")
             return []
-        finally:
-            db.close()
     
-    async def get_sp500_from_redis(self, category: str = None, limit: int = 100) -> List[SP500Data]:
+    # =========================
+    # 대시보드 데이터 처리 (장 마감 대응)
+    # =========================
+    
+    async def get_dashboard_data(self) -> Dict[str, Any]:
         """
-        Redis에서 SP500 데이터 조회
+        대시보드용 통합 데이터 조회 (시장 상태 대응)
         
-        Args:
-            category: 카테고리 필터
-            limit: 반환할 최대 개수
-            
         Returns:
-            List[SP500Data]: SP500 데이터 리스트
+            Dict[str, Any]: 대시보드 데이터
         """
-        if not self.redis_client:
-            return await self.get_sp500_from_db(category, limit)
-        
         try:
-            # Redis 키 패턴: latest:stocks:sp500:{symbol}
-            pattern = "latest:stocks:sp500:*"
-            keys = await self.redis_client.keys(pattern)
+            market_status = self.market_checker.get_market_status()
             
-            if not keys:
-                logger.debug("📊 Redis SP500 데이터 없음, DB fallback")
-                return await self.get_sp500_from_db(category, limit)
+            # 병렬로 데이터 조회 (시장 상태에 따라 최적화)
+            tasks = [
+                self.get_market_optimized_data("topgainers", 10),  # 상위 10개 상승 주식
+                self.get_market_optimized_data("crypto", 20),      # 상위 20개 암호화폐
+                self.get_market_optimized_data("sp500", 15)        # SP500 15개
+            ]
             
-            # 모든 키의 데이터 가져오기
-            pipeline = self.redis_client.pipeline()
-            for key in keys:
-                pipeline.get(key)
+            results = await asyncio.gather(*tasks, return_exceptions=True)
             
-            results = await pipeline.execute()
+            top_gainers = results[0] if not isinstance(results[0], Exception) else []
+            top_crypto = results[1] if not isinstance(results[1], Exception) else []
+            sp500_highlights = results[2] if not isinstance(results[2], Exception) else []
             
-            # JSON 파싱 및 필터링
-            data = []
-            for i, result in enumerate(results):
-                if result:
-                    try:
-                        json_data = json.loads(result)
-                        
-                        # 카테고리 필터링
-                        if category and json_data.get('category') != category:
-                            continue
-                        
-                        # SP500Data 생성
-                        sp500_data = SP500Data(
-                            symbol=json_data.get('symbol', keys[i].split(':')[-1]),
-                            price=json_data.get('price'),
-                            volume=json_data.get('volume'),
-                            timestamp_ms=json_data.get('timestamp'),
-                            category=json_data.get('category'),
-                            source=json_data.get('source', 'finnhub_websocket')
-                        )
-                        data.append(sp500_data)
-                        
-                    except (json.JSONDecodeError, ValueError) as e:
-                        logger.warning(f"⚠️ Redis SP500 데이터 파싱 실패: {e}")
-                        continue
+            # 요약 통계 계산
+            summary = {
+                "top_gainers_count": len(top_gainers),
+                "crypto_count": len(top_crypto),
+                "sp500_count": len(sp500_highlights),
+                "last_updated": datetime.utcnow().isoformat(),
+                "data_sources": ["topgainers", "crypto", "sp500"],
+                "market_status": market_status,  # 🎯 시장 상태 추가
+                "db_fallback_used": self.should_use_db_fallback()
+            }
             
-            # 거래량별 정렬 및 제한
-            data.sort(key=lambda x: x.volume or 0, reverse=True)
-            data = data[:limit]
-            
-            self.stats["redis_queries"] += 1
-            self.stats["last_update"] = datetime.utcnow()
-            
-            logger.debug(f"📊 Redis SP500 데이터 조회 완료: {len(data)}개")
-            return data
+            return {
+                "top_gainers": top_gainers,
+                "top_crypto": top_crypto,
+                "sp500_highlights": sp500_highlights,
+                "summary": summary
+            }
             
         except Exception as e:
-            logger.error(f"❌ Redis SP500 조회 실패: {e}, DB fallback")
-            self.stats["errors"] += 1
-            return await self.get_sp500_from_db(category, limit)
+            logger.error(f"❌ 대시보드 데이터 조회 실패: {e}")
+            return {
+                "top_gainers": [],
+                "top_crypto": [],
+                "sp500_highlights": [],
+                "summary": {"error": str(e)}
+            }
     
     # =========================
-    # 특정 심볼 데이터 처리
-    # =========================
-    
-    async def get_symbol_realtime_data(self, symbol: str, data_type: str = "topgainers") -> Optional[Any]:
-        """
-        특정 심볼의 실시간 데이터 조회
-        
-        Args:
-            symbol: 조회할 심볼
-            data_type: 데이터 타입 (topgainers, crypto, sp500)
-            
-        Returns:
-            Optional[Any]: 심볼 데이터 (데이터 타입에 따라 다름)
-        """
-        symbol = symbol.upper()
-        
-        try:
-            if data_type == "topgainers":
-                return await self._get_topgainer_symbol_data(symbol)
-            elif data_type == "crypto":
-                return await self._get_crypto_symbol_data(symbol)
-            elif data_type == "sp500":
-                return await self._get_sp500_symbol_data(symbol)
-            else:
-                logger.warning(f"⚠️ 알 수 없는 데이터 타입: {data_type}")
-                return None
-                
-        except Exception as e:
-            logger.error(f"❌ 심볼 {symbol} ({data_type}) 데이터 조회 실패: {e}")
-            return None
-    
-    async def _get_topgainer_symbol_data(self, symbol: str) -> Optional[TopGainerData]:
-        """TopGainers 특정 심볼 데이터 조회"""
-        if self.redis_client:
-            try:
-                key = f"latest:stocks:topgainers:{symbol}"
-                result = await self.redis_client.get(key)
-                
-                if result:
-                    json_data = json.loads(result)
-                    return TopGainerData(**json_data)
-            except Exception as e:
-                logger.warning(f"⚠️ Redis TopGainer 심볼 조회 실패: {e}")
-        
-        # DB fallback
-        try:
-            db = next(get_db())
-            db_obj = TopGainers.get_symbol_data(db, symbol)
-            return db_to_topgainer_data(db_obj) if db_obj else None
-        except Exception as e:
-            logger.error(f"❌ DB TopGainer 심볼 조회 실패: {e}")
-            return None
-        finally:
-            db.close()
-    
-    async def _get_crypto_symbol_data(self, symbol: str) -> Optional[CryptoData]:
-        """암호화폐 특정 심볼 데이터 조회"""
-        if self.redis_client:
-            try:
-                key = f"latest:crypto:{symbol}"
-                result = await self.redis_client.get(key)
-                
-                if result:
-                    json_data = json.loads(result)
-                    return CryptoData(
-                        market=symbol,
-                        trade_price=json_data.get('price'),
-                        signed_change_rate=json_data.get('change_rate'),
-                        signed_change_price=json_data.get('change_price'),
-                        trade_volume=json_data.get('volume'),
-                        timestamp_field=json_data.get('timestamp'),
-                        source=json_data.get('source', 'bithumb')
-                    )
-            except Exception as e:
-                logger.warning(f"⚠️ Redis 암호화폐 심볼 조회 실패: {e}")
-        
-        # DB fallback
-        try:
-            db = next(get_db())
-            db_objects = BithumbTicker.get_latest_by_market(db, symbol, limit=1)
-            return db_to_crypto_data(db_objects[0]) if db_objects else None
-        except Exception as e:
-            logger.error(f"❌ DB 암호화폐 심볼 조회 실패: {e}")
-            return None
-        finally:
-            db.close()
-    
-    async def _get_sp500_symbol_data(self, symbol: str) -> Optional[SP500Data]:
-        """SP500 특정 심볼 데이터 조회"""
-        if self.redis_client:
-            try:
-                key = f"latest:stocks:sp500:{symbol}"
-                result = await self.redis_client.get(key)
-                
-                if result:
-                    json_data = json.loads(result)
-                    return SP500Data(
-                        symbol=symbol,
-                        price=json_data.get('price'),
-                        volume=json_data.get('volume'),
-                        timestamp_ms=json_data.get('timestamp'),
-                        category=json_data.get('category'),
-                        source=json_data.get('source', 'finnhub_websocket')
-                    )
-            except Exception as e:
-                logger.warning(f"⚠️ Redis SP500 심볼 조회 실패: {e}")
-        
-        # DB fallback
-        try:
-            db = next(get_db())
-            db_objects = FinnhubTrades.get_latest_by_symbol(db, symbol, limit=1)
-            return db_to_sp500_data(db_objects[0]) if db_objects else None
-        except Exception as e:
-            logger.error(f"❌ DB SP500 심볼 조회 실패: {e}")
-            return None
-        finally:
-            db.close()
-    
-    # =========================
-    # 변경 감지 및 캐싱
+    # 변경 감지 및 캐싱 (기존 유지)
     # =========================
     
     def detect_changes(self, new_data: List[Any], data_type: str = "topgainers") -> Tuple[List[Any], int]:
@@ -588,55 +672,7 @@ class WebSocketService:
             logger.warning(f"⚠️ 데이터 해시 계산 실패: {e}")
             return str(hash(str(data)))
     
-    # =========================
-    # 대시보드 데이터 처리
-    # =========================
-    
-    async def get_dashboard_data(self) -> Dict[str, Any]:
-        """
-        대시보드용 통합 데이터 조회
-        
-        Returns:
-            Dict[str, Any]: 대시보드 데이터
-        """
-        try:
-            # 병렬로 데이터 조회
-            tasks = [
-                self.get_topgainers_from_redis("top_gainers", 10),  # 상위 10개 상승 주식
-                self.get_crypto_from_redis(20),                     # 상위 20개 암호화폐
-                self.get_sp500_from_redis(None, 15)                 # SP500 15개
-            ]
-            
-            results = await asyncio.gather(*tasks, return_exceptions=True)
-            
-            top_gainers = results[0] if not isinstance(results[0], Exception) else []
-            top_crypto = results[1] if not isinstance(results[1], Exception) else []
-            sp500_highlights = results[2] if not isinstance(results[2], Exception) else []
-            
-            # 요약 통계 계산
-            summary = {
-                "top_gainers_count": len(top_gainers),
-                "crypto_count": len(top_crypto),
-                "sp500_count": len(sp500_highlights),
-                "last_updated": datetime.utcnow().isoformat(),
-                "data_sources": ["topgainers", "crypto", "sp500"]
-            }
-            
-            return {
-                "top_gainers": top_gainers,
-                "top_crypto": top_crypto,
-                "sp500_highlights": sp500_highlights,
-                "summary": summary
-            }
-            
-        except Exception as e:
-            logger.error(f"❌ 대시보드 데이터 조회 실패: {e}")
-            return {
-                "top_gainers": [],
-                "top_crypto": [],
-                "sp500_highlights": [],
-                "summary": {"error": str(e)}
-            }
+
     
     # =========================
     # 헬스 체크 및 통계
@@ -728,7 +764,7 @@ class WebSocketService:
         """캐시 정리 (주기적으로 실행)"""
         try:
             # 1시간 이상 된 캐시 데이터 정리
-            cutoff_time = datetime.utcnow() - timedelta(hours=1)
+            cutoff_time = datetime.utcnow() - timedelta(hours=24)
             
             if self.stats.get("last_update") and self.stats["last_update"] < cutoff_time:
                 self.last_data_cache.clear()
