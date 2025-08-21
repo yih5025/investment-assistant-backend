@@ -7,3 +7,4 @@ pydantic-settings==2.0.3
 python-multipart==0.0.6
 websockets==13.0.1
 redis==5.0.1
+pytz==2023.3
