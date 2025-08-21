@@ -17,6 +17,8 @@ from .endpoints import (
     balance_sheet_endpoint,
     treasury_yield_endpoint,
     websocket_endpoint,
+    sp500_endpoint,
+    topgainers_endpoint
 )
 
 # API v1 메인 라우터 생성
@@ -133,6 +135,22 @@ ROUTER_CONFIGS = [
         "category": "실시간",
         "description": "실시간 WebSocket 데이터 API"
     },
+
+    # 🎯 실시간 주식 데이터 API (새로 추가)
+    {
+        "router": topgainers_endpoint.router,
+        "prefix": "/stocks/topgainers",
+        "tag": "TopGainers",
+        "category": "실시간주식",
+        "description": "실시간 상승/하락/활발한 주식 데이터 API - WebSocket fallback 지원"
+    },
+    {
+        "router": sp500_endpoint.router,
+        "prefix": "/stocks/sp500",
+        "tag": "SP500",
+        "category": "실시간주식",
+        "description": "실시간 S&P 500 주식 데이터 API - WebSocket fallback 지원"
+    },
 ]
 
 # 라우터 등록 (각 엔드포인트 모듈의 자체 태그 사용)
@@ -229,6 +247,7 @@ async def api_stats():
             "sorting",
             "real_time",
             "sentiment_analysis",
+            "websocket_fallback",  # 🎯 새로운 기능 추가
         ],
     }
 
