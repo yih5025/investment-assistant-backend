@@ -4,12 +4,11 @@ from pydantic import BaseModel, Field
 # 제네릭 타입 변수 정의
 T = TypeVar('T')
 
-class PaginatedResponse(BaseModel):
+class PaginatedResponse(BaseModel, Generic[T]):
     """
     페이지네이션이 포함된 응답을 위한 공통 스키마
-    
-    상속받는 클래스에서 items 필드를 재정의하여 사용합니다.
     """
+    items: List[T] = Field(..., description="응답 데이터 목록")  # 이 줄을 추가
     total_count: int = Field(..., description="전체 항목 수", example=150)
     page: Optional[int] = Field(None, description="현재 페이지 번호", example=1)
     page_size: Optional[int] = Field(None, description="페이지당 항목 수", example=50)
