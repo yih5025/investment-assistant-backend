@@ -9,7 +9,7 @@ from app.services.sp500_service import SP500Service
 from app.services.company_overview_service import CompanyOverviewService  # 🆕 추가
 from app.schemas.sp500_schema import (
     StockListResponse, StockDetail, CategoryStockResponse,
-    SearchResponse, SectorResponse, MarketOverviewResponse,
+    SearchResponse, MarketOverviewResponse,
     ServiceStats, HealthCheckResponse, ErrorResponse,
     TimeframeEnum, create_error_response
 )
@@ -78,7 +78,7 @@ async def get_all_stocks(
                     error_type="DATA_FETCH_ERROR",
                     message=f"Failed to fetch stock list: {result['error']}",
                     path="/stocks/sp500/"
-                ).dict()
+                ).model_dump()
             )
         
         logger.info(f"✅ 주식 리스트 조회 성공: {result['total_count']}개")
@@ -94,7 +94,7 @@ async def get_all_stocks(
                 error_type="INTERNAL_ERROR",
                 message="Internal server error occurred",
                 path="/stocks/sp500/"
-            ).dict()
+            ).model_dump()
         )
 
 @router.get("/market-overview", response_model=MarketOverviewResponse, summary="시장 개요 조회")
@@ -134,7 +134,7 @@ async def get_market_overview(
                     error_type="MARKET_DATA_ERROR",
                     message=f"Failed to fetch market overview: {result['error']}",
                     path="/stocks/sp500/market-overview"
-                ).dict()
+                ).model_dump()
             )
         
         logger.info("✅ 시장 개요 조회 성공")
@@ -150,7 +150,7 @@ async def get_market_overview(
                 error_type="INTERNAL_ERROR",
                 message="Internal server error occurred",
                 path="/stocks/sp500/market-overview"
-            ).dict()
+            ).model_dump()
         )
 
 # =========================
@@ -204,7 +204,7 @@ async def get_stock_detail_with_company_info(
                         message=f"No stock data found for symbol: {symbol}",
                         code="STOCK_404",
                         path=f"/stocks/sp500/symbol/{symbol}"
-                    ).dict()
+                    ).model_dump()
                 )
             else:
                 logger.error(f"❌ {symbol} 주식 데이터 조회 실패: {stock_result['error']}")
@@ -214,7 +214,7 @@ async def get_stock_detail_with_company_info(
                         error_type="STOCK_DATA_ERROR",
                         message=f"Failed to fetch stock data: {stock_result['error']}",
                         path=f"/stocks/sp500/symbol/{symbol}"
-                    ).dict()
+                    ).model_dump()
                 )
         
         # 2. Company Overview 데이터 조회 🆕
@@ -291,7 +291,7 @@ async def get_stock_detail_with_company_info(
                 error_type="INTERNAL_ERROR",
                 message="Internal server error occurred",
                 path=f"/stocks/sp500/symbol/{symbol}"
-            ).dict()
+            ).model_dump()
         )
 
 # =========================
@@ -349,7 +349,7 @@ async def get_stock_chart_data(
                         message=f"No chart data found for symbol: {symbol}",
                         code="CHART_404",
                         path=f"/stocks/sp500/chart/{symbol}"
-                    ).dict()
+                    ).model_dump()
                 )
             else:
                 logger.error(f"❌ {symbol} 차트 데이터 조회 실패: {chart_result['error']}")
@@ -359,7 +359,7 @@ async def get_stock_chart_data(
                         error_type="CHART_DATA_ERROR",
                         message=f"Failed to fetch chart data: {chart_result['error']}",
                         path=f"/stocks/sp500/chart/{symbol}"
-                    ).dict()
+                    ).model_dump()
                 )
         
         logger.info(f"✅ {symbol} 차트 데이터 조회 성공 (timeframe: {timeframe}, 데이터: {len(chart_result.get('chart_data', []))}개)")
@@ -375,7 +375,7 @@ async def get_stock_chart_data(
                 error_type="INTERNAL_ERROR",
                 message="Internal server error occurred",
                 path=f"/stocks/sp500/chart/{symbol}"
-            ).dict()
+            ).model_dump()
         )
 
 # =========================
@@ -413,7 +413,7 @@ async def get_top_gainers(
                     error_type="DATA_FETCH_ERROR",
                     message=f"Failed to fetch top gainers: {result['error']}",
                     path="/stocks/sp500/gainers"
-                ).dict()
+                ).model_dump()
             )
         
         logger.info(f"✅ 상위 상승 종목 조회 성공: {result['total_count']}개")
@@ -463,7 +463,7 @@ async def get_top_losers(
                     error_type="DATA_FETCH_ERROR",
                     message=f"Failed to fetch top losers: {result['error']}",
                     path="/stocks/sp500/losers"
-                ).dict()
+                ).model_dump()
             )
         
         logger.info(f"✅ 상위 하락 종목 조회 성공: {result['total_count']}개")
@@ -513,7 +513,7 @@ async def get_most_active(
                     error_type="DATA_FETCH_ERROR",
                     message=f"Failed to fetch most active stocks: {result['error']}",
                     path="/stocks/sp500/most-active"
-                ).dict()
+                ).model_dump()
             )
         
         logger.info(f"✅ 활발한 거래 종목 조회 성공: {result['total_count']}개")
@@ -574,7 +574,7 @@ async def search_stocks(
                     error_type="SEARCH_ERROR",
                     message=f"Search failed: {result['error']}",
                     path="/stocks/sp500/search"
-                ).dict()
+                ).model_dump()
             )
         
         logger.info(f"✅ 주식 검색 성공: '{q}' -> {result['total_count']}개 결과")
