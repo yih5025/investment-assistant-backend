@@ -102,6 +102,97 @@ class SP500Service:
     # 🎯 주식 리스트 페이지 API
     # =========================
     
+    async def get_realtime_polling_data(self, limit: int, sort_by: str = "volume", order: str = "desc"):
+        """
+        SP500 실시간 폴링 데이터 ("더보기" 방식)
+        
+        Args:
+            limit: 반환할 항목 수 (1번부터 limit번까지)
+            sort_by: 정렬 기준 (volume, change_percent, price)
+            order: 정렬 순서 (asc, desc)
+        
+        Returns:
+            dict: 폴링 응답 데이터
+        """
+        try:
+            from app.services.websocket_service import WebSocketService
+            
+            # WebSocket 서비스와 동일한 데이터 소스 사용
+            websocket_service = WebSocketService()
+            if not websocket_service.redis_client:
+                await websocket_service.init_redis()
+            
+            # 🎯 Redis에서 SP500 실시간 데이터 조회 (WebSocket과 동일한 소스)
+            all_data = await websocket_service.get_sp500_from_redis(limit=1000)
+            
+            if not all_data:
+                logger.warning("📊 Redis SP500 데이터 없음, DB fallback")
+                # Redis 데이터가 없으면 DB에서 조회
+                all_data = await websocket_service.get_sp500_from_db(limit=1000)
+            
+            # 정렬 처리
+            if sort_by == "volume":
+                all_data.sort(key=lambda x: x.volume or 0, reverse=(order == "desc"))
+            elif sort_by == "change_percent":
+                # change_percent 계산 (price 변화율)
+                for item in all_data:
+                    if hasattr(item, 'price') and item.price:
+                        # 간단한 변화율 계산 (실제로는 더 복잡한 로직 필요)
+                        item.change_percent = getattr(item, 'change_percent', 0)
+                all_data.sort(key=lambda x: getattr(x, 'change_percent', 0), reverse=(order == "desc"))
+            elif sort_by == "price":
+                all_data.sort(key=lambda x: x.price or 0, reverse=(order == "desc"))
+            
+            # 순위 추가 (정렬 후)
+            for i, item in enumerate(all_data):
+                if hasattr(item, 'model_dump'):
+                    item_dict = item.model_dump()
+                    item_dict['rank'] = i + 1
+                else:
+                    item.rank = i + 1
+            
+            # limit만큼 자르기 (1번부터 limit번까지)
+            limited_data = all_data[:limit]
+            total_available = len(all_data)
+            
+            # 응답 데이터 구성
+            return {
+                "data": [item.model_dump() if hasattr(item, 'model_dump') else item for item in limited_data],
+                "metadata": {
+                    "current_count": len(limited_data),
+                    "total_available": total_available,
+                    "has_more": limit < total_available,
+                    "next_limit": min(limit + 50, total_available),
+                    "timestamp": datetime.now(pytz.UTC).isoformat(),
+                    "data_source": "redis_realtime" if websocket_service.redis_client else "database_fallback",
+                    "market_status": self._get_market_status(),
+                    "sort_info": {
+                        "sort_by": sort_by,
+                        "order": order
+                    }
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ SP500 실시간 폴링 데이터 조회 실패: {e}")
+            return {"error": str(e)}
+
+    def _get_market_status(self):
+        """시장 상태 조회"""
+        try:
+            from app.services.websocket_service import MarketTimeChecker
+            market_checker = MarketTimeChecker()
+            status = market_checker.get_market_status()
+            return {
+                "is_open": status["is_open"],
+                "status": status["status"],
+                "current_time_et": status.get("current_time_et", ""),
+                "timezone": "US/Eastern"
+            }
+        except Exception as e:
+            logger.error(f"❌ 시장 상태 조회 실패: {e}")
+            return {"is_open": False, "status": "UNKNOWN", "error": str(e)}
+
     def get_stock_list(self, limit: int = 500) -> Dict[str, Any]:
         """
         주식 리스트 페이지용 전체 주식 현재가 조회
@@ -114,7 +205,7 @@ class SP500Service:
         """
         try:
             self.stats["api_requests"] += 1
-            self.stats["last_request"] = datetime.utcnow()
+            self.stats["last_request"] = datetime.now(pytz.UTC)
             
             db = next(get_db())
             
@@ -136,7 +227,7 @@ class SP500Service:
                 # 가격 변동 정보 조회
                 change_info = SP500WebsocketTrades.get_price_change_info(db, trade.symbol)
                 
-                # 프론트엔드 형태로 데이터 구성
+                # 프론트엔드 형태로 데이터 구성 (섹터 정보 제거)
                 stock_data = {
                     'symbol': trade.symbol,
                     'company_name': self._get_company_name(trade.symbol),  # SP500 회사명 조회
@@ -159,7 +250,7 @@ class SP500Service:
                 'stocks': stock_list,
                 'total_count': len(stock_list),
                 'market_status': self.market_checker.get_market_status(),
-                'last_updated': datetime.utcnow().isoformat(),
+                'last_updated': datetime.now(pytz.UTC).isoformat(),
                 'message': f'Successfully retrieved {len(stock_list)} stocks'
             }
             
@@ -176,19 +267,18 @@ class SP500Service:
             db.close()
     
     # =========================
-    # 🎯 개별 주식 상세 페이지 API
+    # 🎯 개별 주식 정보 API (차트 분리) 🆕
     # =========================
     
-    def get_stock_detail(self, symbol: str, timeframe: str = '1D') -> Dict[str, Any]:
+    def get_stock_basic_info(self, symbol: str) -> Dict[str, Any]:
         """
-        개별 주식 상세 정보 조회 (차트 데이터 포함)
+        🆕 개별 주식 기본 정보 조회 (차트 데이터 제외)
         
         Args:
             symbol: 주식 심볼 (예: 'AAPL')
-            timeframe: 차트 시간대 ('1M', '5M', '1H', '1D', '1W', '1MO')
             
         Returns:
-            Dict[str, Any]: 주식 상세 정보
+            Dict[str, Any]: 차트를 제외한 주식 기본 정보
         """
         try:
             self.stats["api_requests"] += 1
@@ -206,10 +296,64 @@ class SP500Service:
                     'error': f'No data found for symbol {symbol}'
                 }
             
+            # 회사 기본 정보 조회 (섹터 정보 제거)
+            company_name = self._get_company_name(symbol)
+            
+            self.stats["db_queries"] += 1
+            
+            return {
+                'symbol': symbol,
+                'company_name': company_name,
+                'current_price': change_info['current_price'],
+                'change_amount': change_info['change_amount'],
+                'change_percentage': change_info['change_percentage'],
+                'volume': change_info['volume'],
+                'previous_close': change_info['previous_close'],
+                'is_positive': change_info['change_amount'] > 0 if change_info['change_amount'] else None,
+                'market_status': self.market_checker.get_market_status(),
+                'last_updated': change_info['last_updated']
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ {symbol} 주식 기본 정보 조회 실패: {e}")
+            self.stats["errors"] += 1
+            return {
+                'symbol': symbol,
+                'error': str(e)
+            }
+        finally:
+            db.close()
+    
+    def get_chart_data_only(self, symbol: str, timeframe: str = '1D') -> Dict[str, Any]:
+        """
+        🆕 주식 차트 데이터만 조회
+        
+        Args:
+            symbol: 주식 심볼 (예: 'AAPL')
+            timeframe: 차트 시간대 ('1M', '5M', '1H', '1D', '1W', '1MO')
+            
+        Returns:
+            Dict[str, Any]: 차트 데이터만 포함된 응답
+        """
+        try:
+            self.stats["api_requests"] += 1
+            self.stats["last_request"] = datetime.utcnow()
+            
+            symbol = symbol.upper()
+            db = next(get_db())
+            
             # 차트 데이터 조회
             chart_data = SP500WebsocketTrades.get_chart_data_by_timeframe(
                 db, symbol, timeframe, limit=200
             )
+            
+            if not chart_data:
+                return {
+                    'symbol': symbol,
+                    'timeframe': timeframe,
+                    'chart_data': [],
+                    'error': f'No chart data found for symbol {symbol}'
+                }
             
             # 차트 데이터 포맷 변환 (프론트엔드용)
             formatted_chart_data = []
@@ -221,26 +365,57 @@ class SP500Service:
                     'datetime': trade.created_at.isoformat()
                 })
             
-            # 회사 정보 조회
-            company_info = self._get_company_info(symbol)
-            
             self.stats["db_queries"] += 1
             
             return {
                 'symbol': symbol,
-                'company_name': company_info['company_name'],
-                'sector': company_info['sector'],
-                'current_price': change_info['current_price'],
-                'change_amount': change_info['change_amount'],
-                'change_percentage': change_info['change_percentage'],
-                'volume': change_info['volume'],
-                'previous_close': change_info['previous_close'],
-                'is_positive': change_info['change_amount'] > 0 if change_info['change_amount'] else None,
-                'chart_data': formatted_chart_data,
                 'timeframe': timeframe,
+                'chart_data': formatted_chart_data,
+                'data_points': len(formatted_chart_data),
                 'market_status': self.market_checker.get_market_status(),
-                'last_updated': change_info['last_updated']
+                'last_updated': datetime.utcnow().isoformat()
             }
+            
+        except Exception as e:
+            logger.error(f"❌ {symbol} 차트 데이터 조회 실패: {e}")
+            self.stats["errors"] += 1
+            return {
+                'symbol': symbol,
+                'timeframe': timeframe,
+                'chart_data': [],
+                'error': str(e)
+            }
+        finally:
+            db.close()
+    
+    def get_stock_detail(self, symbol: str, timeframe: str = '1D') -> Dict[str, Any]:
+        """
+        개별 주식 상세 정보 조회 (차트 데이터 포함) - 기존 호환성 유지
+        
+        Args:
+            symbol: 주식 심볼 (예: 'AAPL')
+            timeframe: 차트 시간대 ('1M', '5M', '1H', '1D', '1W', '1MO')
+            
+        Returns:
+            Dict[str, Any]: 주식 상세 정보 (기본 정보 + 차트 데이터)
+        """
+        try:
+            # 기본 정보 조회
+            basic_info = self.get_stock_basic_info(symbol)
+            if basic_info.get('error'):
+                return basic_info
+            
+            # 차트 데이터 조회
+            chart_info = self.get_chart_data_only(symbol, timeframe)
+            
+            # 두 정보 합치기
+            combined_result = {
+                **basic_info,
+                'chart_data': chart_info.get('chart_data', []),
+                'timeframe': timeframe
+            }
+            
+            return combined_result
             
         except Exception as e:
             logger.error(f"❌ {symbol} 주식 상세 정보 조회 실패: {e}")
@@ -249,16 +424,14 @@ class SP500Service:
                 'symbol': symbol,
                 'error': str(e)
             }
-        finally:
-            db.close()
     
     # =========================
-    # 🎯 카테고리별 주식 조회 API
+    # 🎯 카테고리별 주식 조회 API (섹터 정보 제거) 🆕
     # =========================
     
     def get_top_gainers(self, limit: int = 20) -> Dict[str, Any]:
         """
-        상위 상승 종목 조회
+        상위 상승 종목 조회 (섹터 정보 제거)
         
         Args:
             limit: 반환할 최대 개수
@@ -287,8 +460,8 @@ class SP500Service:
                         'current_price': change_info['current_price'],
                         'change_amount': change_info['change_amount'],
                         'change_percentage': change_info['change_percentage'],
-                        'volume': change_info['volume'],
-                        'sector': self._get_sector(trade.symbol)
+                        'volume': change_info['volume']
+                        # 🆕 섹터 정보 제거
                     }
                     gainers.append(stock_data)
             
@@ -312,7 +485,7 @@ class SP500Service:
     
     def get_top_losers(self, limit: int = 20) -> Dict[str, Any]:
         """
-        상위 하락 종목 조회
+        상위 하락 종목 조회 (섹터 정보 제거)
         
         Args:
             limit: 반환할 최대 개수
@@ -341,8 +514,8 @@ class SP500Service:
                         'current_price': change_info['current_price'],
                         'change_amount': change_info['change_amount'],
                         'change_percentage': change_info['change_percentage'],
-                        'volume': change_info['volume'],
-                        'sector': self._get_sector(trade.symbol)
+                        'volume': change_info['volume']
+                        # 🆕 섹터 정보 제거
                     }
                     losers.append(stock_data)
             
@@ -366,7 +539,7 @@ class SP500Service:
     
     def get_most_active(self, limit: int = 20) -> Dict[str, Any]:
         """
-        가장 활발한 거래 종목 조회
+        가장 활발한 거래 종목 조회 (섹터 정보 제거)
         
         Args:
             limit: 반환할 최대 개수
@@ -394,8 +567,8 @@ class SP500Service:
                         'current_price': change_info['current_price'],
                         'change_amount': change_info['change_amount'],
                         'change_percentage': change_info['change_percentage'],
-                        'volume': change_info['volume'],
-                        'sector': self._get_sector(trade.symbol)
+                        'volume': change_info['volume']
+                        # 🆕 섹터 정보 제거
                     }
                     active_stocks.append(stock_data)
             
@@ -464,12 +637,12 @@ class SP500Service:
             db.close()
     
     # =========================
-    # 🎯 검색 및 필터 API
+    # 🎯 검색 및 필터 API (섹터 기능 제거) 🆕
     # =========================
     
     def search_stocks(self, query: str, limit: int = 20) -> Dict[str, Any]:
         """
-        주식 검색 (심볼 또는 회사명 기준)
+        주식 검색 (심볼 또는 회사명 기준, 섹터 정보 제거)
         
         Args:
             query: 검색어 (심볼 또는 회사명)
@@ -505,8 +678,8 @@ class SP500Service:
                         'current_price': change_info['current_price'],
                         'change_amount': change_info['change_amount'],
                         'change_percentage': change_info['change_percentage'],
-                        'volume': change_info['volume'],
-                        'sector': self._get_sector(trade.symbol)
+                        'volume': change_info['volume']
+                        # 🆕 섹터 정보 제거
                     }
                     search_results.append(stock_data)
             
@@ -533,69 +706,10 @@ class SP500Service:
         finally:
             db.close()
     
-    def get_stocks_by_sector(self, sector: str, limit: int = 50) -> Dict[str, Any]:
-        """
-        섹터별 주식 조회
-        
-        Args:
-            sector: 섹터명 (예: 'Technology', 'Healthcare')
-            limit: 반환할 최대 개수
-            
-        Returns:
-            Dict[str, Any]: 섹터별 주식 데이터
-        """
-        try:
-            self.stats["api_requests"] += 1
-            
-            db = next(get_db())
-            
-            # 전체 주식 데이터 조회
-            all_stocks = SP500WebsocketTrades.get_all_current_prices(db, 500)
-            
-            # 섹터 필터링
-            sector_stocks = []
-            for trade in all_stocks:
-                stock_sector = self._get_sector(trade.symbol)
-                
-                if sector.lower() in stock_sector.lower():
-                    change_info = SP500WebsocketTrades.get_price_change_info(db, trade.symbol)
-                    
-                    stock_data = {
-                        'symbol': trade.symbol,
-                        'company_name': self._get_company_name(trade.symbol),
-                        'current_price': change_info['current_price'],
-                        'change_amount': change_info['change_amount'],
-                        'change_percentage': change_info['change_percentage'],
-                        'volume': change_info['volume'],
-                        'sector': stock_sector
-                    }
-                    sector_stocks.append(stock_data)
-            
-            # 변동률 기준 정렬
-            sector_stocks.sort(key=lambda x: x['change_percentage'] or 0, reverse=True)
-            sector_stocks = sector_stocks[:limit]
-            
-            return {
-                'sector': sector,
-                'stocks': sector_stocks,
-                'total_count': len(sector_stocks),
-                'message': f'Found {len(sector_stocks)} stocks in {sector} sector'
-            }
-            
-        except Exception as e:
-            logger.error(f"❌ 섹터별 주식 조회 실패 ({sector}): {e}")
-            self.stats["errors"] += 1
-            return {
-                'sector': sector,
-                'stocks': [],
-                'total_count': 0,
-                'error': str(e)
-            }
-        finally:
-            db.close()
+    # 🆕 섹터별 검색 함수 제거됨 (Company Overview에서 처리)
     
     # =========================
-    # 🎯 헬퍼 메서드들
+    # 🎯 헬퍼 메서드들 (섹터 관련 제거) 🆕
     # =========================
     
     def _get_company_name(self, symbol: str) -> str:
@@ -629,81 +743,8 @@ class SP500Service:
         finally:
             db.close()
     
-    def _get_sector(self, symbol: str) -> str:
-        """
-        심볼로 섹터 정보 조회
-        
-        Args:
-            symbol: 주식 심볼
-            
-        Returns:
-            str: 섹터명
-        """
-        try:
-            db = next(get_db())
-            
-            # sp500_companies 테이블에서 섹터 조회
-            result = db.execute(
-                "SELECT gics_sector FROM sp500_companies WHERE symbol = %s",
-                (symbol,)
-            ).fetchone()
-            
-            if result and result[0]:
-                return result[0]
-            else:
-                return "Unknown"
-                
-        except Exception as e:
-            logger.warning(f"⚠️ {symbol} 섹터 정보 조회 실패: {e}")
-            return "Unknown"
-        finally:
-            db.close()
-    
-    def _get_company_info(self, symbol: str) -> Dict[str, str]:
-        """
-        심볼로 회사 상세 정보 조회
-        
-        Args:
-            symbol: 주식 심볼
-            
-        Returns:
-            Dict[str, str]: 회사 정보
-        """
-        try:
-            db = next(get_db())
-            
-            # sp500_companies 테이블에서 상세 정보 조회
-            result = db.execute(
-                """SELECT company_name, gics_sector, gics_sub_industry, headquarters 
-                   FROM sp500_companies WHERE symbol = %s""",
-                (symbol,)
-            ).fetchone()
-            
-            if result:
-                return {
-                    'company_name': result[0] or f"{symbol} Inc.",
-                    'sector': result[1] or "Unknown",
-                    'sub_industry': result[2] or "Unknown",
-                    'headquarters': result[3] or "Unknown"
-                }
-            else:
-                return {
-                    'company_name': f"{symbol} Inc.",
-                    'sector': "Unknown",
-                    'sub_industry': "Unknown",
-                    'headquarters': "Unknown"
-                }
-                
-        except Exception as e:
-            logger.warning(f"⚠️ {symbol} 회사 정보 조회 실패: {e}")
-            return {
-                'company_name': f"{symbol} Inc.",
-                'sector': "Unknown",
-                'sub_industry': "Unknown",
-                'headquarters': "Unknown"
-            }
-        finally:
-            db.close()
+    # 🆕 _get_sector(), _get_company_info() 함수 제거됨
+    # 섹터 및 상세 회사 정보는 Company Overview 서비스에서 처리
     
     # =========================
     # 🎯 서비스 상태 및 통계

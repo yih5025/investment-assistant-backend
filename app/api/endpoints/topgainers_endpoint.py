@@ -2,10 +2,12 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-
+import logging
 from app.database import get_db
 from app.services.topgainers_service import TopGainersService
 from app.schemas.websocket_schema import TopGainerData
+
+logger = logging.getLogger(__name__)
 
 # 라우터 생성
 router = APIRouter()
@@ -78,6 +80,69 @@ async def get_topgainers_data(
             status_code=500, 
             detail=f"TopGainers 데이터 조회 실패: {str(e)}"
         )
+    
+# =========================
+# 2. TopGainers 폴링 엔드포인트 추가  
+# =========================
+
+# app/api/endpoints/topgainers_endpoint.py (기존 파일에 추가)
+
+@router.get("/polling", response_model=dict, summary="TopGainers 실시간 폴링 데이터 (더보기 방식)")
+async def get_topgainers_polling_data(
+    limit: int = Query(default=50, ge=1, le=200, description="반환할 항목 수 (누적)"),
+    category: Optional[str] = Query(
+        None, 
+        description="카테고리 필터",
+        regex="^(top_gainers|top_losers|most_actively_traded)$"
+    ),
+    service: TopGainersService = Depends(get_topgainers_service)
+):
+    """
+    TopGainers 실시간 폴링 데이터 (WebSocket 대체용, "더보기" 방식)
+    
+    **동작 방식:**
+    - limit=50: 상위 50개 반환 (처음 로딩)
+    - limit=100: 상위 100개 반환 (더보기 클릭)
+    - limit=150: 상위 150개 반환 (더보기 클릭)
+    
+    **카테고리 필터:**
+    - `null`: 전체 카테고리 (기본값)
+    - `top_gainers`: 상승 주식만
+    - `top_losers`: 하락 주식만
+    - `most_actively_traded`: 활발한 거래 주식만
+    
+    **사용 예시:**
+    ```
+    GET /api/v1/stocks/topgainers/polling?limit=50                    # 전체 50개
+    GET /api/v1/stocks/topgainers/polling?limit=100&category=top_gainers  # 상승주 100개
+    ```
+    
+    **특징:**
+    - WebSocket과 동일한 Redis 데이터 소스 사용
+    - 카테고리 정보 포함하여 반환
+    - 순위 정보 포함 (rank_position)
+    """
+    try:
+        logger.info(f"📡 TopGainers 폴링 데이터 요청 (limit: {limit}, category: {category})")
+        
+        result = await service.get_realtime_polling_data(
+            limit=limit,
+            category=category
+        )
+        
+        if result.get('error'):
+            logger.error(f"❌ TopGainers 폴링 데이터 조회 실패: {result['error']}")
+            raise HTTPException(status_code=500, detail=result['error'])
+        
+        logger.info(f"✅ TopGainers 폴링 데이터 조회 성공: {len(result['data'])}개 반환")
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ TopGainers 폴링 오류: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get("/categories", response_model=dict)
 async def get_topgainers_categories(

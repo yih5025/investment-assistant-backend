@@ -371,6 +371,97 @@ class TopGainersService:
             return {"categories": {}, "total": 0, "error": str(e)}
         finally:
             db.close()
+    # =========================
+# 5. TopGainers 서비스 확장
+# =========================
+
+# app/services/topgainers_service.py (기존 파일에 추가)
+
+    async def get_realtime_polling_data(self, limit: int, category: Optional[str] = None):
+        """
+        TopGainers 실시간 폴링 데이터 ("더보기" 방식)
+        
+        Args:
+            limit: 반환할 항목 수 (1번부터 limit번까지)
+            category: 카테고리 필터 (None이면 전체)
+        
+        Returns:
+            dict: 폴링 응답 데이터
+        """
+        try:
+            # 🎯 WebSocket과 동일한 데이터 소스 사용
+            if category:
+                # 특정 카테고리만 조회
+                all_data = await self.get_category_data_for_websocket(category, limit=200)
+            else:
+                # 전체 카테고리 조회
+                all_data = await self.get_market_data_with_categories(limit=200)
+            
+            if not all_data:
+                logger.warning("📊 TopGainers 실시간 데이터 없음")
+                return {
+                    "data": [],
+                    "metadata": {
+                        "current_count": 0,
+                        "total_available": 0,
+                        "has_more": False,
+                        "next_limit": limit,
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "data_source": "no_data",
+                        "message": "데이터를 찾을 수 없습니다"
+                    }
+                }
+            
+            # 순위별 정렬 (rank_position 기준)
+            all_data.sort(key=lambda x: x.rank_position or 999)
+            
+            # 순위 재부여 (1부터 시작)
+            for i, item in enumerate(all_data):
+                item.rank_position = i + 1
+            
+            # limit만큼 자르기
+            limited_data = all_data[:limit]
+            total_available = len(all_data)
+            
+            # 카테고리 통계 계산
+            category_stats = {}
+            if not category:
+                # 전체 조회인 경우 카테고리별 개수 제공
+                for item in all_data:
+                    cat = item.category or "unknown"
+                    category_stats[cat] = category_stats.get(cat, 0) + 1
+            
+            return {
+                "data": [item.model_dump() for item in limited_data],
+                "metadata": {
+                    "current_count": len(limited_data),
+                    "total_available": total_available,
+                    "has_more": limit < total_available,
+                    "next_limit": min(limit + 50, total_available),
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "data_source": "redis_realtime",
+                    "category_filter": category,
+                    "category_stats": category_stats if category_stats else None,
+                    "market_status": self._get_market_status()
+                }
+            }
+        
+        except Exception as e:
+            logger.error(f"❌ TopGainers 실시간 폴링 데이터 조회 실패: {e}")
+            return {"error": str(e)}
+
+    def _get_market_status(self):
+        """시장 상태 조회 (TopGainers용)"""
+        try:
+            from app.services.websocket_service import MarketTimeChecker
+            market_checker = MarketTimeChecker()
+            status = market_checker.get_market_status()
+            return {
+                "is_open": status["is_open"],
+                "status": status["status"]
+            }
+        except Exception as e:
+            return {"is_open": False, "status": "UNKNOWN"}
     
     async def get_symbol_data(self, symbol: str, category: str = None) -> Optional[TopGainerData]:
         """

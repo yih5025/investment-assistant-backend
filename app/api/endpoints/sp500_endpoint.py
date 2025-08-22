@@ -146,6 +146,58 @@ async def get_market_overview(
             ).model_dump()
         )
 
+@router.get("/polling", response_model=dict, summary="SP500 실시간 폴링 데이터 (더보기 방식)")
+async def get_sp500_polling_data(
+    limit: int = Query(default=50, ge=1, le=500, description="반환할 항목 수 (누적)"),
+    sort_by: str = Query(default="volume", description="정렬 기준: volume, change_percent, price"),
+    order: str = Query(default="desc", regex="^(asc|desc)$", description="정렬 순서"),
+    sp500_service: SP500Service = Depends(get_sp500_service)
+):
+    """
+    SP500 실시간 폴링 데이터 (WebSocket 대체용, "더보기" 방식)
+    
+    **동작 방식:**
+    - limit=50: 상위 50개 반환 (처음 로딩)
+    - limit=100: 상위 100개 반환 (더보기 클릭)
+    - limit=150: 상위 150개 반환 (더보기 클릭)
+    
+    **정렬 옵션:**
+    - `volume`: 거래량 순 (기본값)
+    - `change_percent`: 변동률 순  
+    - `price`: 가격 순
+    
+    **사용 예시:**
+    ```
+    GET /api/v1/stocks/sp500/polling?limit=50          # 처음 50개
+    GET /api/v1/stocks/sp500/polling?limit=100         # 더보기로 100개
+    GET /api/v1/stocks/sp500/polling?limit=150         # 더보기로 150개
+    ```
+    
+    **응답 데이터:**
+    - 항상 1번부터 limit개까지의 전체 데이터
+    - 실시간 갱신 시에도 동일한 limit으로 요청
+    """
+    try:
+        logger.info(f"📡 SP500 폴링 데이터 요청 (limit: {limit}, sort: {sort_by})")
+        
+        result = await sp500_service.get_realtime_polling_data(
+            limit=limit,
+            sort_by=sort_by,
+            order=order
+        )
+        
+        if result.get('error'):
+            logger.error(f"❌ SP500 폴링 데이터 조회 실패: {result['error']}")
+            raise HTTPException(status_code=500, detail=result['error'])
+        
+        logger.info(f"✅ SP500 폴링 데이터 조회 성공: {len(result['data'])}개 반환")
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ 예상치 못한 오류: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 # =========================
 # 🎯 개별 주식 상세 조회 엔드포인트 (Company Overview 통합) 🆕
 # =========================
@@ -422,7 +474,7 @@ async def get_top_gainers(
                 error_type="INTERNAL_ERROR",
                 message="Internal server error occurred",
                 path="/stocks/sp500/gainers"
-            ).dict()
+            ).model_dump()
         )
 
 @router.get("/losers", response_model=CategoryStockResponse, summary="상위 하락 종목 조회")
@@ -472,7 +524,7 @@ async def get_top_losers(
                 error_type="INTERNAL_ERROR",
                 message="Internal server error occurred",
                 path="/stocks/sp500/losers"
-            ).dict()
+            ).model_dump()
         )
 
 @router.get("/most-active", response_model=CategoryStockResponse, summary="가장 활발한 거래 종목 조회")
@@ -522,7 +574,7 @@ async def get_most_active(
                 error_type="INTERNAL_ERROR",
                 message="Internal server error occurred",
                 path="/stocks/sp500/most-active"
-            ).dict()
+            ).model_dump()
         )
 
 # =========================
@@ -583,7 +635,7 @@ async def search_stocks(
                 error_type="INTERNAL_ERROR",
                 message="Internal server error occurred",
                 path="/stocks/sp500/search"
-            ).dict()
+            ).model_dump()
         )
 
 # =========================
