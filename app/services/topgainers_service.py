@@ -26,7 +26,7 @@ class MarketTimeChecker:
     def is_market_open(self) -> bool:
         """현재 미국 주식 시장이 열려있는지 확인"""
         try:
-            now_utc = datetime.utcnow().replace(tzinfo=pytz.UTC)
+            now_utc = datetime.now(pytz.UTC).replace(tzinfo=pytz.UTC)
             now_et = now_utc.astimezone(self.us_eastern)
             
             # 주말 체크
@@ -146,7 +146,9 @@ class TopGainersService:
             self.symbol_category_cache.clear()
             for obj in db_objects:
                 self.symbol_category_cache[obj.symbol] = obj.category
-            self.last_cache_update = datetime.utcnow().timestamp()
+            # 🎯 한국 시간 기준으로 캐시 업데이트 시간 기록
+            korea_tz = pytz.timezone('Asia/Seoul')
+            self.last_cache_update = datetime.now(korea_tz).timestamp()
             
             logger.debug(f"📊 최신 배치 심볼 조회: {sum(len(symbols) for symbols in result.values())}개")
             return result
@@ -184,7 +186,7 @@ class TopGainersService:
                 logger.debug(f"📊 PostgreSQL에서 TopGainers 데이터 조회: {len(data)}개")
                 self.stats["market_closed_calls"] += 1
             
-            self.stats["last_update"] = datetime.utcnow()
+            self.stats["last_update"] = datetime.now(pytz.UTC)
             return data
             
         except Exception as e:
@@ -239,13 +241,13 @@ class TopGainersService:
                             batch_id=0,  # Redis에서는 batch_id 없음
                             symbol=symbol,
                             category=cached_category,
-                            last_updated=datetime.utcnow().isoformat(),
+                            last_updated=datetime.now(pytz.UTC).isoformat(),
                             price=json_data.get('price'),
                             volume=json_data.get('volume'),
                             change_amount=json_data.get('change_amount'),
                             change_percentage=json_data.get('change_percentage'),
                             rank_position=None,  # Redis에는 순위 정보 없음
-                            created_at=datetime.utcnow().isoformat()
+                            created_at=datetime.now(pytz.UTC).isoformat()
                         )
                         data.append(topgainer_data)
                         
@@ -371,30 +373,30 @@ class TopGainersService:
             return {"categories": {}, "total": 0, "error": str(e)}
         finally:
             db.close()
-    # =========================
-# 5. TopGainers 서비스 확장
-# =========================
 
-# app/services/topgainers_service.py (기존 파일에 추가)
+            
+    # =========================
+    # 5. TopGainers 서비스 확장
+    # =========================
+
+    # app/services/topgainers_service.py (기존 파일에 추가)
 
     async def get_realtime_polling_data(self, limit: int, category: Optional[str] = None):
         """
-        TopGainers 실시간 폴링 데이터 ("더보기" 방식)
+        TopGainers 실시간 폴링 데이터 ("더보기" 방식) + 변화율 계산
         
         Args:
             limit: 반환할 항목 수 (1번부터 limit번까지)
             category: 카테고리 필터 (None이면 전체)
         
         Returns:
-            dict: 폴링 응답 데이터
+            dict: 변화율이 포함된 폴링 응답 데이터
         """
         try:
-            # 🎯 WebSocket과 동일한 데이터 소스 사용
+            # 🎯 기존 로직으로 현재가 데이터 조회
             if category:
-                # 특정 카테고리만 조회
                 all_data = await self.get_category_data_for_websocket(category, limit=200)
             else:
-                # 전체 카테고리 조회
                 all_data = await self.get_market_data_with_categories(limit=200)
             
             if not all_data:
@@ -406,50 +408,135 @@ class TopGainersService:
                         "total_available": 0,
                         "has_more": False,
                         "next_limit": limit,
-                        "timestamp": datetime.utcnow().isoformat(),
+                        "timestamp": datetime.now(pytz.UTC).isoformat(),
                         "data_source": "no_data",
                         "message": "데이터를 찾을 수 없습니다"
                     }
                 }
             
-            # 순위별 정렬 (rank_position 기준)
-            all_data.sort(key=lambda x: x.rank_position or 999)
+            # 🎯 변화율 계산 추가
+            enhanced_data = await self._add_change_calculations(all_data)
             
-            # 순위 재부여 (1부터 시작)
-            for i, item in enumerate(all_data):
-                item.rank_position = i + 1
+            # 순위별 정렬 (변화율 기준 또는 기존 rank_position 기준)
+            if category == 'top_gainers':
+                enhanced_data.sort(key=lambda x: x.get('change_percentage', 0), reverse=True)
+            elif category == 'top_losers':
+                enhanced_data.sort(key=lambda x: x.get('change_percentage', 0))
+            else:
+                enhanced_data.sort(key=lambda x: x.get('rank_position', 999))
+            
+            # 순위 재부여
+            for i, item in enumerate(enhanced_data):
+                item['rank_position'] = i + 1
             
             # limit만큼 자르기
-            limited_data = all_data[:limit]
-            total_available = len(all_data)
+            limited_data = enhanced_data[:limit]
+            total_available = len(enhanced_data)
             
             # 카테고리 통계 계산
             category_stats = {}
             if not category:
-                # 전체 조회인 경우 카테고리별 개수 제공
-                for item in all_data:
-                    cat = item.category or "unknown"
+                for item in enhanced_data:
+                    cat = item.get('category', 'unknown')
                     category_stats[cat] = category_stats.get(cat, 0) + 1
             
             return {
-                "data": [item.model_dump() for item in limited_data],
+                "data": limited_data,
                 "metadata": {
                     "current_count": len(limited_data),
                     "total_available": total_available,
                     "has_more": limit < total_available,
                     "next_limit": min(limit + 50, total_available),
-                    "timestamp": datetime.utcnow().isoformat(),
-                    "data_source": "redis_realtime",
+                    "timestamp": datetime.now(pytz.UTC).isoformat(),
+                    "data_source": "redis_realtime_with_changes",
                     "category_filter": category,
                     "category_stats": category_stats if category_stats else None,
-                    "market_status": self._get_market_status()
+                    "market_status": self._get_market_status(),
+                    "features": ["real_time_prices", "change_calculation", "previous_close_comparison"]
                 }
             }
-        
+            
         except Exception as e:
             logger.error(f"❌ TopGainers 실시간 폴링 데이터 조회 실패: {e}")
             return {"error": str(e)}
 
+    async def _add_change_calculations(self, data_list: List) -> List[Dict]:
+        """
+        데이터 리스트에 변화율 계산 추가
+        
+        Args:
+            data_list: 기존 TopGainers 데이터 리스트
+            
+        Returns:
+            List[Dict]: 변화율이 추가된 데이터 리스트
+        """
+        try:
+            # 심볼 리스트 추출
+            symbols = []
+            for item in data_list:
+                if hasattr(item, 'symbol'):
+                    symbols.append(item.symbol)
+                elif isinstance(item, dict) and 'symbol' in item:
+                    symbols.append(item['symbol'])
+            
+            # 전날 종가 일괄 조회
+            db = next(get_db())
+            try:
+                previous_close_prices = TopGainers.get_batch_previous_close_prices(db, symbols)
+            finally:
+                db.close()
+            
+            # 변화율 계산 및 추가
+            enhanced_data = []
+            for item in data_list:
+                # 기존 데이터를 딕셔너리로 변환
+                if hasattr(item, 'dict'):
+                    item_dict = item.dict()
+                elif hasattr(item, 'model_dump'):
+                    item_dict = item.model_dump()
+                elif isinstance(item, dict):
+                    item_dict = item.copy()
+                else:
+                    item_dict = {}
+                
+                symbol = item_dict.get('symbol')
+                current_price = float(item_dict.get('price', 0)) if item_dict.get('price') else 0
+                
+                if symbol and symbol in previous_close_prices and current_price > 0:
+                    previous_close = previous_close_prices[symbol]
+                    
+                    # 변화 계산
+                    change_amount = current_price - previous_close
+                    change_percentage = (change_amount / previous_close) * 100 if previous_close > 0 else 0
+                    
+                    # 변화 정보 추가
+                    item_dict.update({
+                        'current_price': current_price,
+                        'previous_close': previous_close,
+                        'change_amount': round(change_amount, 2),
+                        'change_percentage': round(change_percentage, 2),
+                        'is_positive': change_amount > 0,
+                        'change_color': 'green' if change_amount > 0 else 'red' if change_amount < 0 else 'gray'
+                    })
+                else:
+                    # 전날 종가 없는 경우 기본값
+                    item_dict.update({
+                        'current_price': current_price,
+                        'previous_close': None,
+                        'change_amount': None,
+                        'change_percentage': None,
+                        'is_positive': None,
+                        'change_color': 'gray'
+                    })
+                
+                enhanced_data.append(item_dict)
+            
+            return enhanced_data
+            
+        except Exception as e:
+            logger.error(f"❌ 변화율 계산 추가 실패: {e}")
+            # 실패 시 기존 데이터 반환
+            return [item.dict() if hasattr(item, 'dict') else item for item in data_list]
     def _get_market_status(self):
         """시장 상태 조회 (TopGainers용)"""
         try:
@@ -495,13 +582,13 @@ class TopGainersService:
                         batch_id=0,
                         symbol=symbol,
                         category=redis_category,
-                        last_updated=datetime.utcnow().isoformat(),
+                        last_updated=datetime.now(pytz.UTC).isoformat(),
                         price=json_data.get('price'),
                         volume=json_data.get('volume'),
                         change_amount=json_data.get('change_amount'),
                         change_percentage=json_data.get('change_percentage'),
                         rank_position=None,
-                        created_at=datetime.utcnow().isoformat()
+                        created_at=datetime.now(pytz.UTC).isoformat()
                     )
             
             # DB에서 조회 (Redis 실패 또는 장 마감)
@@ -576,7 +663,7 @@ class TopGainersService:
             "data_status": {
                 "last_update": self.stats["last_update"].isoformat() if self.stats["last_update"] else None,
                 "cached_symbols": len(self.symbol_category_cache),
-                "cache_age_seconds": datetime.utcnow().timestamp() - self.last_cache_update
+                "cache_age_seconds": datetime.now(pytz.UTC).timestamp() - self.last_cache_update
             },
             "health": {
                 "redis_available": self.redis_client is not None,
@@ -588,7 +675,7 @@ class TopGainersService:
     async def health_check(self) -> Dict[str, Any]:
         """서비스 헬스체크"""
         health_info = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(pytz.UTC).isoformat(),
             "status": "healthy",
             "services": {}
         }

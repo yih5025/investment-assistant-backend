@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from typing import List, Optional, Dict, Any
 import logging
 from datetime import datetime
+import pytz
 
 from app.services.sp500_service import SP500Service
 from app.services.company_overview_service import CompanyOverviewService  # 🆕 추가
@@ -693,7 +694,7 @@ async def health_check(
                 'current_time_utc': 'N/A',
                 'timezone': 'US/Eastern'
             },
-            last_check=datetime.utcnow().isoformat(),
+            last_check=datetime.now(pytz.UTC).isoformat(),
             error=str(e)
         )
 

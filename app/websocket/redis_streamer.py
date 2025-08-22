@@ -3,6 +3,7 @@ import asyncio
 import logging
 from typing import Dict, Set, Optional, List, Any
 from datetime import datetime
+import pytz
 
 from app.services.websocket_service import WebSocketService
 from app.schemas.websocket_schema import (
@@ -70,7 +71,7 @@ class RedisStreamer:
             "last_sp500_update": None,
             "last_dashboard_update": None,
             "errors": 0,
-            "start_time": datetime.utcnow()
+            "start_time": datetime.now(pytz.UTC)
         }
         
         # WebSocket 매니저 (나중에 설정됨)
@@ -143,7 +144,7 @@ class RedisStreamer:
                         self.stats["topgainers_cycles"] += 1
                         self.stats["total_data_fetched"] += len(new_data)
                         self.stats["total_changes_detected"] += changed_count
-                        self.stats["last_topgainers_update"] = datetime.utcnow()
+                        self.stats["last_topgainers_update"] = datetime.now(pytz.UTC)
                     
                     else:
                         logger.debug("📊 TopGainers 데이터 없음")
@@ -219,7 +220,7 @@ class RedisStreamer:
                         self.stats["crypto_cycles"] += 1
                         self.stats["total_data_fetched"] += len(new_data)
                         self.stats["total_changes_detected"] += changed_count
-                        self.stats["last_crypto_update"] = datetime.utcnow()
+                        self.stats["last_crypto_update"] = datetime.now(pytz.UTC)
                     
                     else:
                         logger.debug("📊 암호화폐 데이터 없음")
@@ -295,7 +296,7 @@ class RedisStreamer:
                         self.stats["sp500_cycles"] += 1
                         self.stats["total_data_fetched"] += len(new_data)
                         self.stats["total_changes_detected"] += changed_count
-                        self.stats["last_sp500_update"] = datetime.utcnow()
+                        self.stats["last_sp500_update"] = datetime.now(pytz.UTC)
                     
                     else:
                         logger.debug("📊 SP500 데이터 없음")
@@ -374,7 +375,7 @@ class RedisStreamer:
                         
                         # 통계 업데이트
                         self.stats["dashboard_cycles"] += 1
-                        self.stats["last_dashboard_update"] = datetime.utcnow()
+                        self.stats["last_dashboard_update"] = datetime.now(pytz.UTC)
                     
                     else:
                         logger.debug("📊 대시보드 데이터 없음")
@@ -582,7 +583,7 @@ class RedisStreamer:
         Returns:
             Dict[str, Any]: 상태 정보
         """
-        uptime = datetime.utcnow() - self.stats["start_time"]
+        uptime = datetime.now(pytz.UTC) - self.stats["start_time"]
         
         active_symbol_streams = [k for k, v in self.symbol_streams.items() if v]
         
@@ -692,14 +693,14 @@ class RedisStreamer:
                 "active_streams": active_streams,
                 "streamer_status": self.get_status(),
                 "realtime_service": realtime_health,
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(pytz.UTC).isoformat()
             }
             
         except Exception as e:
             return {
                 "status": "unhealthy",
                 "error": str(e),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(pytz.UTC).isoformat()
             }
     
     async def cleanup_completed_tasks(self):

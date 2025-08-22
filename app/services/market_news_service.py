@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import pytz
 from typing import List, Optional, Tuple
 from sqlalchemy.orm import Session
 from sqlalchemy import func, text, and_, or_
@@ -230,7 +231,7 @@ class MarketNewsService:
         Returns:
             List[MarketNewsResponse]: 최근 뉴스 목록
         """
-        cutoff_time = datetime.utcnow() - timedelta(hours=hours)
+        cutoff_time = datetime.now(pytz.UTC) - timedelta(hours=hours)
         
         items = self.db.query(MarketNews).filter(
             MarketNews.published_at >= cutoff_time
@@ -282,7 +283,7 @@ class MarketNewsService:
         Returns:
             List[Tuple[str, int]]: (날짜, 뉴스 개수) 튜플 리스트
         """
-        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        cutoff_date = datetime.now(pytz.UTC) - timedelta(days=days)
         
         results = self.db.query(
             func.date(MarketNews.published_at).label('news_date'),

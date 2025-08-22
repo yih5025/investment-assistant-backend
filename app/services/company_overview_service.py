@@ -2,6 +2,7 @@
 import logging
 from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
+import pytz
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
@@ -55,7 +56,7 @@ class CompanyOverviewService:
         """
         try:
             self.stats["api_requests"] += 1
-            self.stats["last_request"] = datetime.utcnow()
+            self.stats["last_request"] = datetime.now(pytz.UTC)
             
             symbol = symbol.upper()
             db = next(get_db())
@@ -178,7 +179,7 @@ class CompanyOverviewService:
     #     """
     #     try:
     #         self.stats["api_requests"] += 1
-    #         self.stats["last_request"] = datetime.utcnow()
+    #         self.stats["last_request"] = datetime.now(pytz.UTC)
             
     #         db = next(get_db())
             
@@ -312,7 +313,7 @@ class CompanyOverviewService:
         """
         try:
             self.stats["api_requests"] += 1
-            self.stats["last_request"] = datetime.utcnow()
+            self.stats["last_request"] = datetime.now(pytz.UTC)
             
             db = next(get_db())
             
@@ -559,7 +560,7 @@ class CompanyOverviewService:
         return {
             'service_name': 'CompanyOverviewService',
             'stats': self.stats,
-            'uptime': datetime.utcnow().isoformat()
+            'uptime': datetime.now(pytz.UTC).isoformat()
         }
     
     def health_check(self) -> Dict[str, Any]:
@@ -579,7 +580,7 @@ class CompanyOverviewService:
                 'database': db_status,
                 'data_count': data_count,
                 'data_available': data_count > 0,
-                'last_check': datetime.utcnow().isoformat()
+                'last_check': datetime.now(pytz.UTC).isoformat()
             }
             
         except Exception as e:
@@ -588,7 +589,7 @@ class CompanyOverviewService:
                 'status': 'unhealthy',
                 'database': 'error',
                 'error': str(e),
-                'last_check': datetime.utcnow().isoformat()
+                'last_check': datetime.now(pytz.UTC).isoformat()
             }
         finally:
             db.close()

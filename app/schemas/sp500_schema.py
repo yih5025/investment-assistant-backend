@@ -2,6 +2,7 @@
 from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional, Dict, Any, Union
 from datetime import datetime
+import pytz
 from enum import Enum
 
 class TimeframeEnum(str, Enum):
@@ -169,7 +170,7 @@ class ErrorDetail(BaseModel):
 class ErrorResponse(BaseModel):
     """에러 응답"""
     error: ErrorDetail = Field(..., description="에러 정보")
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat(), description="에러 발생 시간")
+    timestamp: str = Field(default_factory=lambda: datetime.now(pytz.UTC).isoformat(), description="에러 발생 시간")
     path: Optional[str] = Field(None, description="요청 경로")
 
 # =========================

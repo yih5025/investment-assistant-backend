@@ -2,6 +2,7 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional, Any, Dict, Union
 from datetime import datetime
+import pytz
 from enum import Enum
 
 class WebSocketMessageType(str, Enum):
@@ -89,7 +90,7 @@ class StatusMessage(BaseModel):
     """상태 메시지"""
     type: WebSocketMessageType = WebSocketMessageType.STATUS
     status: str = Field(..., description="connected, disconnected, error")
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = Field(default_factory=lambda: datetime.now(pytz.UTC).isoformat())
     connected_clients: Optional[int] = None
     subscription_info: Optional[Dict[str, Any]] = None
     server_info: Optional[Dict[str, Any]] = None
@@ -99,13 +100,13 @@ class ErrorMessage(BaseModel):
     type: WebSocketMessageType = WebSocketMessageType.ERROR
     error_code: str
     message: str
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = Field(default_factory=lambda: datetime.now(pytz.UTC).isoformat())
     details: Optional[Dict[str, Any]] = None
 
 class HeartbeatMessage(BaseModel):
     """하트비트 메시지"""
     type: WebSocketMessageType = WebSocketMessageType.HEARTBEAT
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = Field(default_factory=lambda: datetime.now(pytz.UTC).isoformat())
     server_time: Optional[str] = None
     data_type: Optional[str] = None
     symbol: Optional[str] = None
@@ -118,7 +119,7 @@ class TopGainersUpdateMessage(BaseModel):
     """Top Gainers 업데이트 메시지"""
     type: WebSocketMessageType = WebSocketMessageType.TOPGAINERS_UPDATE
     data: List[TopGainerData]
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = Field(default_factory=lambda: datetime.now(pytz.UTC).isoformat())
     batch_id: Optional[int] = None
     data_count: int = Field(..., description="전송된 데이터 개수")
     categories: Optional[List[str]] = None  # ["top_gainers", "top_losers"]
@@ -130,7 +131,7 @@ class CryptoUpdateMessage(BaseModel):
     """암호화폐 업데이트 메시지"""
     type: WebSocketMessageType = WebSocketMessageType.CRYPTO_UPDATE
     data: List[CryptoData]
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = Field(default_factory=lambda: datetime.now(pytz.UTC).isoformat())
     data_count: int = Field(..., description="전송된 데이터 개수")
     exchange: str = "bithumb"
     market_types: Optional[List[str]] = None  # ["KRW-BTC", "KRW-ETH"]
@@ -142,7 +143,7 @@ class SP500UpdateMessage(BaseModel):
     """SP500 업데이트 메시지"""
     type: WebSocketMessageType = WebSocketMessageType.SP500_UPDATE
     data: List[SP500Data]
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = Field(default_factory=lambda: datetime.now(pytz.UTC).isoformat())
     data_count: int = Field(..., description="전송된 데이터 개수")
     categories: Optional[List[str]] = None  # 카테고리 목록
     symbols: Optional[List[str]] = None     # 포함된 심볼들
@@ -156,7 +157,7 @@ class SymbolUpdateMessage(BaseModel):
     symbol: str
     data_type: str = Field(..., description="topgainers, crypto, sp500")
     data: Union[TopGainerData, CryptoData, SP500Data]
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = Field(default_factory=lambda: datetime.now(pytz.UTC).isoformat())
     
     class Config:
         from_attributes = True
@@ -164,7 +165,7 @@ class SymbolUpdateMessage(BaseModel):
 class DashboardUpdateMessage(BaseModel):
     """대시보드 통합 업데이트 메시지"""
     type: WebSocketMessageType = WebSocketMessageType.DASHBOARD_UPDATE
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = Field(default_factory=lambda: datetime.now(pytz.UTC).isoformat())
     
     # 각 데이터 소스별 요약 데이터
     top_gainers: Optional[List[TopGainerData]] = None

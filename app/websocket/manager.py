@@ -4,6 +4,7 @@ import json
 import logging
 from typing import List, Dict, Set, Optional, Any
 from datetime import datetime
+import pytz
 from fastapi import WebSocket
 
 from app.schemas.websocket_schema import (
@@ -51,7 +52,7 @@ class WebSocketManager:
             "total_disconnections": 0,
             "total_messages_sent": 0,
             "total_errors": 0,
-            "start_time": datetime.utcnow()
+            "start_time": datetime.now(pytz.UTC)
         }
         
         # 활성 연결들 추적
@@ -86,8 +87,8 @@ class WebSocketManager:
                 "type": "topgainers",
                 "subscription": "all",
                 "ip": client_ip,
-                "connected_at": datetime.utcnow(),
-                "last_heartbeat": datetime.utcnow(),
+                "connected_at": datetime.now(pytz.UTC),
+                "last_heartbeat": datetime.now(pytz.UTC),
                 "messages_received": 0
             }
             
@@ -156,8 +157,8 @@ class WebSocketManager:
                 "type": "crypto",
                 "subscription": "all",
                 "ip": client_ip,
-                "connected_at": datetime.utcnow(),
-                "last_heartbeat": datetime.utcnow(),
+                "connected_at": datetime.now(pytz.UTC),
+                "last_heartbeat": datetime.now(pytz.UTC),
                 "messages_received": 0
             }
             
@@ -226,8 +227,8 @@ class WebSocketManager:
                 "type": "sp500",
                 "subscription": "all",
                 "ip": client_ip,
-                "connected_at": datetime.utcnow(),
-                "last_heartbeat": datetime.utcnow(),
+                "connected_at": datetime.now(pytz.UTC),
+                "last_heartbeat": datetime.now(pytz.UTC),
                 "messages_received": 0
             }
             
@@ -296,8 +297,8 @@ class WebSocketManager:
                 "type": "dashboard",
                 "subscription": "integrated",
                 "ip": client_ip,
-                "connected_at": datetime.utcnow(),
-                "last_heartbeat": datetime.utcnow(),
+                "connected_at": datetime.now(pytz.UTC),
+                "last_heartbeat": datetime.now(pytz.UTC),
                 "messages_received": 0
             }
             
@@ -378,8 +379,8 @@ class WebSocketManager:
                 "symbol": symbol,
                 "subscription_key": subscription_key,
                 "ip": client_ip,
-                "connected_at": datetime.utcnow(),
-                "last_heartbeat": datetime.utcnow(),
+                "connected_at": datetime.now(pytz.UTC),
+                "last_heartbeat": datetime.now(pytz.UTC),
                 "messages_received": 0
             }
             
@@ -481,7 +482,7 @@ class WebSocketManager:
                 client_id = id(websocket)
                 if client_id in self.client_metadata:
                     self.client_metadata[client_id]["messages_received"] += 1
-                    self.client_metadata[client_id]["last_heartbeat"] = datetime.utcnow()
+                    self.client_metadata[client_id]["last_heartbeat"] = datetime.now(pytz.UTC)
                 
             except Exception as e:
                 logger.warning(f"⚠️ {context} 메시지 전송 실패: {id(websocket)} - {e}")
@@ -536,7 +537,7 @@ class WebSocketManager:
             # 메타데이터 정리
             if client_id in self.client_metadata:
                 metadata = self.client_metadata.pop(client_id)
-                connect_duration = datetime.utcnow() - metadata["connected_at"]
+                connect_duration = datetime.now(pytz.UTC) - metadata["connected_at"]
                 logger.info(f"🔌 {context} 구독자 해제: {client_id} (연결 시간: {connect_duration})")
             
             # 통계 업데이트
@@ -605,7 +606,7 @@ class WebSocketManager:
         Returns:
             Dict[str, Any]: 상세 통계
         """
-        uptime = datetime.utcnow() - self.stats["start_time"]
+        uptime = datetime.now(pytz.UTC) - self.stats["start_time"]
         
         return {
             **self.stats,
@@ -646,7 +647,7 @@ class WebSocketManager:
             Dict[str, Any]: 구독 현황
         """
         return {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(pytz.UTC).isoformat(),
             "total_active_connections": len(self.active_connections),
             "subscriptions": {
                 "all_data": {
@@ -679,7 +680,7 @@ class WebSocketManager:
         """
         비활성 연결들 정리 (주기적으로 실행)
         """
-        current_time = datetime.utcnow()
+        current_time = datetime.now(pytz.UTC)
         inactive_threshold = 300  # 5분
         
         inactive_clients = []

@@ -1,4 +1,5 @@
 from datetime import datetime
+import pytz
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from sqlalchemy.orm import Session
@@ -285,7 +286,7 @@ async def health_check(db: Session = Depends(get_db)):
             "total_news": total_count,
             "latest_news_date": latest_date,
             "api_version": "1.0.0",
-            "timestamp": datetime.utcnow()
+            "timestamp": datetime.now(pytz.UTC)
         }
         
     except Exception as e:

@@ -3,6 +3,7 @@ import json
 import logging
 from typing import Dict, Any, Optional
 from datetime import datetime
+import pytz
 from fastapi import WebSocket
 
 from app.schemas.websocket_schema import (
@@ -191,8 +192,8 @@ class WebSocketHandlers:
             # 하트비트 응답
             heartbeat_response = {
                 "type": WebSocketMessageType.HEARTBEAT,
-                "timestamp": datetime.utcnow().isoformat(),
-                "server_time": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC"),
+                "timestamp": datetime.now(pytz.UTC).isoformat(),
+                "server_time": datetime.now(pytz.UTC).strftime("%Y-%m-%d %H:%M:%S UTC"),
                 "status": "alive"
             }
             
@@ -201,7 +202,7 @@ class WebSocketHandlers:
             # 클라이언트 메타데이터 업데이트 (last_heartbeat)
             client_id = id(websocket)
             if self.websocket_manager and client_id in self.websocket_manager.client_metadata:
-                self.websocket_manager.client_metadata[client_id]["last_heartbeat"] = datetime.utcnow()
+                self.websocket_manager.client_metadata[client_id]["last_heartbeat"] = datetime.now(pytz.UTC)
             
             logger.debug(f"💓 하트비트 응답: {client_id}")
             return True
@@ -285,7 +286,7 @@ class WebSocketHandlers:
         try:
             success_message = {
                 "type": WebSocketMessageType.STATUS,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(pytz.UTC).isoformat(),
                 "status": "subscribed",
                 "subscription_type": subscription_type,
                 "symbol": symbol,
@@ -312,7 +313,7 @@ class WebSocketHandlers:
         try:
             success_message = {
                 "type": WebSocketMessageType.STATUS,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(pytz.UTC).isoformat(),
                 "status": "unsubscribed",
                 "subscription_type": subscription_type,
                 "symbol": symbol,
@@ -340,7 +341,7 @@ class WebSocketHandlers:
         try:
             notification = {
                 "type": "notification",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(pytz.UTC).isoformat(),
                 "notification_type": notification_type,
                 "message": message,
                 "data": data or {}

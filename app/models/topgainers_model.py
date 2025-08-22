@@ -2,6 +2,15 @@
 from sqlalchemy import Column, Integer, String, Numeric, BigInteger, DateTime, Boolean
 from sqlalchemy.sql import func
 from app.models.base import BaseModel
+from sqlalchemy import Session
+from typing import List, Dict, Optional
+from datetime import datetime, timedelta
+import pytz
+import logging
+from sqlalchemy import and_
+
+logger = logging.getLogger(__name__)
+
 
 class TopGainers(BaseModel):
     """
@@ -60,7 +69,104 @@ class TopGainers(BaseModel):
     def get_latest_batch_id(cls, db_session):
         """최신 batch_id 조회"""
         return db_session.query(cls.batch_id).order_by(cls.batch_id.desc()).first()
-    
+    @classmethod
+    def get_previous_close_price(cls, db_session: Session, symbol: str) -> Optional[float]:
+        """
+        특정 심볼의 전일 종가 조회 (변동률 계산용)
+        
+        Args:
+            db_session: 데이터베이스 세션
+            symbol: 주식 심볼
+            
+        Returns:
+            Optional[float]: 전일 종가 또는 None
+        """
+        try:
+            us_eastern = pytz.timezone('US/Eastern')
+            korea_tz = pytz.timezone('Asia/Seoul')
+            
+            # 현재 한국 시간
+            now_korea = datetime.now(korea_tz)
+            
+            # 미국 시장 기준 "어제"의 마지막 시점 계산
+            # 미국 동부 시간으로 변환하여 하루 빼기
+            now_us = now_korea.astimezone(us_eastern)
+            yesterday_us = now_us - timedelta(days=1)
+            
+            # 미국 시간 기준 어제 23:59:59를 한국 시간으로 다시 변환
+            yesterday_end_us = yesterday_us.replace(hour=23, minute=59, second=59)
+            yesterday_end_korea = yesterday_end_us.astimezone(korea_tz)
+            
+            # DB에서 해당 시점 이전 데이터 조회 (created_at은 한국 시간으로 저장됨)
+            prev_trade = db_session.query(cls).filter(
+                cls.symbol == symbol.upper(),
+                cls.created_at <= yesterday_end_korea.replace(tzinfo=None)  # naive datetime으로 변환
+            ).order_by(cls.created_at.desc()).first()
+            
+            return float(prev_trade.price) if prev_trade and prev_trade.price else None
+            
+        except Exception as e:
+            logger.error(f"❌ {symbol} 전일 종가 조회 실패: {e}")
+            return None
+
+    @classmethod
+    def get_batch_previous_close_prices(cls, db_session: Session, symbols: List[str]) -> Dict[str, float]:
+        """
+        여러 심볼의 전일 종가를 일괄 조회 (성능 최적화)
+        
+        Args:
+            db_session: 데이터베이스 세션
+            symbols: 주식 심볼 리스트
+            
+        Returns:
+            Dict[str, float]: {symbol: previous_close_price}
+        """
+        try:
+            # 🎯 미국 시장 기준 전일 계산
+            us_eastern = pytz.timezone('US/Eastern')
+            korea_tz = pytz.timezone('Asia/Seoul')
+            
+            # 현재 한국 시간
+            now_korea = datetime.now(korea_tz)
+            
+            # 미국 시장 기준 "어제"의 마지막 시점 계산
+            now_us = now_korea.astimezone(us_eastern)
+            yesterday_us = now_us - timedelta(days=1)
+            
+            # 미국 시간 기준 어제 23:59:59를 한국 시간으로 다시 변환
+            yesterday_end_us = yesterday_us.replace(hour=23, minute=59, second=59)
+            yesterday_end_korea = yesterday_end_us.astimezone(korea_tz)
+            
+            # 서브쿼리: 각 심볼별 전날 최신 created_at 조회
+            subquery = db_session.query(
+                cls.symbol,
+                func.max(cls.created_at).label('max_created_at')
+            ).filter(
+                cls.symbol.in_([s.upper() for s in symbols]),
+                cls.created_at <= yesterday_end_korea.replace(tzinfo=None)  # naive datetime으로 변환
+            ).group_by(cls.symbol).subquery()
+            
+            # 메인 쿼리: 전날 최신 데이터 조회
+            prev_trades = db_session.query(cls).join(
+                subquery,
+                and_(
+                    cls.symbol == subquery.c.symbol,
+                    cls.created_at == subquery.c.max_created_at
+                )
+            ).all()
+            
+            # 딕셔너리로 변환
+            result = {}
+            for trade in prev_trades:
+                if trade.price:
+                    result[trade.symbol] = float(trade.price)
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"❌ 일괄 전일 종가 조회 실패: {e}")
+            return {}
+        
     @classmethod
     def get_by_category(cls, db_session, category: str, batch_id: int = None, limit: int = 50, offset: int = 0):
         """카테고리별 데이터 조회 - offset 파라미터 추가"""

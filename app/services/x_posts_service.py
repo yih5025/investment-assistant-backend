@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, desc, asc, and_, or_, text
 from typing import List, Optional, Dict, Any, Tuple
 from datetime import datetime, timedelta, timezone
+import pytz
 
 from app.models.x_posts_model import XPost
 from app.schemas.x_posts_schema import (
@@ -473,7 +474,7 @@ class XPostsService:
         
         # 최근 24시간 포스트 수
         recent_24h = self.db.query(func.count(XPost.tweet_id))\
-            .filter(XPost.created_at >= datetime.utcnow() - timedelta(hours=24))\
+            .filter(XPost.created_at >= datetime.now(pytz.UTC) - timedelta(hours=24))\
             .scalar()
         
         # 오늘의 인기 포스트 (좋아요 기준)

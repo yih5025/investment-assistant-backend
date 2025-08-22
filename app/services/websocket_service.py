@@ -38,7 +38,7 @@ class MarketTimeChecker:
     def is_market_open(self) -> bool:
         """현재 미국 주식 시장이 열려있는지 확인"""
         try:
-            now_utc = datetime.utcnow().replace(tzinfo=pytz.UTC)
+            now_utc = datetime.now(pytz.UTC).replace(tzinfo=pytz.UTC)
             now_et = now_utc.astimezone(self.us_eastern)
             
             # 주말 체크
@@ -63,7 +63,7 @@ class MarketTimeChecker:
     def get_market_status(self) -> Dict[str, Any]:
         """상세한 시장 상태 정보 반환"""
         try:
-            now_utc = datetime.utcnow().replace(tzinfo=pytz.UTC)
+            now_utc = datetime.now(pytz.UTC).replace(tzinfo=pytz.UTC)
             now_et = now_utc.astimezone(self.us_eastern)
             
             is_open = self.is_market_open()
@@ -211,7 +211,7 @@ class WebSocketService:
             data = [db_to_topgainer_data(obj) for obj in db_objects]
             
             self.stats["db_queries"] += 1
-            self.stats["last_update"] = datetime.utcnow()
+            self.stats["last_update"] = datetime.now(pytz.UTC)
             
             logger.debug(f"📊 TopGainers 데이터 조회 완료: {len(data)}개")
             return data
@@ -278,7 +278,7 @@ class WebSocketService:
             data = data[:limit]
             
             self.stats["redis_queries"] += 1
-            self.stats["last_update"] = datetime.utcnow()
+            self.stats["last_update"] = datetime.now(pytz.UTC)
             
             logger.debug(f"📊 Redis TopGainers 데이터 조회 완료: {len(data)}개")
             return data
@@ -325,7 +325,7 @@ class WebSocketService:
             data = [db_to_sp500_data(obj) for obj in db_objects]
             
             self.stats["db_queries"] += 1
-            self.stats["last_update"] = datetime.utcnow()
+            self.stats["last_update"] = datetime.now(pytz.UTC)
             
             logger.debug(f"📊 SP500 데이터 조회 완료: {len(data)}개")
             return data
@@ -400,7 +400,7 @@ class WebSocketService:
             data = data[:limit]
             
             self.stats["redis_queries"] += 1
-            self.stats["last_update"] = datetime.utcnow()
+            self.stats["last_update"] = datetime.now(pytz.UTC)
             
             logger.debug(f"📊 Redis SP500 데이터 조회 완료: {len(data)}개")
             return data
@@ -434,7 +434,7 @@ class WebSocketService:
             data = [db_to_crypto_data(obj) for obj in db_objects]
             
             self.stats["db_queries"] += 1
-            self.stats["last_update"] = datetime.utcnow()
+            self.stats["last_update"] = datetime.now(pytz.UTC)
             
             logger.debug(f"📊 암호화폐 데이터 조회 완료: {len(data)}개")
             return data
@@ -503,7 +503,7 @@ class WebSocketService:
             data = data[:limit]
             
             self.stats["redis_queries"] += 1
-            self.stats["last_update"] = datetime.utcnow()
+            self.stats["last_update"] = datetime.now(pytz.UTC)
             
             logger.debug(f"📊 Redis 암호화폐 데이터 조회 완료: {len(data)}개")
             return data
@@ -588,7 +588,7 @@ class WebSocketService:
                 "top_gainers_count": len(top_gainers),
                 "crypto_count": len(top_crypto),
                 "sp500_count": len(sp500_highlights),
-                "last_updated": datetime.utcnow().isoformat(),
+                "last_updated": datetime.now(pytz.UTC).isoformat(),
                 "data_sources": ["topgainers", "crypto", "sp500"],
                 "market_status": market_status,  # 🎯 시장 상태 추가
                 "db_fallback_used": self.should_use_db_fallback()
@@ -609,6 +609,154 @@ class WebSocketService:
                 "sp500_highlights": [],
                 "summary": {"error": str(e)}
             }
+    
+
+    async def get_sp500_from_redis_with_changes(self, limit: int = 100) -> List[Any]:
+        """
+        Redis에서 SP500 데이터 조회 + 전날 종가 기반 변화율 계산
+        
+        Args:
+            limit: 반환할 최대 개수
+            
+        Returns:
+            List[Any]: 변화율이 계산된 SP500 데이터
+        """
+        try:
+            # 🎯 1. Redis에서 현재가 조회 (기존 로직)
+            current_data = await self.get_sp500_from_redis(limit)
+            if not current_data:
+                return []
+            
+            # 🎯 2. 심볼 리스트 추출
+            symbols = [item.symbol for item in current_data if hasattr(item, 'symbol')]
+            
+            # 🎯 3. 전날 종가 일괄 조회 (캐싱)
+            previous_close_prices = await self._get_cached_previous_close_prices(symbols, 'sp500')
+            
+            # 🎯 4. 변화율 계산 및 추가
+            enhanced_data = []
+            for item in current_data:
+                if hasattr(item, 'symbol') and item.symbol in previous_close_prices:
+                    current_price = float(item.price) if item.price else 0
+                    previous_close = previous_close_prices[item.symbol]
+                    
+                    # 변화 계산
+                    change_amount = current_price - previous_close
+                    change_percentage = (change_amount / previous_close) * 100 if previous_close > 0 else 0
+                    
+                    # 기존 데이터에 변화 정보 추가
+                    if hasattr(item, 'dict'):
+                        enhanced_item = item.dict()
+                    else:
+                        enhanced_item = item
+                    
+                    enhanced_item.update({
+                        'current_price': current_price,
+                        'previous_close': previous_close,
+                        'change_amount': round(change_amount, 2),
+                        'change_percentage': round(change_percentage, 2),
+                        'is_positive': change_amount > 0,
+                        'change_color': 'green' if change_amount > 0 else 'red' if change_amount < 0 else 'gray'
+                    })
+                    
+                    enhanced_data.append(enhanced_item)
+                else:
+                    # 전날 종가 없는 경우 기본값
+                    if hasattr(item, 'dict'):
+                        enhanced_item = item.dict()
+                    else:
+                        enhanced_item = item
+                    
+                    enhanced_item.update({
+                        'current_price': float(item.price) if item.price else 0,
+                        'previous_close': None,
+                        'change_amount': None,
+                        'change_percentage': None,
+                        'is_positive': None,
+                        'change_color': 'gray'
+                    })
+                    
+                    enhanced_data.append(enhanced_item)
+            
+            return enhanced_data
+            
+        except Exception as e:
+            logger.error(f"❌ SP500 변화율 계산 실패: {e}")
+            return await self.get_sp500_from_redis(limit)  # fallback
+
+    async def get_topgainers_from_redis_with_changes(self, category: str = None, limit: int = 50) -> List[Any]:
+        """
+        Redis에서 TopGainers 데이터 조회 + 전날 종가 기반 변화율 계산
+        
+        Args:
+            category: 카테고리 필터
+            limit: 반환할 최대 개수
+            
+        Returns:
+            List[Any]: 변화율이 계산된 TopGainers 데이터
+        """
+        try:
+            # 🎯 1. Redis에서 현재가 조회 (기존 로직)
+            current_data = await self.get_topgainers_from_redis(category, limit)
+            if not current_data:
+                return []
+            
+            # 🎯 2. 심볼 리스트 추출
+            symbols = [item.symbol for item in current_data if hasattr(item, 'symbol')]
+            
+            # 🎯 3. 전날 종가 일괄 조회 (캐싱)
+            previous_close_prices = await self._get_cached_previous_close_prices(symbols, 'topgainers')
+            
+            # 🎯 4. 변화율 계산 및 추가
+            enhanced_data = []
+            for item in current_data:
+                if hasattr(item, 'symbol') and item.symbol in previous_close_prices:
+                    current_price = float(item.price) if item.price else 0
+                    previous_close = previous_close_prices[item.symbol]
+                    
+                    # 변화 계산
+                    change_amount = current_price - previous_close
+                    change_percentage = (change_amount / previous_close) * 100 if previous_close > 0 else 0
+                    
+                    # 기존 데이터에 변화 정보 추가
+                    if hasattr(item, 'dict'):
+                        enhanced_item = item.dict()
+                    else:
+                        enhanced_item = item
+                    
+                    enhanced_item.update({
+                        'current_price': current_price,
+                        'previous_close': previous_close,
+                        'change_amount': round(change_amount, 2),
+                        'change_percentage': round(change_percentage, 2),
+                        'is_positive': change_amount > 0,
+                        'change_color': 'green' if change_amount > 0 else 'red' if change_amount < 0 else 'gray'
+                    })
+                    
+                    enhanced_data.append(enhanced_item)
+                else:
+                    # 전날 종가 없는 경우 기본값
+                    if hasattr(item, 'dict'):
+                        enhanced_item = item.dict()
+                    else:
+                        enhanced_item = item
+                    
+                    enhanced_item.update({
+                        'current_price': float(item.price) if item.price else 0,
+                        'previous_close': None,
+                        'change_amount': None,
+                        'change_percentage': None,
+                        'is_positive': None,
+                        'change_color': 'gray'
+                    })
+                    
+                    enhanced_data.append(enhanced_item)
+            
+            return enhanced_data
+            
+        except Exception as e:
+            logger.error(f"❌ TopGainers 변화율 계산 실패: {e}")
+            return await self.get_topgainers_from_redis(category, limit)  # fallback
     
     # =========================
     # 변경 감지 및 캐싱 (기존 유지)
@@ -686,7 +834,7 @@ class WebSocketService:
             Dict[str, Any]: 헬스 체크 결과
         """
         health_info = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(pytz.UTC).isoformat(),
             "status": "healthy",
             "services": {}
         }
@@ -717,7 +865,7 @@ class WebSocketService:
         # 최근 데이터 업데이트 확인
         last_update = self.stats.get("last_update")
         if last_update:
-            time_since_update = (datetime.utcnow() - last_update).total_seconds()
+            time_since_update = (datetime.now(pytz.UTC) - last_update).total_seconds()
             if time_since_update > 300:  # 5분 이상 업데이트 없음
                 health_info["data_freshness"] = "stale"
                 health_info["status"] = "degraded"
@@ -764,7 +912,7 @@ class WebSocketService:
         """캐시 정리 (주기적으로 실행)"""
         try:
             # 1시간 이상 된 캐시 데이터 정리
-            cutoff_time = datetime.utcnow() - timedelta(hours=24)
+            cutoff_time = datetime.now(pytz.UTC) - timedelta(hours=24)
             
             if self.stats.get("last_update") and self.stats["last_update"] < cutoff_time:
                 self.last_data_cache.clear()

@@ -29,7 +29,7 @@ class MarketTimeChecker:
     def is_market_open(self) -> bool:
         """현재 미국 주식 시장이 열려있는지 확인"""
         try:
-            now_utc = datetime.utcnow().replace(tzinfo=pytz.UTC)
+            now_utc = datetime.now(pytz.UTC).replace(tzinfo=pytz.UTC)
             now_et = now_utc.astimezone(self.us_eastern)
             
             # 주말 체크
@@ -54,7 +54,7 @@ class MarketTimeChecker:
     def get_market_status(self) -> Dict[str, Any]:
         """상세한 시장 상태 정보 반환"""
         try:
-            now_utc = datetime.utcnow().replace(tzinfo=pytz.UTC)
+            now_utc = datetime.now(pytz.UTC).replace(tzinfo=pytz.UTC)
             now_et = now_utc.astimezone(self.us_eastern)
             
             is_open = self.is_market_open()
@@ -282,7 +282,7 @@ class SP500Service:
         """
         try:
             self.stats["api_requests"] += 1
-            self.stats["last_request"] = datetime.utcnow()
+            self.stats["last_request"] = datetime.now(pytz.UTC)
             
             symbol = symbol.upper()
             db = next(get_db())
@@ -337,7 +337,7 @@ class SP500Service:
         """
         try:
             self.stats["api_requests"] += 1
-            self.stats["last_request"] = datetime.utcnow()
+            self.stats["last_request"] = datetime.now(pytz.UTC)
             
             symbol = symbol.upper()
             db = next(get_db())
@@ -373,7 +373,7 @@ class SP500Service:
                 'chart_data': formatted_chart_data,
                 'data_points': len(formatted_chart_data),
                 'market_status': self.market_checker.get_market_status(),
-                'last_updated': datetime.utcnow().isoformat()
+                'last_updated': datetime.now(pytz.UTC).isoformat()
             }
             
         except Exception as e:
@@ -622,7 +622,7 @@ class SP500Service:
                     'top_losers': top_losers,
                     'most_active': most_active
                 },
-                'last_updated': datetime.utcnow().isoformat()
+                'last_updated': datetime.now(pytz.UTC).isoformat()
             }
             
         except Exception as e:
@@ -761,7 +761,7 @@ class SP500Service:
             'service_name': 'SP500Service',
             'stats': self.stats,
             'market_status': self.market_checker.get_market_status(),
-            'uptime': datetime.utcnow().isoformat()
+            'uptime': datetime.now(pytz.UTC).isoformat()
         }
     
     def health_check(self) -> Dict[str, Any]:
@@ -785,7 +785,7 @@ class SP500Service:
             
             data_freshness = "fresh"
             if latest_data and latest_data[0]:
-                time_diff = datetime.utcnow() - latest_data[0]
+                time_diff = datetime.now(pytz.UTC) - latest_data[0]
                 if time_diff > timedelta(hours=1):
                     data_freshness = "stale"
             else:
@@ -796,7 +796,7 @@ class SP500Service:
                 'database': db_status,
                 'data_freshness': data_freshness,
                 'market_status': self.market_checker.get_market_status(),
-                'last_check': datetime.utcnow().isoformat()
+                'last_check': datetime.now(pytz.UTC).isoformat()
             }
             
         except Exception as e:
@@ -805,7 +805,7 @@ class SP500Service:
                 'status': 'unhealthy',
                 'database': 'error',
                 'error': str(e),
-                'last_check': datetime.utcnow().isoformat()
+                'last_check': datetime.now(pytz.UTC).isoformat()
             }
         finally:
             db.close()

@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional, Dict, Any, Tuple
 import logging
 from datetime import datetime, timedelta
+import pytz
 
 from app.models.base import BaseModel
 
@@ -121,13 +122,27 @@ class SP500WebsocketTrades(BaseModel):
             Optional[float]: 전일 종가 또는 None
         """
         try:
-            # 하루 전 데이터 조회 (24시간 전)
-            yesterday = datetime.utcnow() - timedelta(days=1)
+            # 🎯 미국 시장 기준 전일 계산
+            # 현재 시간을 미국 동부 시간으로 변환
+            us_eastern = pytz.timezone('US/Eastern')
+            korea_tz = pytz.timezone('Asia/Seoul')
             
-            # 하루 전 가장 최신 데이터 조회
+            # 현재 한국 시간
+            now_korea = datetime.now(korea_tz)
+            
+            # 미국 시장 기준 "어제"의 마지막 시점 계산
+            # 미국 동부 시간으로 변환하여 하루 빼기
+            now_us = now_korea.astimezone(us_eastern)
+            yesterday_us = now_us - timedelta(days=1)
+            
+            # 미국 시간 기준 어제 23:59:59를 한국 시간으로 다시 변환
+            yesterday_end_us = yesterday_us.replace(hour=23, minute=59, second=59)
+            yesterday_end_korea = yesterday_end_us.astimezone(korea_tz)
+            
+            # DB에서 해당 시점 이전 데이터 조회 (created_at은 한국 시간으로 저장됨)
             prev_trade = db_session.query(cls).filter(
                 cls.symbol == symbol.upper(),
-                cls.created_at <= yesterday
+                cls.created_at <= yesterday_end_korea.replace(tzinfo=None)  # naive datetime으로 변환
             ).order_by(cls.created_at.desc()).first()
             
             return float(prev_trade.price) if prev_trade and prev_trade.price else None
@@ -203,10 +218,10 @@ class SP500WebsocketTrades(BaseModel):
             # 조회 시작 시간 계산
             if timeframe in timeframe_map:
                 # 최근 데이터만 조회 (예: 1D면 최근 1일치)
-                start_time = datetime.utcnow() - timeframe_map[timeframe] * limit
+                start_time = datetime.now(pytz.UTC) - timeframe_map[timeframe] * limit
             else:
                 # 기본값: 최근 1일
-                start_time = datetime.utcnow() - timedelta(days=1)
+                start_time = datetime.now(pytz.UTC) - timedelta(days=1)
             
             # 시간 범위 내 데이터 조회
             query = db_session.query(cls).filter(
@@ -275,14 +290,16 @@ class SP500WebsocketTrades(BaseModel):
         try:
             from sqlalchemy import func
             
-            # 24시간 전부터 현재까지
-            since_24h = datetime.utcnow() - timedelta(hours=24)
+            # 🎯 한국 시간 기준 24시간 전부터 현재까지
+            korea_tz = pytz.timezone('Asia/Seoul')
+            now_korea = datetime.now(korea_tz)
+            since_24h_korea = now_korea - timedelta(hours=24)
             
             result = db_session.query(
                 func.sum(cls.volume).label('total_volume')
             ).filter(
                 cls.symbol == symbol.upper(),
-                cls.created_at >= since_24h,
+                cls.created_at >= since_24h_korea.replace(tzinfo=None),  # naive datetime으로 변환
                 cls.volume.isnot(None)
             ).scalar()
             

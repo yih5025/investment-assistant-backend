@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import pytz
 from typing import List, Optional, Tuple, Dict
 from sqlalchemy.orm import Session
 from sqlalchemy import func, text, and_, or_
@@ -293,7 +294,7 @@ class FinancialNewsService:
         Returns:
             List[FinancialNewsResponse]: 최근 뉴스 목록
         """
-        cutoff_time = datetime.utcnow() - timedelta(hours=hours)
+        cutoff_time = datetime.now(pytz.UTC) - timedelta(hours=hours)
         
         query = self.db.query(FinancialNews).filter(
             FinancialNews.published_at >= cutoff_time
@@ -409,7 +410,7 @@ class FinancialNewsService:
         Returns:
             List[Tuple[str, int]]: (종목코드, 언급횟수) 튜플 리스트
         """
-        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        cutoff_date = datetime.now(pytz.UTC) - timedelta(days=days)
         
         # related 필드에서 종목 추출 (복잡한 로직이므로 Python에서 처리)
         news_items = self.db.query(FinancialNews.related).filter(
@@ -477,7 +478,7 @@ class FinancialNewsService:
         Returns:
             List[Tuple[str, str, int]]: (날짜, 카테고리, 뉴스개수) 튜플 리스트
         """
-        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        cutoff_date = datetime.now(pytz.UTC) - timedelta(days=days)
         
         query = self.db.query(
             func.date(FinancialNews.published_at).label('news_date'),
