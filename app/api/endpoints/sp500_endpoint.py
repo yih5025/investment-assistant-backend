@@ -18,14 +18,7 @@ from app.schemas.sp500_schema import (
 logger = logging.getLogger(__name__)
 
 # 라우터 생성
-router = APIRouter(
-    prefix="/stocks/sp500",  # 🆕 프리픽스 추가
-    tags=["SP500 Stocks with Company Overview"],
-    responses={
-        404: {"model": ErrorResponse, "description": "Not found"},
-        500: {"model": ErrorResponse, "description": "Internal server error"}
-    }
-)
+router = APIRouter()
 
 # 서비스 인스턴스 생성 (의존성)
 def get_sp500_service() -> SP500Service:
@@ -686,5 +679,5 @@ async def get_service_stats(
                 error_type="STATS_ERROR",
                 message="Failed to fetch service statistics",
                 path="/stocks/sp500/stats"
-            ).dict()
+            ).model_dump()
         )
