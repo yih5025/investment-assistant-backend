@@ -9,7 +9,6 @@ import pytz
 from app.database import get_db
 from app.config import settings
 from app.models.topgainers_model import TopGainers
-from app.models.finnhub_trades_model import FinnhubTrades
 from app.schemas.websocket_schema import TopGainerData, db_to_topgainer_data
 
 logger = logging.getLogger(__name__)

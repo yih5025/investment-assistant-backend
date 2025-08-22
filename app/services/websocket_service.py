@@ -11,7 +11,7 @@ from app.database import get_db
 from app.config import settings
 from app.models.topgainers_model import TopGainers
 from app.models.bithumb_ticker_model import BithumbTicker
-from app.models.finnhub_trades_model import FinnhubTrades
+from app.models.sp500_model import SP500WebsocketTrades
 from app.schemas.websocket_schema import (
     TopGainerData, CryptoData, SP500Data,
     db_to_topgainer_data, db_to_crypto_data, db_to_sp500_data
@@ -309,14 +309,14 @@ class WebSocketService:
             # 🎯 시장 상태에 따른 조회 전략
             if self.should_use_db_fallback():
                 # 장 마감 시: 각 심볼의 최신 가격 조회
-                db_objects = FinnhubTrades.get_latest_prices_by_symbols(db, limit)
+                db_objects = SP500WebsocketTrades.get_latest_prices_by_symbols(db, limit)
                 logger.debug(f"📊 장 마감 시 SP500 최신 데이터 조회: {len(db_objects)}개")
             else:
                 # 장 개장 시: 카테고리별 최신 가격들 조회
                 if category:
-                    db_objects = FinnhubTrades.get_latest_prices(db, category=category)
+                    db_objects = SP500WebsocketTrades.get_latest_prices(db, category=category)
                 else:
-                    db_objects = FinnhubTrades.get_latest_prices(db)
+                    db_objects = SP500WebsocketTrades.get_latest_prices(db)
                 
                 # 결과 제한
                 db_objects = db_objects[:limit]
