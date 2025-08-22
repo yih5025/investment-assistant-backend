@@ -2,7 +2,7 @@
 from sqlalchemy import Column, Integer, String, Numeric, BigInteger, DateTime, Boolean
 from sqlalchemy.sql import func
 from app.models.base import BaseModel
-from sqlalchemy import Session
+from sqlalchemy.orm import Session
 from typing import List, Dict, Optional
 from datetime import datetime, timedelta
 import pytz
