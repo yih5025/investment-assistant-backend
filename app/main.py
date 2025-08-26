@@ -10,6 +10,7 @@ import time
 import json
 
 from .config import settings, get_log_config
+import os
 from .database import test_db_connection
 from .dependencies import verify_db_connection
 
@@ -158,41 +159,63 @@ async def detailed_logging_middleware(request: Request, call_next):
         logger.error(f"💥 {method} {url} - ERROR ({process_time:.3f}s): {str(e)}")
         raise
 
-# 🔧 매우 관대한 CORS 미들웨어 설정 (모든 환경 지원)
+# 🔧 환경별 CORS 설정 (보안 강화)
+# 환경 확인
+is_production = os.getenv("ENVIRONMENT", "development").lower() == "production"
+is_development = not is_production
+
+# 기본 허용 오리진 (프로덕션용)
+production_origins = [
+    "https://investment-assistant.vercel.app",
+    "https://investment-assistant.site", 
+    "https://api.investment-assistant.site"
+]
+
+# 개발용 오리진 (개발 환경에서만)
+development_origins = [
+    "http://localhost:3000",
+    "http://localhost:5173", 
+    "http://localhost:8888",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:8888",
+    "http://localhost:30333",
+    "http://127.0.0.1:30333",
+    "http://192.168.0.27:30333",
+    "http://100.108.146.70:30333"
+]
+
+# 환경에 따른 오리진 설정
+cors_origins = production_origins + (development_origins if is_development else [])
+
+logger.info(f"🔒 CORS 보안 설정 - 환경: {'프로덕션' if is_production else '개발'}")
+logger.info(f"🔒 허용된 오리진 수: {len(cors_origins)}")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        # Vercel 도메인들
-        "https://investment-assistant.vercel.app",
-        
-        # 커스텀 도메인
-        "https://investment-assistant.site",
-        "https://api.investment-assistant.site",
-        
-        # 로컬 개발 환경
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "http://localhost:8888",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:8888",
-        
-        # K8s 환경 (일반적인 포트들)
-        "http://localhost:30333",
-        "http://127.0.0.1:30333",
-        "http://192.168.0.27:30333",  # 실제 K8s 노드 IP
-        "http://100.108.146.70:30333",  # 프론트엔드 실제 IP
-        
-        # 모든 오리진 허용 (마지막 옵션)
-        "*"
-    ],
-    # 🔧 매우 관대한 정규식 패턴 (모든 환경 허용)
+    allow_origins=cors_origins,
+    # 🔧 보안 강화된 정규식 패턴 (알려진 도메인만 허용)
     allow_origin_regex=r"^(https?://.*\.vercel\.app|https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|100\.\d+\.\d+\.\d+|172\.1[6-9]\.\d+\.\d+|172\.2[0-9]\.\d+\.\d+|172\.3[0-1]\.\d+\.\d+)(:\d+)?|https?://.*\.investment-assistant\.site)$",
     
-    allow_credentials=False,  # CORS 단순화
+    allow_credentials=False,  # 보안: 쿠키/인증 정보 차단
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allow_headers=["*"],
-    expose_headers=["*"]
+    # 🔒 보안 강화: 필요한 헤더만 허용
+    allow_headers=[
+        "accept",
+        "accept-encoding", 
+        "authorization",
+        "content-type",
+        "dnt",
+        "origin",
+        "user-agent",
+        "x-csrftoken",
+        "x-requested-with"
+    ],
+    # 🔒 보안 강화: 필요한 헤더만 노출
+    expose_headers=[
+        "content-type",
+        "content-length"
+    ]
 )
 
 # 루트 엔드포인트

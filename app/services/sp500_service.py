@@ -104,15 +104,10 @@ class SP500Service:
     
     async def get_realtime_polling_data(self, limit: int, sort_by: str = "volume", order: str = "desc"):
         """
-        SP500 실시간 폴링 데이터 ("더보기" 방식)
+        SP500 실시간 폴링 데이터 ("더보기" 방식) + 변화율 계산 (기존 로직 유지)
         
-        Args:
-            limit: 반환할 항목 수 (1번부터 limit번까지)
-            sort_by: 정렬 기준 (volume, change_percent, price)
-            order: 정렬 순서 (asc, desc)
-        
-        Returns:
-            dict: 폴링 응답 데이터
+        현재 SP500Service는 이미 전날 종가 기반 변화율 계산이 구현되어 있으므로,
+        WebSocket 서비스와 연동만 추가
         """
         try:
             from app.services.websocket_service import WebSocketService
@@ -122,59 +117,130 @@ class SP500Service:
             if not websocket_service.redis_client:
                 await websocket_service.init_redis()
             
-            # 🎯 Redis에서 SP500 실시간 데이터 조회 (WebSocket과 동일한 소스)
-            all_data = await websocket_service.get_sp500_from_redis(limit=1000)
+            # 🎯 Redis에서 기본 데이터 조회 후 변화율 직접 계산
+            redis_data = await websocket_service.get_sp500_from_redis(limit=1000)
             
-            if not all_data:
+            if not redis_data:
                 logger.warning("📊 Redis SP500 데이터 없음, DB fallback")
-                # Redis 데이터가 없으면 DB에서 조회
-                all_data = await websocket_service.get_sp500_from_db(limit=1000)
+                return await self._get_db_polling_data_with_changes(limit, sort_by, order)
             
-            # 정렬 처리
-            if sort_by == "volume":
-                all_data.sort(key=lambda x: x.volume or 0, reverse=(order == "desc"))
-            elif sort_by == "change_percent":
-                # change_percent 계산 (price 변화율)
-                for item in all_data:
-                    if hasattr(item, 'price') and item.price:
-                        # 간단한 변화율 계산 (실제로는 더 복잡한 로직 필요)
-                        item.change_percent = getattr(item, 'change_percent', 0)
-                all_data.sort(key=lambda x: getattr(x, 'change_percent', 0), reverse=(order == "desc"))
-            elif sort_by == "price":
-                all_data.sort(key=lambda x: x.price or 0, reverse=(order == "desc"))
-            
-            # 순위 추가 (정렬 후)
-            for i, item in enumerate(all_data):
-                if hasattr(item, 'model_dump'):
-                    item_dict = item.model_dump()
-                    item_dict['rank'] = i + 1
+            # 🎯 변화율 계산 추가
+            all_data = []
+            for item in redis_data:
+                # 기본 데이터를 딕셔너리로 변환
+                if hasattr(item, 'dict'):
+                    item_dict = item.dict()
+                elif hasattr(item, '__dict__'):
+                    item_dict = item.__dict__.copy()
                 else:
-                    item.rank = i + 1
+                    item_dict = dict(item) if hasattr(item, 'keys') else {}
+                
+                # 변화율 계산을 위해 DB에서 정보 조회
+                try:
+                    from app.database import get_db
+                    from app.models.sp500_model import SP500WebsocketTrades
+                    
+                    db = next(get_db())
+                    change_info = SP500WebsocketTrades.get_price_change_info(db, item_dict.get('symbol', ''))
+                    
+                    # 변화율 정보 추가
+                    item_dict.update({
+                        'current_price': change_info.get('current_price', item_dict.get('price', 0)),
+                        'previous_close': change_info.get('previous_close'),
+                        'change_amount': change_info.get('change_amount', 0),
+                        'change_percentage': change_info.get('change_percentage', 0),
+                        'is_positive': change_info.get('change_amount', 0) > 0,
+                        'change_color': 'green' if change_info.get('change_amount', 0) > 0 else 'red' if change_info.get('change_amount', 0) < 0 else 'gray'
+                    })
+                    
+                except Exception as e:
+                    logger.warning(f"⚠️ {item_dict.get('symbol', 'Unknown')} 변화율 계산 실패: {e}")
+                    # 기본값으로 설정
+                    item_dict.update({
+                        'current_price': item_dict.get('price', 0),
+                        'previous_close': None,
+                        'change_amount': 0,
+                        'change_percentage': 0,
+                        'is_positive': False,
+                        'change_color': 'gray'
+                    })
+                
+                all_data.append(item_dict)
             
-            # limit만큼 자르기 (1번부터 limit번까지)
+            # 정렬 처리 (변화율 정보가 포함된 데이터)
+            if sort_by == "volume":
+                all_data.sort(key=lambda x: x.get('volume', 0), reverse=(order == "desc"))
+            elif sort_by == "change_percent":
+                all_data.sort(key=lambda x: x.get('change_percentage', 0), reverse=(order == "desc"))
+            elif sort_by == "price":
+                all_data.sort(key=lambda x: x.get('current_price', 0), reverse=(order == "desc"))
+            
+            # 순위 추가
+            for i, item in enumerate(all_data):
+                item['rank'] = i + 1
+            
+            # limit만큼 자르기
             limited_data = all_data[:limit]
             total_available = len(all_data)
             
-            # 응답 데이터 구성
             return {
-                "data": [item.model_dump() if hasattr(item, 'model_dump') else item for item in limited_data],
+                "data": limited_data,
                 "metadata": {
                     "current_count": len(limited_data),
                     "total_available": total_available,
                     "has_more": limit < total_available,
                     "next_limit": min(limit + 50, total_available),
                     "timestamp": datetime.now(pytz.UTC).isoformat(),
-                    "data_source": "redis_realtime" if websocket_service.redis_client else "database_fallback",
+                    "data_source": "redis_realtime_with_changes",
                     "market_status": self._get_market_status(),
-                    "sort_info": {
-                        "sort_by": sort_by,
-                        "order": order
-                    }
+                    "sort_info": {"sort_by": sort_by, "order": order},
+                    "features": ["real_time_prices", "change_calculation", "previous_close_comparison"]
                 }
             }
             
         except Exception as e:
             logger.error(f"❌ SP500 실시간 폴링 데이터 조회 실패: {e}")
+            return {"error": str(e)}
+
+    async def _get_db_polling_data_with_changes(self, limit: int, sort_by: str, order: str):
+        """DB fallback 시 기존 SP500 Service 로직 사용 (변화율 포함)"""
+        try:
+            # 기존 SP500 Service의 get_stock_list 사용 (변화율 계산 포함)
+            stock_list_result = self.get_stock_list(limit)
+            
+            if stock_list_result.get('error'):
+                return {"error": stock_list_result['error']}
+            
+            stocks = stock_list_result.get('stocks', [])
+            
+            # 정렬 처리
+            if sort_by == "volume":
+                stocks.sort(key=lambda x: x.get('volume', 0), reverse=(order == "desc"))
+            elif sort_by == "change_percent":
+                stocks.sort(key=lambda x: x.get('change_percentage', 0), reverse=(order == "desc"))
+            elif sort_by == "price":
+                stocks.sort(key=lambda x: x.get('current_price', 0), reverse=(order == "desc"))
+            
+            # 순위 추가
+            for i, stock in enumerate(stocks):
+                stock['rank'] = i + 1
+            
+            return {
+                "data": stocks[:limit],
+                "metadata": {
+                    "current_count": len(stocks[:limit]),
+                    "total_available": len(stocks),
+                    "has_more": limit < len(stocks),
+                    "next_limit": min(limit + 50, len(stocks)),
+                    "timestamp": datetime.now(pytz.UTC).isoformat(),
+                    "data_source": "database_with_changes",
+                    "market_status": stock_list_result.get('market_status'),
+                    "sort_info": {"sort_by": sort_by, "order": order}
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ DB fallback 폴링 데이터 조회 실패: {e}")
             return {"error": str(e)}
 
     def _get_market_status(self):
