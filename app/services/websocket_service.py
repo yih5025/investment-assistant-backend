@@ -125,10 +125,10 @@ class WebSocketService:
             import redis.asyncio as redis
             
             self.redis_client = redis.Redis(
-                host=settings.REDIS_HOST,
-                port=settings.REDIS_PORT,
-                db=settings.REDIS_DB,
-                password=settings.REDIS_PASSWORD,
+                host=settings.redis_host,
+                port=settings.redis_port,
+                db=settings.redis_db,
+                password=settings.redis_password,
                 decode_responses=True,
                 socket_connect_timeout=5,
                 socket_timeout=5
