@@ -138,3 +138,6 @@ def previous_market_day_utc(days_back: int = 1) -> datetime:
 def is_market_open() -> bool:
     """현재 미국 주식 시장이 열려있는지"""
     return TimezoneHelper.is_market_hours()
+
+
+
