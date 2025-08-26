@@ -145,6 +145,7 @@ async def get_topgainers_polling_data(
 
 
 @router.get("/categories", response_model=dict)
+@router.get("/categories/", response_model=dict)  # 슬래시가 있는 경우도 처리
 async def get_topgainers_categories(
     service: TopGainersService = Depends(get_topgainers_service)
 ):

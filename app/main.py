@@ -57,7 +57,9 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
-    lifespan=lifespan
+    lifespan=lifespan,
+    # HTTPS 리다이렉트 방지를 위한 설정
+    redirect_slashes=False
 )
 
 # 🔧 K3s 환경을 포함한 강화된 CORS 디버깅 미들웨어
@@ -179,12 +181,13 @@ app.add_middleware(
         "http://localhost:30333",
         "http://127.0.0.1:30333",
         "http://192.168.0.27:30333",  # 실제 K8s 노드 IP
+        "http://100.108.146.70:30333",  # 프론트엔드 실제 IP
         
         # 모든 오리진 허용 (마지막 옵션)
         "*"
     ],
     # 🔧 매우 관대한 정규식 패턴 (모든 환경 허용)
-    allow_origin_regex=r"^(https?://.*\.vercel\.app|https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.1[6-9]\.\d+\.\d+|172\.2[0-9]\.\d+\.\d+|172\.3[0-1]\.\d+\.\d+)(:\d+)?|https?://.*\.investment-assistant\.site)$",
+    allow_origin_regex=r"^(https?://.*\.vercel\.app|https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|100\.\d+\.\d+\.\d+|172\.1[6-9]\.\d+\.\d+|172\.2[0-9]\.\d+\.\d+|172\.3[0-1]\.\d+\.\d+)(:\d+)?|https?://.*\.investment-assistant\.site)$",
     
     allow_credentials=False,  # CORS 단순화
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],

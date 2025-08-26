@@ -255,8 +255,8 @@ class TopGainersService:
                         logger.warning(f"⚠️ Redis 데이터 파싱 실패 ({target_symbols[i]}): {e}")
                         continue
             
-            # 가격 기준 정렬 및 제한
-            data.sort(key=lambda x: x.price or 0, reverse=True)
+            # 가격 기준 정렬 및 제한 (None 값 안전 처리)
+            data.sort(key=lambda x: (x.price if x.price is not None else 0), reverse=True)
             return data[:limit]
             
         except Exception as e:
@@ -417,13 +417,13 @@ class TopGainersService:
             # 🎯 변화율 계산 추가
             enhanced_data = await self._add_change_calculations(all_data)
             
-            # 순위별 정렬 (변화율 기준 또는 기존 rank_position 기준)
+            # 순위별 정렬 (변화율 기준 또는 기존 rank_position 기준) - None 값 안전 처리
             if category == 'top_gainers':
-                enhanced_data.sort(key=lambda x: x.get('change_percentage', 0), reverse=True)
+                enhanced_data.sort(key=lambda x: (x.get('change_percentage') if x.get('change_percentage') is not None else -999), reverse=True)
             elif category == 'top_losers':
-                enhanced_data.sort(key=lambda x: x.get('change_percentage', 0))
+                enhanced_data.sort(key=lambda x: (x.get('change_percentage') if x.get('change_percentage') is not None else 999))
             else:
-                enhanced_data.sort(key=lambda x: x.get('rank_position', 999))
+                enhanced_data.sort(key=lambda x: (x.get('rank_position') if x.get('rank_position') is not None else 999))
             
             # 순위 재부여
             for i, item in enumerate(enhanced_data):
@@ -500,7 +500,9 @@ class TopGainersService:
                     item_dict = {}
                 
                 symbol = item_dict.get('symbol')
-                current_price = float(item_dict.get('price', 0)) if item_dict.get('price') else 0
+                # None 값 안전 처리를 위한 가격 변환
+                price_value = item_dict.get('price')
+                current_price = float(price_value) if price_value is not None else 0.0
                 
                 if symbol and symbol in previous_close_prices and current_price > 0:
                     previous_close = previous_close_prices[symbol]
