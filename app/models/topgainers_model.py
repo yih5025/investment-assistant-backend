@@ -74,6 +74,9 @@ class TopGainers(BaseModel):
         """
         특정 심볼의 전일 종가 조회 (변동률 계산용)
         
+        미국 시장의 마지막 거래일 폐장가를 정확히 조회합니다.
+        주말과 공휴일을 고려하여 실제 거래가 있었던 마지막 날의 데이터를 찾습니다.
+        
         Args:
             db_session: 데이터베이스 세션
             symbol: 주식 심볼
@@ -85,29 +88,80 @@ class TopGainers(BaseModel):
             us_eastern = pytz.timezone('US/Eastern')
             korea_tz = pytz.timezone('Asia/Seoul')
             
-            # 현재 한국 시간
+            # 현재 시간들
             now_korea = datetime.now(korea_tz)
-            
-            # 미국 시장 기준 "어제"의 마지막 시점 계산
-            # 미국 동부 시간으로 변환하여 하루 빼기
             now_us = now_korea.astimezone(us_eastern)
-            yesterday_us = now_us - timedelta(days=1)
             
-            # 미국 시간 기준 어제 23:59:59를 한국 시간으로 다시 변환
-            yesterday_end_us = yesterday_us.replace(hour=23, minute=59, second=59)
-            yesterday_end_korea = yesterday_end_us.astimezone(korea_tz)
+            logger.debug(f"🕐 {symbol} 전일 종가 조회 시작 - 현재 미국시간: {now_us.strftime('%Y-%m-%d %H:%M:%S %Z %a')}")
             
-            # DB에서 해당 시점 이전 데이터 조회 (created_at은 한국 시간으로 저장됨)
+            # 🎯 마지막 거래일 찾기 (주말/공휴일 제외)
+            last_trading_day_us = cls._find_last_trading_day(now_us)
+            
+            # 마지막 거래일의 폐장 시간 (16:00 EST/EDT)
+            last_close_us = last_trading_day_us.replace(hour=16, minute=0, second=0, microsecond=0)
+            last_close_korea = last_close_us.astimezone(korea_tz)
+            
+            logger.debug(f"📊 {symbol} 마지막 거래일: {last_trading_day_us.strftime('%Y-%m-%d %a')}")
+            logger.debug(f"📊 {symbol} 마지막 폐장시간: {last_close_us.strftime('%Y-%m-%d %H:%M:%S %Z')} → {last_close_korea.strftime('%Y-%m-%d %H:%M:%S %Z')}")
+            
+            # DB에서 마지막 폐장 시간 이후부터 그 다음날 오전까지의 데이터 조회
+            # (폐장 후 ~ 다음날 개장 전까지의 데이터가 실질적인 종가)
+            next_day_korea = last_close_korea + timedelta(days=1)
+            search_end = next_day_korea.replace(hour=6, minute=0, second=0, microsecond=0)  # 다음날 오전 6시까지
+            
             prev_trade = db_session.query(cls).filter(
                 cls.symbol == symbol.upper(),
-                cls.created_at <= yesterday_end_korea.replace(tzinfo=None)  # naive datetime으로 변환
+                cls.created_at >= last_close_korea.replace(tzinfo=None),
+                cls.created_at <= search_end.replace(tzinfo=None)
             ).order_by(cls.created_at.desc()).first()
             
-            return float(prev_trade.price) if prev_trade and prev_trade.price else None
+            if prev_trade and prev_trade.price:
+                logger.debug(f"✅ {symbol} 전일 종가 발견: ${prev_trade.price} (시간: {prev_trade.created_at})")
+                return float(prev_trade.price)
+            else:
+                # 폐장 시간 기준으로 못 찾으면 더 넓은 범위에서 조회
+                logger.debug(f"⚠️ {symbol} 폐장 시간 기준 데이터 없음, 확장 검색...")
+                
+                extended_search_start = last_close_korea - timedelta(hours=12)  # 폐장 12시간 전부터
+                extended_prev_trade = db_session.query(cls).filter(
+                    cls.symbol == symbol.upper(),
+                    cls.created_at >= extended_search_start.replace(tzinfo=None),
+                    cls.created_at <= search_end.replace(tzinfo=None)
+                ).order_by(cls.created_at.desc()).first()
+                
+                if extended_prev_trade and extended_prev_trade.price:
+                    logger.debug(f"✅ {symbol} 확장 검색으로 전일 종가 발견: ${extended_prev_trade.price} (시간: {extended_prev_trade.created_at})")
+                    return float(extended_prev_trade.price)
+                else:
+                    logger.warning(f"❌ {symbol} 전일 종가 데이터 없음")
+                    return None
             
         except Exception as e:
             logger.error(f"❌ {symbol} 전일 종가 조회 실패: {e}")
             return None
+    
+    @classmethod
+    def _find_last_trading_day(cls, current_us_time: datetime) -> datetime:
+        """
+        마지막 거래일 찾기 (주말 제외, 공휴일은 추후 확장 가능)
+        
+        Args:
+            current_us_time: 현재 미국 시간
+            
+        Returns:
+            datetime: 마지막 거래일
+        """
+        # 어제부터 시작해서 거래일 찾기
+        candidate = current_us_time - timedelta(days=1)
+        
+        # 주말 건너뛰기 (토요일=5, 일요일=6)
+        while candidate.weekday() >= 5:
+            candidate = candidate - timedelta(days=1)
+        
+        # TODO: 미국 시장 공휴일 체크 로직 추가 가능
+        # 현재는 주말만 제외
+        
+        return candidate
 
     @classmethod
     def get_batch_previous_close_prices(cls, db_session: Session, symbols: List[str]) -> Dict[str, float]:

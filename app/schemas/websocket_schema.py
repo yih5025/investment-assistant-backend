@@ -63,6 +63,7 @@ class CryptoData(BaseModel):
     change: Optional[str] = None  # RISE, FALL, EVEN
     timestamp_field: Optional[int] = None
     source: str = "bithumb"
+    crypto_name: Optional[str] = None
     
     class Config:
         from_attributes = True
@@ -78,6 +79,7 @@ class SP500Data(BaseModel):
     category: Optional[str] = None  # top_gainers, most_actively_traded, top_losers
     source: str = "finnhub_websocket"
     created_at: Optional[str] = None
+    company_name: Optional[str] = None
     
     class Config:
         from_attributes = True
@@ -318,7 +320,8 @@ def db_to_crypto_data(db_obj) -> CryptoData:
         prev_closing_price=float(db_obj.prev_closing_price) if db_obj.prev_closing_price else None,
         change=db_obj.change,
         timestamp_field=db_obj.timestamp_field,
-        source=db_obj.source or "bithumb"
+        source=db_obj.source or "bithumb",
+        crypto_name=db_obj.crypto_name
     )
 
 def db_to_sp500_data(db_obj) -> SP500Data:
@@ -332,5 +335,6 @@ def db_to_sp500_data(db_obj) -> SP500Data:
         trade_conditions=db_obj.trade_conditions,
         category=db_obj.category,
         source=db_obj.source or "finnhub_websocket",
-        created_at=db_obj.created_at.isoformat() if db_obj.created_at else None
+        created_at=db_obj.created_at.isoformat() if db_obj.created_at else None,
+        company_name=db_obj.company_name
     )

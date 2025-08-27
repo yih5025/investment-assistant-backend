@@ -647,6 +647,37 @@ class TopGainersService:
         """
         return await self.get_market_data_with_categories(category, limit)
     
+    def _get_company_name(self, symbol: str) -> str:
+        """
+        심볼로 회사명 조회 (SP500 companies 테이블 사용)
+        
+        Args:
+            symbol: 주식 심볼
+            
+        Returns:
+            str: 회사명
+        """
+        try:
+            db = next(get_db())
+            
+            # sp500_companies 테이블에서 회사명 조회
+            result = db.execute(
+                "SELECT company_name FROM sp500_companies WHERE symbol = %s",
+                (symbol,)
+            ).fetchone()
+            
+            if result:
+                return result[0]
+            else:
+                # 기본값: 심볼을 회사명으로 사용
+                return f"{symbol} Inc."
+                
+        except Exception as e:
+            logger.warning(f"⚠️ {symbol} 회사명 조회 실패: {e}")
+            return f"{symbol} Inc."
+        finally:
+            db.close()
+
     # =========================
     # 통계 및 헬스체크
     # =========================

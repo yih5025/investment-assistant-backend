@@ -124,8 +124,22 @@ class SP500Service:
                 logger.warning("📊 Redis SP500 데이터 없음, DB fallback")
                 return await self._get_db_polling_data_with_changes(limit, sort_by, order)
             
-            # 🎯 성능 최적화: 변화율 계산 없이 기본 데이터만 사용
+            # 🎯 실제 변화율 계산 로직으로 변경
             all_data = []
+            
+            # 심볼 리스트 추출
+            symbols = []
+            for item in redis_data:
+                if hasattr(item, 'symbol'):
+                    symbols.append(item.symbol)
+                elif hasattr(item, 'dict') and 'symbol' in item.dict():
+                    symbols.append(item.dict()['symbol'])
+                elif isinstance(item, dict) and 'symbol' in item:
+                    symbols.append(item['symbol'])
+            
+            # 전날 종가 일괄 조회
+            previous_close_prices = await self._get_batch_previous_close_prices(symbols)
+            
             for item in redis_data:
                 # 기본 데이터를 딕셔너리로 변환
                 if hasattr(item, 'dict'):
@@ -135,22 +149,36 @@ class SP500Service:
                 else:
                     item_dict = dict(item) if hasattr(item, 'keys') else {}
                 
-                # 임시로 변화율 정보 추가 (성능을 위해 계산 생략)
-                current_price = item_dict.get('price', 0)
+                # 심볼과 현재가 추출
+                symbol = item_dict.get('symbol', '')
+                current_price = float(item_dict.get('price', 0)) if item_dict.get('price') else 0
                 
-                # 간단한 모의 변화율 (실제 계산 대신)
-                import random
-                mock_change_percentage = random.uniform(-3.0, 3.0)  # -3% ~ +3% 랜덤
-                mock_change_amount = current_price * (mock_change_percentage / 100)
+                # 전날 종가 조회
+                previous_close = previous_close_prices.get(symbol)
                 
-                item_dict.update({
-                    'current_price': current_price,
-                    'previous_close': current_price - mock_change_amount,
-                    'change_amount': round(mock_change_amount, 2),
-                    'change_percentage': round(mock_change_percentage, 2),
-                    'is_positive': mock_change_amount > 0,
-                    'change_color': 'green' if mock_change_amount > 0 else 'red' if mock_change_amount < 0 else 'gray'
-                })
+                if previous_close and previous_close > 0:
+                    # 실제 변화율 계산
+                    change_amount = current_price - previous_close
+                    change_percentage = (change_amount / previous_close) * 100
+                    
+                    item_dict.update({
+                        'current_price': current_price,
+                        'previous_close': previous_close,
+                        'change_amount': round(change_amount, 2),
+                        'change_percentage': round(change_percentage, 2),
+                        'is_positive': change_amount > 0,
+                        'change_color': 'green' if change_amount > 0 else 'red' if change_amount < 0 else 'gray'
+                    })
+                else:
+                    # 전날 종가 없는 경우 기본값
+                    item_dict.update({
+                        'current_price': current_price,
+                        'previous_close': None,
+                        'change_amount': None,
+                        'change_percentage': None,
+                        'is_positive': None,
+                        'change_color': 'gray'
+                    })
                 
                 all_data.append(item_dict)
             
@@ -229,6 +257,36 @@ class SP500Service:
         except Exception as e:
             logger.error(f"❌ DB fallback 폴링 데이터 조회 실패: {e}")
             return {"error": str(e)}
+
+    async def _get_batch_previous_close_prices(self, symbols: List[str]) -> Dict[str, float]:
+        """
+        여러 심볼의 전날 종가를 일괄 조회 (성능 최적화)
+        
+        Args:
+            symbols: 주식 심볼 리스트
+            
+        Returns:
+            Dict[str, float]: {symbol: previous_close_price}
+        """
+        try:
+            db = next(get_db())
+            previous_close_prices = {}
+            
+            # SP500 모델을 사용하여 각 심볼의 전날 종가 조회
+            for symbol in symbols:
+                prev_close = SP500WebsocketTrades.get_previous_close_price(db, symbol)
+                if prev_close:
+                    previous_close_prices[symbol] = prev_close
+            
+            logger.debug(f"📊 전날 종가 조회 완료: {len(previous_close_prices)}개 / {len(symbols)}개")
+            return previous_close_prices
+            
+        except Exception as e:
+            logger.error(f"❌ 전날 종가 일괄 조회 실패: {e}")
+            return {}
+        finally:
+            if 'db' in locals():
+                db.close()
 
     def _get_market_status(self):
         """시장 상태 조회"""
@@ -795,9 +853,6 @@ class SP500Service:
             return f"{symbol} Inc."
         finally:
             db.close()
-    
-    # 🆕 _get_sector(), _get_company_info() 함수 제거됨
-    # 섹터 및 상세 회사 정보는 Company Overview 서비스에서 처리
     
     # =========================
     # 🎯 서비스 상태 및 통계

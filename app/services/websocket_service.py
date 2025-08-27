@@ -757,7 +757,125 @@ class WebSocketService:
         except Exception as e:
             logger.error(f"❌ TopGainers 변화율 계산 실패: {e}")
             return await self.get_topgainers_from_redis(category, limit)  # fallback
+    # =========================
+    # 전날 종가 캐싱 및 조회 메서드
+    # =========================
     
+    async def _get_cached_previous_close_prices(self, symbols: List[str], data_type: str) -> Dict[str, float]:
+        """
+        여러 심볼의 전날 종가를 캐싱하여 조회 (성능 최적화)
+        
+        Args:
+            symbols: 주식 심볼 리스트
+            data_type: 데이터 타입 ('sp500', 'topgainers')
+            
+        Returns:
+            Dict[str, float]: {symbol: previous_close_price}
+        """
+        try:
+            cache_key = f"previous_close_{data_type}"
+            
+            # 캐시에서 먼저 확인
+            if cache_key in self.last_data_cache:
+                cached_data = self.last_data_cache[cache_key]
+                # 캐시 유효성 확인 (1시간 이내)
+                if isinstance(cached_data, dict) and cached_data.get('timestamp'):
+                    cache_time = datetime.fromisoformat(cached_data['timestamp'].replace('Z', '+00:00'))
+                    if datetime.now(pytz.UTC) - cache_time < timedelta(hours=1):
+                        logger.debug(f"📊 전날 종가 캐시 히트: {data_type}")
+                        return cached_data.get('data', {})
+            
+            # 캐시 미스 또는 만료된 경우 DB에서 조회
+            db = next(get_db())
+            
+            if data_type == 'sp500':
+                # SP500 모델 사용
+                from app.models.sp500_model import SP500WebsocketTrades
+                previous_close_prices = {}
+                
+                for symbol in symbols:
+                    prev_close = SP500WebsocketTrades.get_previous_close_price(db, symbol)
+                    if prev_close:
+                        previous_close_prices[symbol] = prev_close
+                        
+            elif data_type == 'topgainers':
+                # TopGainers 모델 사용
+                from app.models.topgainers_model import TopGainers
+                previous_close_prices = TopGainers.get_batch_previous_close_prices(db, symbols)
+            else:
+                previous_close_prices = {}
+            
+            # 캐시에 저장
+            self.last_data_cache[cache_key] = {
+                'data': previous_close_prices,
+                'timestamp': datetime.now(pytz.UTC).isoformat()
+            }
+            
+            logger.debug(f"📊 전날 종가 DB 조회 완료: {data_type}, {len(previous_close_prices)}개")
+            return previous_close_prices
+            
+        except Exception as e:
+            logger.error(f"❌ 전날 종가 조회 실패 ({data_type}): {e}")
+            return {}
+        finally:
+            if 'db' in locals():
+                db.close()
+
+    # app/services/websocket_service.py에 추가할 메서드들
+
+    def getStockName(self, symbol: str) -> str:
+        """주식 이름 조회 (sp500_companies 테이블 사용) - 기존 하드코딩 대체"""
+        try:
+            db = next(get_db())
+            
+            result = db.execute(
+                "SELECT company_name FROM sp500_companies WHERE symbol = %s",
+                (symbol,)
+            ).fetchone()
+            
+            if result and result[0]:
+                return result[0]
+            else:
+                return f"{symbol} Inc."
+                
+        except Exception as e:
+            logger.warning(f"⚠️ {symbol} 주식 이름 조회 실패: {e}")
+            return f"{symbol} Inc."
+        finally:
+            if 'db' in locals():
+                db.close()
+
+    def getCryptoName(self, market_code: str) -> str:
+        """암호화폐 이름 조회 (market_code_bithumb 테이블 사용)"""
+        try:
+            db = next(get_db())
+            
+            result = db.execute(
+                """SELECT korean_name, english_name 
+                FROM market_code_bithumb 
+                WHERE market_code = %s""",
+                (market_code,)
+            ).fetchone()
+            
+            if result:
+                korean_name, english_name = result
+                if korean_name and english_name:
+                    return f"{korean_name} ({english_name})"
+                elif korean_name:
+                    return korean_name
+                elif english_name:
+                    return english_name
+                else:
+                    return market_code.replace('KRW-', '')
+            else:
+                return market_code.replace('KRW-', '')
+                
+        except Exception as e:
+            logger.warning(f"⚠️ {market_code} 암호화폐 이름 조회 실패: {e}")
+            return market_code.replace('KRW-', '')
+        finally:
+            if 'db' in locals():
+                db.close()
     # =========================
     # 변경 감지 및 캐싱 (기존 유지)
     # =========================
