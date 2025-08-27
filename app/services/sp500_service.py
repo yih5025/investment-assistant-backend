@@ -306,13 +306,7 @@ class SP500Service:
 
     def get_stock_list(self, limit: int = 500) -> Dict[str, Any]:
         """
-        주식 리스트 페이지용 전체 주식 현재가 조회
-        
-        Args:
-            limit: 반환할 최대 주식 개수
-            
-        Returns:
-            Dict[str, Any]: 주식 리스트 데이터
+        주식 리스트 페이지용 전체 주식 현재가 조회 (회사 정보 포함)
         """
         try:
             self.stats["api_requests"] += 1
@@ -320,11 +314,11 @@ class SP500Service:
             
             db = next(get_db())
             
-            # 전체 주식 현재가 조회
-            current_prices = SP500WebsocketTrades.get_all_current_prices(db, limit)
+            # JOIN을 통해 한번에 현재가 + 회사정보 조회
+            stock_data_with_company = SP500WebsocketTrades.get_all_current_prices_with_company_info(db, limit)
             
-            if not current_prices:
-                logger.warning("📊 주식 현재가 데이터 없음")
+            if not stock_data_with_company:
+                logger.warning("주식 현재가 데이터 없음")
                 return {
                     'stocks': [],
                     'total_count': 0,
@@ -332,16 +326,16 @@ class SP500Service:
                     'message': 'No stock data available'
                 }
             
-            # 각 주식의 변동 정보 계산
+            # 각 주식의 변동 정보 계산 (기존 로직 유지)
             stock_list = []
-            for trade in current_prices:
+            for stock_data in stock_data_with_company:
                 # 가격 변동 정보 조회
-                change_info = SP500WebsocketTrades.get_price_change_info(db, trade.symbol)
+                change_info = SP500WebsocketTrades.get_price_change_info(db, stock_data['symbol'])
                 
-                # 프론트엔드 형태로 데이터 구성 (섹터 정보 제거)
-                stock_data = {
-                    'symbol': trade.symbol,
-                    'company_name': self._get_company_name(trade.symbol),  # SP500 회사명 조회
+                # 프론트엔드 형태로 데이터 구성
+                stock_item = {
+                    'symbol': stock_data['symbol'],
+                    'company_name': stock_data['company_name'],  # JOIN에서 가져온 회사명 직접 사용
                     'current_price': change_info['current_price'],
                     'change_amount': change_info['change_amount'],
                     'change_percentage': change_info['change_percentage'],
@@ -350,9 +344,9 @@ class SP500Service:
                     'is_positive': change_info['change_amount'] > 0 if change_info['change_amount'] else None
                 }
                 
-                stock_list.append(stock_data)
+                stock_list.append(stock_item)
             
-            # 변동률 기준 정렬 (상승률 높은 순)
+            # 변동률 기준 정렬
             stock_list.sort(key=lambda x: x['change_percentage'] or 0, reverse=True)
             
             self.stats["db_queries"] += 1
@@ -366,7 +360,7 @@ class SP500Service:
             }
             
         except Exception as e:
-            logger.error(f"❌ 주식 리스트 조회 실패: {e}")
+            logger.error(f"주식 리스트 조회 실패: {e}")
             self.stats["errors"] += 1
             return {
                 'stocks': [],
@@ -376,6 +370,7 @@ class SP500Service:
             }
         finally:
             db.close()
+
     
     # =========================
     # 🎯 개별 주식 정보 API (차트 분리) 🆕
@@ -542,39 +537,31 @@ class SP500Service:
     
     def get_top_gainers(self, limit: int = 20) -> Dict[str, Any]:
         """
-        상위 상승 종목 조회 (섹터 정보 제거)
-        
-        Args:
-            limit: 반환할 최대 개수
-            
-        Returns:
-            Dict[str, Any]: 상위 상승 종목 데이터
+        상위 상승 종목 조회 (회사 정보 포함)
         """
         try:
             self.stats["api_requests"] += 1
             
             db = next(get_db())
             
-            # 전체 주식 현재가 조회
-            all_stocks = SP500WebsocketTrades.get_all_current_prices(db, limit * 3)
+            # JOIN을 통해 회사 정보 포함해서 조회
+            all_stocks_with_company = SP500WebsocketTrades.get_all_current_prices_with_company_info(db, limit * 3)
             
-            # 변동률 계산 및 필터링
             gainers = []
-            for trade in all_stocks:
-                change_info = SP500WebsocketTrades.get_price_change_info(db, trade.symbol)
+            for stock_data in all_stocks_with_company:
+                change_info = SP500WebsocketTrades.get_price_change_info(db, stock_data['symbol'])
                 
                 # 상승 종목만 필터링
                 if change_info['change_percentage'] and change_info['change_percentage'] > 0:
-                    stock_data = {
-                        'symbol': trade.symbol,
-                        'company_name': self._get_company_name(trade.symbol),
+                    stock_item = {
+                        'symbol': stock_data['symbol'],
+                        'company_name': stock_data['company_name'],  # JOIN에서 가져온 회사명
                         'current_price': change_info['current_price'],
                         'change_amount': change_info['change_amount'],
                         'change_percentage': change_info['change_percentage'],
                         'volume': change_info['volume']
-                        # 🆕 섹터 정보 제거
                     }
-                    gainers.append(stock_data)
+                    gainers.append(stock_item)
             
             # 상승률 기준 정렬
             gainers.sort(key=lambda x: x['change_percentage'], reverse=True)
@@ -588,21 +575,16 @@ class SP500Service:
             }
             
         except Exception as e:
-            logger.error(f"❌ 상위 상승 종목 조회 실패: {e}")
+            logger.error(f"상위 상승 종목 조회 실패: {e}")
             self.stats["errors"] += 1
             return {'category': 'top_gainers', 'stocks': [], 'error': str(e)}
         finally:
             db.close()
+
     
     def get_top_losers(self, limit: int = 20) -> Dict[str, Any]:
         """
-        상위 하락 종목 조회 (섹터 정보 제거)
-        
-        Args:
-            limit: 반환할 최대 개수
-            
-        Returns:
-            Dict[str, Any]: 상위 하락 종목 데이터
+        상위 하락 종목 조회
         """
         try:
             self.stats["api_requests"] += 1
@@ -610,25 +592,24 @@ class SP500Service:
             db = next(get_db())
             
             # 전체 주식 현재가 조회
-            all_stocks = SP500WebsocketTrades.get_all_current_prices(db, limit * 3)
+            all_stocks_with_company = SP500WebsocketTrades.get_all_current_prices_with_company_info(db, limit * 3)
             
             # 변동률 계산 및 필터링
             losers = []
-            for trade in all_stocks:
-                change_info = SP500WebsocketTrades.get_price_change_info(db, trade.symbol)
+            for stock_data in all_stocks_with_company:
+                change_info = SP500WebsocketTrades.get_price_change_info(db, stock_data['symbol'])
                 
                 # 하락 종목만 필터링
                 if change_info['change_percentage'] and change_info['change_percentage'] < 0:
-                    stock_data = {
-                        'symbol': trade.symbol,
-                        'company_name': self._get_company_name(trade.symbol),
+                    stock_item = {
+                        'symbol': stock_data['symbol'],
+                        'company_name': stock_data['company_name'],  # JOIN에서 가져온 회사명
                         'current_price': change_info['current_price'],
                         'change_amount': change_info['change_amount'],
                         'change_percentage': change_info['change_percentage'],
                         'volume': change_info['volume']
-                        # 🆕 섹터 정보 제거
                     }
-                    losers.append(stock_data)
+                    losers.append(stock_item)
             
             # 하락률 기준 정렬 (가장 많이 떨어진 순)
             losers.sort(key=lambda x: x['change_percentage'])
@@ -650,13 +631,7 @@ class SP500Service:
     
     def get_most_active(self, limit: int = 20) -> Dict[str, Any]:
         """
-        가장 활발한 거래 종목 조회 (섹터 정보 제거)
-        
-        Args:
-            limit: 반환할 최대 개수
-            
-        Returns:
-            Dict[str, Any]: 활발한 거래 종목 데이터
+        가장 활발한 거래 종목 조회 (회사 정보 포함)
         """
         try:
             self.stats["api_requests"] += 1
@@ -664,24 +639,23 @@ class SP500Service:
             db = next(get_db())
             
             # 전체 주식 현재가 조회
-            all_stocks = SP500WebsocketTrades.get_all_current_prices(db, limit * 2)
+            all_stocks_with_company = SP500WebsocketTrades.get_all_current_prices_with_company_info(db, limit * 2)
             
             # 거래량 기준 정렬
             active_stocks = []
-            for trade in all_stocks:
-                change_info = SP500WebsocketTrades.get_price_change_info(db, trade.symbol)
+            for stock_data in all_stocks_with_company:
+                change_info = SP500WebsocketTrades.get_price_change_info(db, stock_data['symbol'])
                 
                 if change_info['volume'] and change_info['volume'] > 0:
-                    stock_data = {
-                        'symbol': trade.symbol,
-                        'company_name': self._get_company_name(trade.symbol),
+                    stock_item = {
+                        'symbol': stock_data['symbol'],
+                        'company_name': stock_data['company_name'],  # JOIN에서 가져온 회사명
                         'current_price': change_info['current_price'],
                         'change_amount': change_info['change_amount'],
                         'change_percentage': change_info['change_percentage'],
                         'volume': change_info['volume']
-                        # 🆕 섹터 정보 제거
                     }
-                    active_stocks.append(stock_data)
+                    active_stocks.append(stock_item)
             
             # 거래량 기준 정렬
             active_stocks.sort(key=lambda x: x['volume'], reverse=True)
@@ -814,43 +788,6 @@ class SP500Service:
                 'total_count': 0,
                 'error': str(e)
             }
-        finally:
-            db.close()
-    
-    # 🆕 섹터별 검색 함수 제거됨 (Company Overview에서 처리)
-    
-    # =========================
-    # 🎯 헬퍼 메서드들 (섹터 관련 제거) 🆕
-    # =========================
-    
-    def _get_company_name(self, symbol: str) -> str:
-        """
-        심볼로 회사명 조회 (SP500 companies 테이블 사용)
-        
-        Args:
-            symbol: 주식 심볼
-            
-        Returns:
-            str: 회사명
-        """
-        try:
-            db = next(get_db())
-            
-            # sp500_companies 테이블에서 회사명 조회
-            result = db.execute(
-                "SELECT company_name FROM sp500_companies WHERE symbol = %s",
-                (symbol,)
-            ).fetchone()
-            
-            if result:
-                return result[0]
-            else:
-                # 기본값: 심볼을 회사명으로 사용
-                return f"{symbol} Inc."
-                
-        except Exception as e:
-            logger.warning(f"⚠️ {symbol} 회사명 조회 실패: {e}")
-            return f"{symbol} Inc."
         finally:
             db.close()
     

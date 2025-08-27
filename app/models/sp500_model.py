@@ -476,3 +476,50 @@ class SP500WebsocketTrades(BaseModel):
                 'last_updated': None,
                 'error': str(e)
             }
+        
+    @classmethod
+    def get_all_current_prices_with_company_info(cls, db_session: Session, limit: int = 500) -> List[Dict[str, Any]]:
+        """
+        모든 심볼의 현재가와 회사 정보를 JOIN으로 한번에 조회
+        """
+        try:
+            from sqlalchemy import text
+            
+            # DISTINCT ON을 사용해서 각 심볼의 최신 데이터만 조회 + 회사 정보 JOIN
+            query = text("""
+                SELECT DISTINCT ON (trades.symbol) 
+                    trades.symbol,
+                    trades.price,
+                    trades.volume,
+                    trades.timestamp_ms,
+                    trades.created_at,
+                    companies.company_name,
+                    companies.gics_sector,
+                    companies.gics_sub_industry
+                FROM sp500_websocket_trades trades
+                LEFT JOIN sp500_companies companies ON trades.symbol = companies.symbol
+                ORDER BY trades.symbol, trades.created_at DESC
+                LIMIT :limit
+            """)
+            
+            results = db_session.execute(query, {"limit": limit}).fetchall()
+            
+            # 딕셔너리 형태로 변환
+            formatted_results = []
+            for row in results:
+                formatted_results.append({
+                    'symbol': row.symbol,
+                    'price': float(row.price) if row.price else None,
+                    'volume': row.volume,
+                    'timestamp_ms': row.timestamp_ms,
+                    'created_at': row.created_at,
+                    'company_name': row.company_name or f"{row.symbol} Inc.",
+                    'gics_sector': row.gics_sector,
+                    'gics_sub_industry': row.gics_sub_industry
+                })
+            
+            return formatted_results
+            
+        except Exception as e:
+            logger.error(f"JOIN을 통한 현재가+회사정보 조회 실패: {e}")
+            return []
