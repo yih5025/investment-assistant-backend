@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 import logging
 from app.database import get_db
 from app.services.topgainers_service import TopGainersService
-from app.schemas.websocket_schema import TopGainerData
+from app.schemas.topgainers_schema import TopGainerData
 
 logger = logging.getLogger(__name__)
 
