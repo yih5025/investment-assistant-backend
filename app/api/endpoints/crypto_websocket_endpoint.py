@@ -22,8 +22,8 @@ from app.schemas.crypto_schema import (
 # 로거 설정
 logger = logging.getLogger(__name__)
 
-# 라우터 생성
-router = APIRouter(prefix="/ws/crypto", tags=["Crypto WebSocket"])
+# 라우터 생성 - 기존 경로와 동일하게 수정
+router = APIRouter(prefix="/ws", tags=["Crypto WebSocket"])
 
 # 서비스 인스턴스들
 websocket_manager = WebSocketManager()
@@ -98,7 +98,7 @@ async def initialize_crypto_websocket_services():
 # 암호화폐 WebSocket 엔드포인트
 # =========================
 
-@router.websocket("/")
+@router.websocket("/crypto")
 async def websocket_crypto_all(websocket: WebSocket):
     """
     모든 암호화폐 실시간 데이터 WebSocket
@@ -190,7 +190,7 @@ async def websocket_crypto_all(websocket: WebSocket):
         await websocket_manager.disconnect_crypto(websocket)
         logger.info(f"Crypto WebSocket 정리 완료: {client_id}")
 
-@router.websocket("/{symbol}")
+@router.websocket("/crypto/{symbol}")
 async def websocket_crypto_symbol(websocket: WebSocket, symbol: str = Path(..., max_length=15)):
     """
     특정 암호화폐 실시간 데이터 WebSocket

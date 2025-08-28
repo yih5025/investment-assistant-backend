@@ -19,8 +19,8 @@ from app.schemas.topgainers_schema import (
 # 로거 설정
 logger = logging.getLogger(__name__)
 
-# 라우터 생성
-router = APIRouter(prefix="/ws/topgainers", tags=["TopGainers WebSocket"])
+# 라우터 생성 - 기존 경로와 동일하게 수정
+router = APIRouter(prefix="/ws", tags=["TopGainers WebSocket"])
 
 # TopGainers 전용 인스턴스들
 websocket_manager = WebSocketManager()
@@ -55,7 +55,7 @@ async def initialize_topgainers_websocket_services():
 # TopGainers 전용 WebSocket (변화율 포함)
 # =========================
 
-@router.websocket("/")
+@router.websocket("/stocks/topgainers")
 async def websocket_topgainers_all(websocket: WebSocket):
     """
     TopGainers 실시간 데이터 WebSocket (카테고리 + 변화율 포함)
@@ -129,7 +129,7 @@ async def websocket_topgainers_all(websocket: WebSocket):
         await websocket_manager.disconnect_topgainers(websocket)
         logger.info(f"TopGainers WebSocket 정리 완료: {client_id}")
 
-@router.websocket("/category/{category}")
+@router.websocket("/stocks/topgainers/{category}")
 async def websocket_topgainers_category(websocket: WebSocket, category: TopGainersCategory):
     """
     TopGainers 카테고리별 실시간 데이터 WebSocket (변화율 포함)

@@ -20,8 +20,8 @@ from app.schemas.sp500_schema import (
 # 로거 설정
 logger = logging.getLogger(__name__)
 
-# 라우터 생성
-router = APIRouter(prefix="/ws/sp500", tags=["SP500 WebSocket"])
+# 라우터 생성 - 기존 경로와 동일하게 수정
+router = APIRouter(prefix="/ws", tags=["SP500 WebSocket"])
 
 # SP500 전용 인스턴스들
 websocket_manager = WebSocketManager()
@@ -57,7 +57,7 @@ async def initialize_sp500_websocket_services():
 # SP500 전체 WebSocket (변화율 포함)
 # =========================
 
-@router.websocket("/")
+@router.websocket("/stocks/sp500")
 async def websocket_sp500_all(websocket: WebSocket):
     """
     SP500 전체 실시간 데이터 WebSocket (변화율 포함)
@@ -145,7 +145,7 @@ async def websocket_sp500_all(websocket: WebSocket):
         await websocket_manager.disconnect_sp500(websocket)
         logger.info(f"🧹 SP500 WebSocket 정리 완료: {client_id}")
 
-@router.websocket("/{symbol}")
+@router.websocket("/stocks/sp500/{symbol}")
 async def websocket_sp500_symbol(websocket: WebSocket, symbol: str = Path(..., regex=r"^[A-Z]{1,5}$")):
     """
     특정 SP500 주식 실시간 데이터 WebSocket (변화율 포함)
