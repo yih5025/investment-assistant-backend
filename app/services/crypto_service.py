@@ -444,8 +444,13 @@ class CryptoService:
                 else:
                     item_dict = item
                 
-                # 마켓 코드에서 심볼 추출
-                market_code = item_dict.get('symbol', '')
+                # Redis 데이터에서 마켓 코드 추출 (symbol 또는 market 필드)
+                market_code = item_dict.get('symbol') or item_dict.get('market', '')
+                if not market_code:
+                    logger.warning(f"마켓 코드가 없는 데이터 스킵: {item_dict}")
+                    continue
+                
+                # 심볼 추출 (KRW- 제거)
                 symbol = market_code.replace('KRW-', '') if market_code and 'KRW-' in market_code else market_code
                 
                 # 한국명, 영어명 조회
@@ -484,13 +489,14 @@ class CryptoService:
             tuple: (korean_name, english_name)
         """
         try:
+            from sqlalchemy import text
             db = next(get_db())
             
             result = db.execute(
-                """SELECT korean_name, english_name 
+                text("""SELECT korean_name, english_name 
                 FROM market_code_bithumb 
-                WHERE market_code = %s""",
-                (market_code,)
+                WHERE market_code = :market_code"""),
+                {"market_code": market_code}
             ).fetchone()
             
             if result:

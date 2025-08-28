@@ -18,8 +18,8 @@ class CryptoExchange(str, Enum):
 class CryptoData(BaseModel):
     """암호화폐 데이터 모델"""
     id: Optional[int] = None
-    market_code: str = Field(..., description="마켓 코드 (예: KRW-BTC)")
-    symbol: str = Field(..., description="암호화폐 심볼 (예: BTC)")
+    market_code: Optional[str] = Field(None, description="마켓 코드 (예: KRW-BTC)")
+    symbol: Optional[str] = Field(None, description="암호화폐 심볼 (예: BTC)")
     korean_name: Optional[str] = Field(None, description="한국 이름 (예: 비트코인)")
     english_name: Optional[str] = Field(None, description="영어 이름 (예: Bitcoin)")
     price: Optional[float] = Field(None, description="현재 거래가")
