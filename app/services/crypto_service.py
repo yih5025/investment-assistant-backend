@@ -416,6 +416,174 @@ class CryptoService:
         
         return health_info
     
+    async def get_realtime_crypto_data(self, limit: int = 200) -> List[Dict[str, Any]]:
+        """
+        WebSocket용 암호화폐 실시간 데이터 조회
+        
+        Args:
+            limit: 반환할 항목 수
+            
+        Returns:
+            List[Dict]: WebSocket 전송용 암호화폐 데이터 리스트
+        """
+        try:
+            # Redis에서 데이터 조회
+            redis_data = await self.get_crypto_from_redis(limit)
+            
+            if not redis_data:
+                # Redis 데이터가 없으면 DB에서 직접 조회
+                return await self._get_crypto_from_db_with_names(limit)
+            
+            # 딕셔너리 형태로 변환 (한국명, 영어명 포함)
+            formatted_data = []
+            for item in redis_data:
+                if hasattr(item, 'dict'):
+                    item_dict = item.dict()
+                elif hasattr(item, '__dict__'):
+                    item_dict = item.__dict__.copy()
+                else:
+                    item_dict = item
+                
+                # 마켓 코드에서 심볼 추출
+                market_code = item_dict.get('symbol', '')
+                symbol = market_code.replace('KRW-', '') if market_code and 'KRW-' in market_code else market_code
+                
+                # 한국명, 영어명 조회
+                korean_name, english_name = await self._get_crypto_names(market_code)
+                
+                formatted_item = {
+                    "market_code": market_code,
+                    "symbol": symbol,
+                    "korean_name": korean_name,
+                    "english_name": english_name,
+                    "price": float(item_dict.get('price', 0)),
+                    "change_24h": float(item_dict.get('change_24h', 0)),
+                    "change_rate_24h": f"{float(item_dict.get('change_rate', 0)):.2f}%" if item_dict.get('change_rate') else "0.00%",
+                    "volume": float(item_dict.get('volume', 0)),
+                    "acc_trade_value_24h": float(item_dict.get('acc_trade_value_24h', 0)),
+                    "timestamp": item_dict.get('timestamp')
+                }
+                formatted_data.append(formatted_item)
+            
+            self.stats["api_calls"] += 1
+            return formatted_data
+            
+        except Exception as e:
+            logger.error(f"❌ 암호화폐 실시간 데이터 조회 실패: {e}")
+            self.stats["errors"] += 1
+            return []
+
+    async def _get_crypto_names(self, market_code: str) -> tuple:
+        """
+        마켓 코드로 한국명, 영어명 조회
+        
+        Args:
+            market_code: 마켓 코드 (예: 'KRW-BTC')
+            
+        Returns:
+            tuple: (korean_name, english_name)
+        """
+        try:
+            db = next(get_db())
+            
+            result = db.execute(
+                """SELECT korean_name, english_name 
+                FROM market_code_bithumb 
+                WHERE market_code = %s""",
+                (market_code,)
+            ).fetchone()
+            
+            if result:
+                korean_name, english_name = result
+                return korean_name or '', english_name or ''
+            
+            # 기본값
+            symbol = market_code.replace('KRW-', '') if market_code else ''
+            return symbol, symbol
+                
+        except Exception as e:
+            logger.warning(f"⚠️ {market_code} 암호화폐 이름 조회 실패: {e}")
+            symbol = market_code.replace('KRW-', '') if market_code else ''
+            return symbol, symbol
+        finally:
+            if 'db' in locals():
+                db.close()
+
+    async def _get_crypto_from_db_with_names(self, limit: int = 200) -> List[Dict[str, Any]]:
+        """
+        DB에서 암호화폐 데이터 조회 (이름 포함)
+        
+        Args:
+            limit: 반환할 항목 수
+            
+        Returns:
+            List[Dict]: 암호화폐 데이터 리스트
+        """
+        try:
+            from app.models.crypto_model import Crypto
+            db = next(get_db())
+            
+            # 최신 암호화폐 데이터 조회
+            crypto_data = db.query(Crypto).order_by(
+                Crypto.timestamp_field.desc()
+            ).limit(limit).all()
+            
+            # 딕셔너리 형태로 변환 (이름 포함)
+            result = []
+            for crypto in crypto_data:
+                # 한국명, 영어명 조회
+                korean_name, english_name = await self._get_crypto_names(crypto.market)
+                
+                crypto_dict = {
+                    "market_code": crypto.market,
+                    "symbol": crypto.market.replace('KRW-', '') if crypto.market and 'KRW-' in crypto.market else crypto.market,
+                    "korean_name": korean_name,
+                    "english_name": english_name,
+                    "price": float(crypto.trade_price) if crypto.trade_price else 0,
+                    "change_24h": float(crypto.change_price) if crypto.change_price else 0,
+                    "change_rate_24h": f"{float(crypto.signed_change_rate):.2f}%" if crypto.signed_change_rate else "0.00%",
+                    "volume": float(crypto.acc_trade_volume_24h) if crypto.acc_trade_volume_24h else 0,
+                    "acc_trade_value_24h": float(crypto.acc_trade_price_24h) if crypto.acc_trade_price_24h else 0,
+                    "timestamp": crypto.timestamp_field
+                }
+                result.append(crypto_dict)
+            
+            db.close()
+            return result
+            
+        except Exception as e:
+            logger.error(f"❌ Crypto DB 데이터 조회 실패: {e}")
+            return []
+
+    async def get_crypto_symbol_data(self, symbol: str) -> Dict[str, Any]:
+        """
+        특정 암호화폐 심볼 데이터 조회
+        
+        Args:
+            symbol: 심볼 (예: 'BTC', 'KRW-BTC')
+            
+        Returns:
+            Dict: 심볼 데이터 또는 None
+        """
+        try:
+            # 전체 데이터에서 특정 심볼 필터링
+            all_data = await self.get_realtime_crypto_data(limit=500)
+            
+            # 심볼 정규화
+            target_symbol = symbol.upper()
+            
+            for item in all_data:
+                if (item.get('symbol', '').upper() == target_symbol or 
+                    item.get('market_code', '').upper() == target_symbol or
+                    item.get('market_code', '').upper() == f"KRW-{target_symbol}"):
+                    return item
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"❌ Crypto 심볼 {symbol} 데이터 조회 실패: {e}")
+            return None
+
     async def shutdown(self):
         """서비스 종료 처리"""
         try:

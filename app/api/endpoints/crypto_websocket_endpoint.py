@@ -276,12 +276,8 @@ async def _start_crypto_streaming(websocket: WebSocket, client_id: int):
     
     while True:
         try:
-            # CryptoService를 통한 데이터 조회
-            if hasattr(crypto_service, 'get_realtime_crypto_data'):
-                data = await crypto_service.get_realtime_crypto_data(limit=200)
-            else:
-                # fallback - 기본 암호화폐 데이터 조회
-                data = await _get_crypto_data_fallback(limit=200)
+            # CryptoService를 통한 데이터 조회 (한국명, 영어명 포함)
+            data = await crypto_service.get_realtime_crypto_data(limit=200)
             
             if not data:
                 logger.warning("Crypto 데이터 없음, 재시도...")
@@ -328,13 +324,8 @@ async def _start_crypto_symbol_streaming(websocket: WebSocket, client_id: int, s
     
     while True:
         try:
-            # 전체 암호화폐 데이터에서 특정 심볼 필터링
-            if hasattr(crypto_service, 'get_crypto_symbol_data'):
-                symbol_data = await crypto_service.get_crypto_symbol_data(symbol)
-            else:
-                # fallback - 전체 데이터에서 필터링
-                all_data = await _get_crypto_data_fallback(limit=500)
-                symbol_data = _filter_crypto_symbol(all_data, symbol)
+            # CryptoService를 통한 특정 심볼 데이터 조회
+            symbol_data = await crypto_service.get_crypto_symbol_data(symbol)
             
             if symbol_data:
                 # 변경 감지
@@ -375,63 +366,8 @@ async def _start_crypto_symbol_streaming(websocket: WebSocket, client_id: int, s
             await asyncio.sleep(1.0)
 
 # =========================
-# 헬퍼 함수들
+# 헬퍼 함수들 (CryptoService 사용으로 대부분 제거됨)
 # =========================
-
-async def _get_crypto_data_fallback(limit: int = 200):
-    """CryptoService 메서드가 없을 때 fallback 데이터 조회"""
-    try:
-        from app.database import get_db
-        from app.models.crypto_model import Crypto
-        
-        db = next(get_db())
-        
-        # 최신 암호화폐 데이터 조회
-        crypto_data = db.query(Crypto).order_by(
-            Crypto.last_updated.desc()
-        ).limit(limit).all()
-        
-        # 딕셔너리 형태로 변환
-        result = []
-        for crypto in crypto_data:
-            crypto_dict = {
-                "market_code": crypto.market_code or f"KRW-{crypto.symbol}",
-                "symbol": crypto.symbol,
-                "korean_name": crypto.korean_name,
-                "english_name": crypto.english_name,
-                "price": float(crypto.current_price) if crypto.current_price else 0,
-                "volume": crypto.volume_24h,
-                "last_updated": crypto.last_updated.isoformat() if crypto.last_updated else None
-            }
-            result.append(crypto_dict)
-        
-        db.close()
-        return result
-        
-    except Exception as e:
-        logger.error(f"Crypto fallback 데이터 조회 실패: {e}")
-        return []
-
-def _filter_crypto_symbol(all_data: list, target_symbol: str):
-    """전체 암호화폐 데이터에서 특정 심볼 필터링"""
-    try:
-        target_symbol = target_symbol.upper()
-        
-        for item in all_data:
-            symbol = item.get('symbol', '').upper()
-            market_code = item.get('market_code', '').upper()
-            
-            # 심볼 또는 market_code 매칭
-            if (symbol == target_symbol or 
-                market_code == target_symbol or
-                market_code == f"KRW-{target_symbol}"):
-                return item
-        
-        return None
-        
-    except Exception as e:
-        logger.error(f"Crypto 심볼 필터링 실패: {e}")
-        return None
 
 # =========================
 # 서버 종료 시 정리

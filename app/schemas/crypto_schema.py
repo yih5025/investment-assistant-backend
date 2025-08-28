@@ -14,14 +14,25 @@ class CryptoChangeType(str, Enum):
 class CryptoExchange(str, Enum):
     """지원하는 암호화폐 거래소"""
     BITHUMB = "bithumb"
-    UPBIT = "upbit"
-    BINANCE = "binance"
 
 class CryptoData(BaseModel):
     """암호화폐 데이터 모델"""
     id: Optional[int] = None
-    market: str = Field(..., description="마켓 코드 (예: KRW-BTC)")
-    trade_price: Optional[float] = None
+    market_code: str = Field(..., description="마켓 코드 (예: KRW-BTC)")
+    symbol: str = Field(..., description="암호화폐 심볼 (예: BTC)")
+    korean_name: Optional[str] = Field(None, description="한국 이름 (예: 비트코인)")
+    english_name: Optional[str] = Field(None, description="영어 이름 (예: Bitcoin)")
+    price: Optional[float] = Field(None, description="현재 거래가")
+    change_24h: Optional[float] = Field(None, description="24시간 변동가격")
+    change_rate_24h: Optional[str] = Field(None, description="24시간 변동률 (예: 2.56%)")
+    volume: Optional[float] = Field(None, description="24시간 거래량")
+    acc_trade_value_24h: Optional[float] = Field(None, description="24시간 누적 거래대금")
+    timestamp: Optional[int] = Field(None, description="타임스탬프")
+    source: CryptoExchange = CryptoExchange.BITHUMB
+    
+    # 기존 호환성을 위한 필드들 (deprecated)
+    market: Optional[str] = Field(None, description="마켓 코드 (deprecated, use market_code)")
+    trade_price: Optional[float] = Field(None, description="현재 거래가 (deprecated, use price)")
     signed_change_rate: Optional[float] = None
     signed_change_price: Optional[float] = None
     trade_volume: Optional[float] = None
@@ -32,7 +43,6 @@ class CryptoData(BaseModel):
     prev_closing_price: Optional[float] = None
     change: Optional[CryptoChangeType] = None
     timestamp_field: Optional[int] = None
-    source: CryptoExchange = CryptoExchange.BITHUMB
     crypto_name: Optional[str] = None
     
     class Config:
