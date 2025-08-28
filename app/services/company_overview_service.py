@@ -124,18 +124,23 @@ class CompanyOverviewService:
         """
         try:
             self.stats["api_requests"] += 1
+            logger.info(f"Company Overview 핵심 지표 조회 시작: {symbol}")
             
             db = next(get_db())
             company = CompanyOverview.get_latest_by_symbol(db, symbol.upper())
             
             if not company:
                 self.stats["data_not_found"] += 1
+                logger.warning(f"⚠️ {symbol} Company Overview 데이터 없음 - DB에서 조회 결과 없음")
+                logger.info(f"DB 쿼리 실행: CompanyOverview.get_latest_by_symbol(db, '{symbol.upper()}')")
                 return {
                     'data_available': False,
-                    'message': f'{symbol} 회사 정보가 없습니다'
+                    'message': f'{symbol} 회사 정보가 없습니다',
+                    'debug_info': f'DB 쿼리 결과: None for symbol {symbol.upper()}'
                 }
             
             # 핵심 지표만 반환
+            logger.info(f"✅ {symbol} Company Overview 핵심 지표 생성 완료 (batch_id: {company.batch_id}, name: {company.name})")
             return {
                 'data_available': True,
                 'company_name': company.name,
@@ -154,9 +159,12 @@ class CompanyOverviewService:
             
         except Exception as e:
             logger.error(f"❌ {symbol} 핵심 지표 조회 실패: {e}")
+            import traceback
+            logger.error(f"❌ 상세 에러 트레이스: {traceback.format_exc()}")
             return {
                 'data_available': False,
-                'error': str(e)
+                'error': f'Company Overview 조회 중 오류 발생: {str(e)}',
+                'debug_info': f'Exception: {type(e).__name__}'
             }
         finally:
             db.close()

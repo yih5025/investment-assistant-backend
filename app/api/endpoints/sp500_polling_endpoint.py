@@ -271,8 +271,17 @@ async def get_stock_detail_with_integrated_data(
                 )
         
         # 2. Company Overview 데이터 조회 (옵션)
+        logger.info(f"Company Overview 데이터 조회 시작: {symbol}")
         company_result = company_service.get_company_basic_metrics(symbol)
         has_company_data = company_result.get('data_available', False)
+        logger.info(f"Company Overview 결과: data_available={has_company_data}, result_keys={list(company_result.keys())}")
+        
+        if not has_company_data:
+            logger.warning(f"⚠️ {symbol} Company Overview 데이터 없음: {company_result.get('message', 'Unknown reason')}")
+            if 'debug_info' in company_result:
+                logger.info(f"디버그 정보: {company_result['debug_info']}")
+        else:
+            logger.info(f"✅ {symbol} Company Overview 데이터 있음: {company_result.get('company_name', 'Unknown')}")
         
         # 3. Balance Sheet 데이터 조회 (옵션) - 새로 추가
         balance_result = _get_balance_sheet_summary(balance_service, symbol)

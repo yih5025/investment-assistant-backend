@@ -183,11 +183,31 @@ class CompanyOverview(BaseModel):
             Optional[CompanyOverview]: 최신 데이터 또는 None
         """
         try:
-            return db_session.query(cls).filter(
+            logger.info(f"DB 쿼리 실행: CompanyOverview 테이블에서 symbol='{symbol.upper()}' 조회")
+            
+            # 먼저 해당 심볼의 모든 레코드 개수 확인
+            total_count = db_session.query(cls).filter(cls.symbol == symbol.upper()).count()
+            logger.info(f"'{symbol.upper()}' 심볼의 총 레코드 수: {total_count}")
+            
+            if total_count > 0:
+                # 배치 ID별로 확인
+                batch_info = db_session.query(cls.batch_id).filter(cls.symbol == symbol.upper()).distinct().all()
+                logger.info(f"'{symbol.upper()}' 심볼의 배치 ID들: {[b[0] for b in batch_info]}")
+            
+            result = db_session.query(cls).filter(
                 cls.symbol == symbol.upper()
             ).order_by(cls.batch_id.desc()).first()
+            
+            if result:
+                logger.info(f"✅ {symbol} Company Overview 조회 성공 (batch_id: {result.batch_id}, name: {result.name})")
+            else:
+                logger.warning(f"⚠️ {symbol} Company Overview 조회 결과 없음")
+            
+            return result
         except Exception as e:
             logger.error(f"❌ {symbol} Company Overview 조회 실패: {e}")
+            import traceback
+            logger.error(f"❌ 상세 에러 트레이스: {traceback.format_exc()}")
             return None
     
     @classmethod
