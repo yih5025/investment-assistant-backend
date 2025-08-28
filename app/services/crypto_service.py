@@ -359,7 +359,7 @@ class CryptoService:
             return market_code.replace('KRW-', '') if market_code else ''
                 
         except Exception as e:
-            logger.warning(f"⚠️ {market_code} 암호화폐 이름 조회 실패: {e}")
+            #logger.warning(f"⚠️ {market_code} 암호화폐 이름 조회 실패: {e}")
             return market_code.replace('KRW-', '') if market_code else ''
         finally:
             if 'db' in locals():
@@ -530,7 +530,7 @@ class CryptoService:
                 
         except Exception as e:
             # DB에 데이터가 없는 경우는 정상이므로 DEBUG 레벨로 변경
-            logger.debug(f"🔍 {market_code} 암호화폐 이름 DB에 없음: {e}")
+            #logger.debug(f"🔍 {market_code} 암호화폐 이름 DB에 없음: {e}")
             symbol = market_code.replace('KRW-', '') if market_code else ''
             return symbol, symbol
         finally:
