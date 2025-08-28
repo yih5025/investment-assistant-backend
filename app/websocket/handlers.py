@@ -6,9 +6,9 @@ from datetime import datetime
 import pytz
 from fastapi import WebSocket
 
-from app.schemas.websocket_schema import (
+from app.schemas.base_websocket_schema import (
     WebSocketMessageType, SubscriptionType,
-    create_error_message, StatusMessage
+    create_error_message
 )
 
 logger = logging.getLogger(__name__)
@@ -233,19 +233,21 @@ class WebSocketHandlers:
             client_id = id(websocket)
             client_metadata = self.websocket_manager.client_metadata.get(client_id, {})
             
-            status_response = StatusMessage(
-                status="connected",
-                connected_clients=status_info["total_connections"],
-                subscription_info={
+            status_response = {
+                "type": WebSocketMessageType.STATUS,
+                "timestamp": datetime.now(pytz.UTC).isoformat(),
+                "status": "connected",
+                "connected_clients": status_info["total_connections"],
+                "subscription_info": {
                     "client_type": client_metadata.get("type", "unknown"),
                     "symbol": client_metadata.get("symbol"),
                     "connected_at": client_metadata.get("connected_at").isoformat() if client_metadata.get("connected_at") else None,
                     "messages_received": client_metadata.get("messages_received", 0),
                     "server_stats": status_info
                 }
-            )
+            }
             
-            await websocket.send_text(status_response.json())
+            await websocket.send_text(json.dumps(status_response))
             logger.debug(f"📊 상태 정보 전송: {client_id}")
             return True
             
@@ -266,7 +268,7 @@ class WebSocketHandlers:
         """
         try:
             error_msg = create_error_message(error_code, message, details)
-            await websocket.send_text(error_msg.json())
+            await websocket.send_text(error_msg.model_dump_json())
             
             client_id = id(websocket)
             logger.warning(f"⚠️ 에러 메시지 전송: {client_id} - {error_code}: {message}")
