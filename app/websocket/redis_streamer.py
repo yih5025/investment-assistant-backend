@@ -5,12 +5,23 @@ from typing import Dict, Set, Optional, List, Any
 from datetime import datetime
 import pytz
 
-from app.services.websocket_service import WebSocketService
-from app.schemas.websocket_schema import (
-    TopGainerData, CryptoData, SP500Data,
-    create_topgainers_update_message, create_crypto_update_message, 
-    create_sp500_update_message, create_symbol_update_message,
-    create_dashboard_update_message
+# 새로운 서비스 import 구조
+from app.services.topgainers_service import TopGainersService
+from app.services.crypto_service import CryptoService
+from app.services.sp500_service import SP500Service
+
+# 새로운 스키마 import 구조
+from app.schemas.base_websocket_schema import (
+    create_symbol_update_message, create_dashboard_update_message
+)
+from app.schemas.topgainers_schema import (
+    TopGainerData, create_topgainers_update_message
+)
+from app.schemas.crypto_schema import (
+    CryptoData, create_crypto_update_message
+)
+from app.schemas.sp500_schema import (
+    StockInfo, create_sp500_update_message
 )
 
 logger = logging.getLogger(__name__)
@@ -30,15 +41,23 @@ class RedisStreamer:
     - 대시보드 통합 스트리밍
     """
     
-    def __init__(self, websocket_service: WebSocketService, polling_interval: float = 0.5):
+    def __init__(self, 
+                 topgainers_service: TopGainersService,
+                 crypto_service: CryptoService, 
+                 sp500_service: SP500Service,
+                 polling_interval: float = 0.5):
         """
         RedisStreamer 초기화
         
         Args:
-            websocket_service: WebSocketService 인스턴스
+            topgainers_service: TopGainersService 인스턴스
+            crypto_service: CryptoService 인스턴스
+            sp500_service: SP500Service 인스턴스
             polling_interval: 폴링 간격 (초) - 기본값 500ms
         """
-        self.websocket_service = websocket_service
+        self.topgainers_service = topgainers_service
+        self.crypto_service = crypto_service
+        self.sp500_service = sp500_service
         self.polling_interval = polling_interval
         
         # 스트리밍 상태 관리
@@ -82,11 +101,26 @@ class RedisStreamer:
     async def initialize(self):
         """RedisStreamer 초기화"""
         try:
-            # RealtimeService Redis 연결 확인
-            if not self.websocket_service.redis_client:
-                redis_connected = await self.websocket_service.init_redis()
-                if not redis_connected:
-                    logger.warning("⚠️ Redis 연결 실패, DB fallback 모드로 동작")
+            # 각 서비스 초기화 (필요한 경우)
+            logger.info("🔧 RedisStreamer 서비스 초기화 시작")
+            
+            # 각 서비스가 Redis 연결을 가지고 있는지 확인하고 초기화
+            services = [
+                ("TopGainers", self.topgainers_service),
+                ("Crypto", self.crypto_service), 
+                ("SP500", self.sp500_service)
+            ]
+            
+            for service_name, service in services:
+                try:
+                    # 서비스가 Redis 클라이언트나 초기화 메소드를 가지고 있다면 호출
+                    if hasattr(service, 'initialize'):
+                        await service.initialize()
+                        logger.info(f"✅ {service_name} 서비스 초기화 완료")
+                    elif hasattr(service, 'redis_client') and not service.redis_client:
+                        logger.warning(f"⚠️ {service_name} 서비스 Redis 연결 없음")
+                except Exception as e:
+                    logger.warning(f"⚠️ {service_name} 서비스 초기화 실패: {e}")
             
             logger.info("✅ RedisStreamer 초기화 완료")
             
@@ -123,12 +157,12 @@ class RedisStreamer:
         try:
             while self.is_streaming_topgainers:
                 try:
-                    # Redis 우선, DB fallback으로 데이터 조회
-                    new_data = await self.websocket_service.get_topgainers_from_redis(limit=50)
+                    # TopGainers 서비스에서 데이터 조회
+                    new_data = await self.topgainers_service.get_realtime_data(limit=50)
                     
                     if new_data:
-                        # 변경 감지
-                        changed_data, changed_count = self.websocket_service.detect_changes(new_data, "topgainers")
+                        # 변경 감지 (간단한 구현)
+                        changed_data, changed_count = self._detect_topgainers_changes(new_data)
                         
                         # 변경된 데이터가 있으면 브로드캐스트
                         if changed_count > 0 and self.websocket_manager:
@@ -202,12 +236,12 @@ class RedisStreamer:
         try:
             while self.is_streaming_crypto:
                 try:
-                    # Redis 우선, DB fallback으로 데이터 조회
-                    new_data = await self.websocket_service.get_crypto_from_redis(limit=100)
+                    # Crypto 서비스에서 데이터 조회
+                    new_data = await self.crypto_service.get_realtime_data(limit=100)
                     
                     if new_data:
-                        # 변경 감지
-                        changed_data, changed_count = self.websocket_service.detect_changes(new_data, "crypto")
+                        # 변경 감지 (간단한 구현)
+                        changed_data, changed_count = self._detect_crypto_changes(new_data)
                         
                         # 변경된 데이터가 있으면 브로드캐스트
                         if changed_count > 0 and self.websocket_manager:
@@ -278,12 +312,12 @@ class RedisStreamer:
         try:
             while self.is_streaming_sp500:
                 try:
-                    # Redis 우선, DB fallback으로 데이터 조회
-                    new_data = await self.websocket_service.get_sp500_from_redis(limit=100)
+                    # SP500 서비스에서 데이터 조회
+                    new_data = await self.sp500_service.get_realtime_data(limit=100)
                     
                     if new_data:
-                        # 변경 감지
-                        changed_data, changed_count = self.websocket_service.detect_changes(new_data, "sp500")
+                        # 변경 감지 (간단한 구현)
+                        changed_data, changed_count = self._detect_sp500_changes(new_data)
                         
                         # 변경된 데이터가 있으면 브로드캐스트
                         if changed_count > 0 and self.websocket_manager:
@@ -355,11 +389,11 @@ class RedisStreamer:
             while self.is_streaming_dashboard:
                 try:
                     # 대시보드 데이터 조회 (통합)
-                    dashboard_data = await self.websocket_service.get_dashboard_data()
+                    dashboard_data = await self._get_dashboard_data()
                     
                     if any(dashboard_data.values()):
-                        # 변경 감지
-                        changed_data, changed_count = self.websocket_service.detect_changes(dashboard_data, "dashboard")
+                        # 변경 감지 (간단한 구현)
+                        changed_data, changed_count = self._detect_dashboard_changes(dashboard_data)
                         
                         # 변경된 데이터가 있으면 브로드캐스트
                         if changed_count > 0 and self.websocket_manager:
@@ -455,7 +489,7 @@ class RedisStreamer:
             while self.symbol_streams.get(stream_key, False):
                 try:
                     # 심볼 데이터 조회
-                    new_data = await self.websocket_service.get_symbol_realtime_data(symbol, data_type)
+                    new_data = await self._get_symbol_data(symbol, data_type)
                     
                     if new_data:
                         # 간단한 해시 기반 변경 감지
@@ -670,8 +704,8 @@ class RedisStreamer:
             Dict[str, Any]: 헬스 체크 결과
         """
         try:
-            # RealtimeService 헬스 체크
-            realtime_health = await self.websocket_service.health_check()
+            # 각 서비스 헬스 체크
+            realtime_health = await self._check_services_health()
             
             # 스트리머 자체 상태 확인
             active_streams = sum([
@@ -743,4 +777,97 @@ class RedisStreamer:
             
         except Exception as e:
             logger.error(f"❌ RedisStreamer 종료 실패: {e}")
-                    
+    
+    # =========================
+    # 헬퍼 메소드들
+    # =========================
+    
+    def _detect_topgainers_changes(self, new_data: List[TopGainerData]) -> tuple[List[TopGainerData], int]:
+        """TopGainers 데이터 변경 감지 (간단한 구현)"""
+        # 실제 구현에서는 이전 데이터와 비교하여 변경된 항목만 반환
+        # 지금은 모든 데이터를 변경된 것으로 간주
+        return new_data, len(new_data) if new_data else 0
+    
+    def _detect_crypto_changes(self, new_data: List[CryptoData]) -> tuple[List[CryptoData], int]:
+        """Crypto 데이터 변경 감지 (간단한 구현)"""
+        # 실제 구현에서는 이전 데이터와 비교하여 변경된 항목만 반환
+        # 지금은 모든 데이터를 변경된 것으로 간주
+        return new_data, len(new_data) if new_data else 0
+    
+    def _detect_sp500_changes(self, new_data: List[StockInfo]) -> tuple[List[StockInfo], int]:
+        """SP500 데이터 변경 감지 (간단한 구현)"""
+        # 실제 구현에서는 이전 데이터와 비교하여 변경된 항목만 반환
+        # 지금은 모든 데이터를 변경된 것으로 간주
+        return new_data, len(new_data) if new_data else 0
+    
+    def _detect_dashboard_changes(self, new_data: Dict[str, Any]) -> tuple[Dict[str, Any], int]:
+        """Dashboard 데이터 변경 감지 (간단한 구현)"""
+        # 실제 구현에서는 이전 데이터와 비교하여 변경된 항목만 반환
+        # 지금은 모든 데이터를 변경된 것으로 간주
+        total_items = sum(len(v) if isinstance(v, list) else 1 for v in new_data.values())
+        return new_data, total_items
+    
+    async def _get_dashboard_data(self) -> Dict[str, Any]:
+        """대시보드용 통합 데이터 조회"""
+        try:
+            # 각 서비스에서 요약 데이터 조회
+            top_gainers = await self.topgainers_service.get_realtime_data(limit=10)
+            top_crypto = await self.crypto_service.get_realtime_data(limit=10) 
+            sp500_highlights = await self.sp500_service.get_realtime_data(limit=10)
+            
+            return {
+                "top_gainers": [item.dict() if hasattr(item, 'dict') else item for item in (top_gainers or [])],
+                "top_crypto": [item.dict() if hasattr(item, 'dict') else item for item in (top_crypto or [])],
+                "sp500_highlights": [item.dict() if hasattr(item, 'dict') else item for item in (sp500_highlights or [])],
+                "summary": {
+                    "topgainers_count": len(top_gainers) if top_gainers else 0,
+                    "crypto_count": len(top_crypto) if top_crypto else 0,
+                    "sp500_count": len(sp500_highlights) if sp500_highlights else 0,
+                    "last_update": datetime.now(pytz.UTC).isoformat()
+                }
+            }
+        except Exception as e:
+            logger.error(f"❌ 대시보드 데이터 조회 실패: {e}")
+            return {}
+    
+    async def _get_symbol_data(self, symbol: str, data_type: str):
+        """특정 심볼 데이터 조회"""
+        try:
+            if data_type == "topgainers":
+                return await self.topgainers_service.get_symbol_data(symbol)
+            elif data_type == "crypto":
+                return await self.crypto_service.get_symbol_data(symbol)
+            elif data_type == "sp500":
+                return await self.sp500_service.get_symbol_data(symbol)
+            else:
+                logger.warning(f"⚠️ 지원하지 않는 데이터 타입: {data_type}")
+                return None
+        except Exception as e:
+            logger.error(f"❌ 심볼 {symbol} ({data_type}) 데이터 조회 실패: {e}")
+            return None
+    
+    async def _check_services_health(self) -> Dict[str, Any]:
+        """각 서비스의 헬스 체크"""
+        health_status = {
+            "status": "healthy",
+            "services": {}
+        }
+        
+        services = [
+            ("topgainers", self.topgainers_service),
+            ("crypto", self.crypto_service),
+            ("sp500", self.sp500_service)
+        ]
+        
+        for service_name, service in services:
+            try:
+                if hasattr(service, 'health_check'):
+                    service_health = await service.health_check()
+                    health_status["services"][service_name] = service_health
+                else:
+                    health_status["services"][service_name] = {"status": "unknown", "message": "No health check method"}
+            except Exception as e:
+                health_status["services"][service_name] = {"status": "error", "message": str(e)}
+                health_status["status"] = "degraded"
+        
+        return health_status

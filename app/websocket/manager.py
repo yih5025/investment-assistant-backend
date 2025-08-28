@@ -7,10 +7,22 @@ from datetime import datetime
 import pytz
 from fastapi import WebSocket
 
-from app.schemas.websocket_schema import (
-    TopGainersUpdateMessage, CryptoUpdateMessage, SP500UpdateMessage,
-    SymbolUpdateMessage, DashboardUpdateMessage, ErrorMessage,
-    WebSocketMessageType, create_error_message
+# 새로운 스키마 import 구조
+from app.schemas.base_websocket_schema import (
+    WebSocketMessageType, SymbolUpdateMessage, DashboardUpdateMessage, BaseErrorMessage,
+    create_symbol_update_message, create_dashboard_update_message, create_error_message
+)
+from app.schemas.topgainers_schema import (
+    TopGainersUpdateMessage, TopGainersErrorMessage, 
+    create_topgainers_update_message, create_topgainers_error_message
+)
+from app.schemas.crypto_schema import (
+    CryptoUpdateMessage, CryptoErrorMessage,
+    create_crypto_update_message, create_crypto_error_message  
+)
+from app.schemas.sp500_schema import (
+    SP500UpdateMessage, SP500ErrorMessage,
+    create_sp500_update_message, create_sp500_error_message
 )
 
 logger = logging.getLogger(__name__)
@@ -546,12 +558,12 @@ class WebSocketManager:
         except Exception as e:
             logger.error(f"❌ 클라이언트 정리 실패: {e}")
     
-    async def broadcast_error(self, error_message: ErrorMessage, target_clients: Optional[List[WebSocket]] = None):
+    async def broadcast_error(self, error_message: BaseErrorMessage, target_clients: Optional[List[WebSocket]] = None):
         """
         에러 메시지 브로드캐스트
         
         Args:
-            error_message: 전송할 ErrorMessage
+            error_message: 전송할 BaseErrorMessage
             target_clients: 특정 클라이언트들 (None이면 모든 클라이언트)
         """
         if target_clients is None:

@@ -126,6 +126,15 @@ def create_dashboard_update_message(
         summary=summary or {}
     )
 
+def create_error_message(error_code: str, message: str, details: Dict[str, Any] = None) -> BaseErrorMessage:
+    """기본 에러 메시지 생성"""
+    return BaseErrorMessage(
+        type="error",
+        error_code=error_code,
+        message=message,
+        details=details or {}
+    )
+
 def standardize_timestamp(dt: Union[datetime, str, None]) -> str:
     """타임스탬프 표준화"""
     if dt is None:

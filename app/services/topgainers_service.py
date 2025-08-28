@@ -548,7 +548,7 @@ class TopGainersService:
     def _get_market_status(self):
         """시장 상태 조회 (TopGainers용)"""
         try:
-            from app.services.websocket_service import MarketTimeChecker
+            from app.services.topgainers_service import MarketTimeChecker
             market_checker = MarketTimeChecker()
             status = market_checker.get_market_status()
             return {

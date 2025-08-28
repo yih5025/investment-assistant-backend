@@ -110,15 +110,15 @@ class SP500Service:
         WebSocket 서비스와 연동만 추가
         """
         try:
-            from app.services.websocket_service import WebSocketService
+            from app.services.sp500_service import SP500Service
             
             # WebSocket 서비스와 동일한 데이터 소스 사용
-            websocket_service = WebSocketService()
-            if not websocket_service.redis_client:
-                await websocket_service.init_redis()
+            sp500_service = SP500Service()
+            if not sp500_service.redis_client:
+                await sp500_service.init_redis()
             
             # 🎯 Redis에서 기본 데이터 조회 후 변화율 직접 계산
-            redis_data = await websocket_service.get_sp500_from_redis(limit=1000)
+            redis_data = await sp500_service.get_sp500_from_redis(limit=1000)
             
             if not redis_data:
                 logger.warning("📊 Redis SP500 데이터 없음, DB fallback")
@@ -291,7 +291,7 @@ class SP500Service:
     def _get_market_status(self):
         """시장 상태 조회"""
         try:
-            from app.services.websocket_service import MarketTimeChecker
+            from app.services.sp500_service import MarketTimeChecker
             market_checker = MarketTimeChecker()
             status = market_checker.get_market_status()
             return {

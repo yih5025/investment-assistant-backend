@@ -1,4 +1,4 @@
-# app/services/crypto_websocket_service.py
+# app/services/crypto_service.py
 import asyncio
 import json
 import logging
@@ -13,7 +13,7 @@ from app.schemas.crypto_schema import CryptoData, db_to_crypto_data
 
 logger = logging.getLogger(__name__)
 
-class CryptoWebSocketService:
+class CryptoService:
     """
     암호화폐 WebSocket 전용 서비스
     
@@ -22,7 +22,7 @@ class CryptoWebSocketService:
     """
     
     def __init__(self):
-        """CryptoWebSocketService 초기화"""
+        """CryptoService 초기화"""
         self.redis_client = None
         
         # 통계
@@ -35,7 +35,7 @@ class CryptoWebSocketService:
             "last_update": None
         }
         
-        logger.info("✅ CryptoWebSocketService 초기화 완료")
+        logger.info("✅ CryptoService 초기화 완료")
     
     async def init_redis(self) -> bool:
         """Redis 연결 초기화"""
@@ -423,7 +423,7 @@ class CryptoWebSocketService:
                 await self.redis_client.close()
                 logger.info("✅ Crypto Redis 연결 종료")
             
-            logger.info("✅ CryptoWebSocketService 종료 완료")
+            logger.info("✅ CryptoService 종료 완료")
             
         except Exception as e:
-            logger.error(f"❌ CryptoWebSocketService 종료 실패: {e}")
+            logger.error(f"❌ CryptoService 종료 실패: {e}")

@@ -177,41 +177,106 @@ class ErrorResponse(BaseModel):
 # 🎯 유틸리티 함수들
 # =========================
 
-class SP500WebSocketMessage(BaseModel):
-    """SP500 WebSocket 업데이트 메시지"""
+# =========================
+# 🎯 WebSocket 메시지 스키마들
+# =========================
+
+class SP500UpdateMessage(BaseModel):
+    """SP500 업데이트 메시지"""
     type: str = "sp500_update"
     data: List[StockInfo]  # 기존 StockInfo 재사용
     timestamp: str = Field(default_factory=lambda: datetime.now(pytz.UTC).isoformat())
     data_count: int = Field(..., description="전송된 데이터 개수")
     market_status: MarketStatus = Field(..., description="시장 상태")
     data_source: str = Field(default="redis_api", description="데이터 소스")
+    categories: Optional[List[str]] = None
     
     class Config:
         from_attributes = True
 
 class SP500StatusMessage(BaseModel):
-    """SP500 WebSocket 상태 메시지"""
+    """SP500 상태 메시지"""
     type: str = "sp500_status"
     status: str = Field(..., description="connected, disconnected, error, api_mode")
     timestamp: str = Field(default_factory=lambda: datetime.now(pytz.UTC).isoformat())
+    connected_clients: Optional[int] = None
     market_status: MarketStatus = Field(..., description="시장 상태")
     data_source: str = Field(default="redis_api")
+    last_data_update: Optional[str] = None
 
 class SP500ErrorMessage(BaseModel):
-    """SP500 WebSocket 에러 메시지"""
+    """SP500 에러 메시지"""
     type: str = "sp500_error"
     error_code: str
     message: str
     timestamp: str = Field(default_factory=lambda: datetime.now(pytz.UTC).isoformat())
     symbol: Optional[str] = None
+    details: Optional[Dict[str, Any]] = None
 
-# 헬퍼 함수도 추가
-def create_sp500_websocket_message(data: List[StockInfo], market_status: MarketStatus) -> SP500WebSocketMessage:
-    """SP500 WebSocket 메시지 생성"""
-    return SP500WebSocketMessage(
+# =========================
+# 🎯 헬퍼 함수들
+# =========================
+
+def create_sp500_update_message(data: List[StockInfo], market_status: Optional[MarketStatus] = None) -> SP500UpdateMessage:
+    """SP500 업데이트 메시지 생성"""
+    # 기본 시장 상태 생성 (market_status가 없는 경우)
+    if not market_status:
+        current_time_utc = datetime.now(pytz.UTC)
+        et_timezone = pytz.timezone('US/Eastern')
+        current_time_et = current_time_utc.astimezone(et_timezone)
+        
+        market_status = MarketStatus(
+            is_open=True,
+            current_time_et=current_time_et.strftime("%Y-%m-%d %H:%M:%S"),
+            current_time_utc=current_time_utc.strftime("%Y-%m-%d %H:%M:%S"),
+            status="UNKNOWN",
+            timezone="US/Eastern"
+        )
+    
+    # 카테고리 추출 (상승/하락 등)
+    categories = []
+    for stock in data:
+        if stock.is_positive is True:
+            categories.append("gainers")
+        elif stock.is_positive is False:
+            categories.append("losers")
+    
+    return SP500UpdateMessage(
         data=data,
         data_count=len(data),
-        market_status=market_status
+        market_status=market_status,
+        categories=list(set(categories)) if categories else None
+    )
+
+def create_sp500_error_message(error_code: str, message: str, symbol: str = None, details: Dict[str, Any] = None) -> SP500ErrorMessage:
+    """SP500 에러 메시지 생성"""
+    return SP500ErrorMessage(
+        error_code=error_code,
+        message=message,
+        symbol=symbol,
+        details=details or {}
+    )
+
+def db_to_stock_info(trade_data: dict, change_info: dict, company_info: dict) -> StockInfo:
+    """데이터베이스 데이터를 StockInfo로 변환"""
+    return StockInfo(
+        symbol=trade_data.get('symbol', ''),
+        company_name=company_info.get('company_name', ''),
+        current_price=change_info.get('current_price'),
+        change_amount=change_info.get('change_amount'),
+        change_percentage=change_info.get('change_percentage'),
+        volume=change_info.get('volume'),
+        last_updated=change_info.get('last_updated'),
+        is_positive=change_info.get('change_amount', 0) > 0 if change_info.get('change_amount') else None
+    )
+
+def db_to_chart_data_point(trade) -> ChartDataPoint:
+    """데이터베이스 거래 데이터를 ChartDataPoint로 변환"""
+    return ChartDataPoint(
+        timestamp=trade.timestamp_ms,
+        price=float(trade.price),
+        volume=trade.volume,
+        datetime=trade.created_at.isoformat()
     )
 
 def create_error_response(error_type: str, message: str, code: str = None, path: str = None) -> ErrorResponse:
@@ -235,28 +300,3 @@ def market_status_to_dict(market_status: MarketStatus) -> Dict[str, Any]:
         'timezone': market_status.timezone
     }
 
-# =========================
-# 🎯 응답 데이터 변환 유틸리티
-# =========================
-
-def db_to_stock_info(trade_data: dict, change_info: dict, company_info: dict) -> StockInfo:
-    """데이터베이스 데이터를 StockInfo로 변환"""
-    return StockInfo(
-        symbol=trade_data.get('symbol', ''),
-        company_name=company_info.get('company_name', ''),
-        current_price=change_info.get('current_price'),
-        change_amount=change_info.get('change_amount'),
-        change_percentage=change_info.get('change_percentage'),
-        volume=change_info.get('volume'),
-        last_updated=change_info.get('last_updated'),
-        is_positive=change_info.get('change_amount', 0) > 0 if change_info.get('change_amount') else None
-    )
-
-def db_to_chart_data_point(trade) -> ChartDataPoint:
-    """데이터베이스 거래 데이터를 ChartDataPoint로 변환"""
-    return ChartDataPoint(
-        timestamp=trade.timestamp_ms,
-        price=float(trade.price),
-        volume=trade.volume,
-        datetime=trade.created_at.isoformat()
-    )

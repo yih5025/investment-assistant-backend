@@ -10,7 +10,7 @@ import hashlib
 
 from app.websocket.manager import WebSocketManager
 from app.websocket.redis_streamer import RedisStreamer
-from app.services.crypto_service import CryptoWebSocketService
+from app.services.crypto_service import CryptoService
 from app.schemas.crypto_schema import CryptoData, CryptoChangeType, CryptoExchange, CryptoUpdateMessage, CryptoStatusMessage, CryptoErrorMessage, create_crypto_update_message, create_crypto_error_message, db_to_crypto_data, validate_crypto_market, extract_crypto_symbol, format_crypto_price
 
 # 로거 설정
@@ -21,7 +21,7 @@ router = APIRouter(prefix="/ws/crypto", tags=["Crypto WebSocket"])
 
 # Crypto 전용 인스턴스들
 websocket_manager = WebSocketManager()
-crypto_service = CryptoWebSocketService()
+crypto_service = CryptoService()
 redis_streamer = None  # 첫 연결 시 초기화
 
 # =========================
