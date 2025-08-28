@@ -103,9 +103,23 @@ class CryptoService:
                     try:
                         json_data = json.loads(result)
                         
-                        # CryptoData 생성 (Redis 형태 → DB 형태 변환)
+                        # 새로운 스키마에 맞춘 CryptoData 생성
+                        market_code = json_data.get('symbol', keys[i].split(':')[-1])
+                        symbol = market_code.replace('KRW-', '') if market_code and 'KRW-' in market_code else market_code
+                        
                         crypto_data = CryptoData(
-                            market=json_data.get('symbol', keys[i].split(':')[-1]),
+                            # 새로운 필수 필드들
+                            market_code=market_code,
+                            symbol=symbol,
+                            price=json_data.get('price'),
+                            change_24h=json_data.get('change_price'),
+                            change_rate_24h=f"{json_data.get('change_rate', 0):.2f}%" if json_data.get('change_rate') else "0.00%",
+                            volume=json_data.get('volume'),
+                            acc_trade_value_24h=json_data.get('volume_24h'),
+                            timestamp=json_data.get('timestamp'),
+                            
+                            # 기존 호환성 필드들 (deprecated)
+                            market=market_code,
                             trade_price=json_data.get('price'),
                             signed_change_rate=json_data.get('change_rate'),
                             signed_change_price=json_data.get('change_price'),
@@ -113,7 +127,7 @@ class CryptoService:
                             acc_trade_volume_24h=json_data.get('volume_24h'),
                             timestamp_field=json_data.get('timestamp'),
                             source='bithumb',
-                            crypto_name=self._get_crypto_name(json_data.get('symbol', ''))
+                            crypto_name=self._get_crypto_name(market_code)
                         )
                         data.append(crypto_data)
                         
@@ -522,6 +536,7 @@ class CryptoService:
         finally:
             if 'db' in locals():
                 db.close()
+
 
     async def _get_crypto_from_db_with_names(self, limit: int = 200) -> List[Dict[str, Any]]:
         """

@@ -290,11 +290,20 @@ async def _start_crypto_streaming(websocket: WebSocket, client_id: int):
             
             # 변경된 경우만 전송
             if current_hash != last_data_hash:
+                # WebSocket 연결 상태 확인
+                if websocket.client_state.name != 'CONNECTED':
+                    logger.info(f"Crypto WebSocket 연결 종료됨, 스트리밍 중단: {client_id}")
+                    break
+                
                 # 업데이트 메시지 생성
                 update_msg = CryptoWebSocketMessage.create_update_message(data)
                 
                 # WebSocket으로 전송
-                await websocket.send_text(json.dumps(update_msg))
+                try:
+                    await websocket.send_text(json.dumps(update_msg))
+                except Exception as send_error:
+                    logger.warning(f"Crypto WebSocket 전송 실패: {client_id} - {send_error}")
+                    break
                 
                 last_data_hash = current_hash
                 error_count = 0
