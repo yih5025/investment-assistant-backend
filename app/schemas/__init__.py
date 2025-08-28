@@ -1,7 +1,7 @@
 from .base_websocket_schema import WebSocketMessageType, SubscriptionType
 from .topgainers_schema import TopGainerData, TopGainersUpdateMessage
 from .crypto_schema import CryptoData, CryptoUpdateMessage  
-from .sp500_schema import StockInfo, SP500WebSocketMessage
+from .sp500_schema import StockInfo, SP500UpdateMessage
 
 __all__ = [
     "WebSocketMessageType",
@@ -11,5 +11,5 @@ __all__ = [
     "CryptoData", 
     "CryptoUpdateMessage",
     "StockInfo",
-    "SP500WebSocketMessage"
+    "SP500UpdateMessage"
 ]
