@@ -28,6 +28,52 @@ class TopGainerData(BaseModel):
     class Config:
         from_attributes = True
 
+# =========================
+# 🎯 Polling API 응답 스키마들
+# =========================
+
+class TopGainersListResponse(BaseModel):
+    """TopGainers 리스트 응답 (Polling API용)"""
+    data: List[TopGainerData] = Field(..., description="TopGainers 데이터 리스트")
+    total_count: int = Field(..., description="총 데이터 개수")
+    batch_id: Optional[int] = Field(None, description="배치 ID")
+    categories: Optional[List[str]] = Field(None, description="포함된 카테고리들")
+    last_updated: str = Field(..., description="최종 업데이트 시간")
+    data_source: str = Field(default="redis_api", description="데이터 소스")
+    message: Optional[str] = Field(None, description="응답 메시지")
+    
+    class Config:
+        from_attributes = True
+
+class TopGainersCategoryResponse(BaseModel):
+    """TopGainers 카테고리별 응답 (Polling API용)"""
+    category: TopGainersCategory = Field(..., description="요청된 카테고리")
+    data: List[TopGainerData] = Field(..., description="카테고리별 데이터")
+    total_count: int = Field(..., description="해당 카테고리 데이터 개수")
+    batch_id: Optional[int] = Field(None, description="배치 ID")
+    last_updated: str = Field(..., description="최종 업데이트 시간")
+    data_source: str = Field(default="redis_api", description="데이터 소스")
+    message: Optional[str] = Field(None, description="응답 메시지")
+    
+    class Config:
+        from_attributes = True
+
+class TopGainersSymbolResponse(BaseModel):
+    """TopGainers 특정 심볼 응답 (Polling API용)"""
+    symbol: str = Field(..., description="심볼")
+    data: Optional[TopGainerData] = Field(None, description="심볼 데이터")
+    found: bool = Field(..., description="데이터 발견 여부")
+    batch_id: Optional[int] = Field(None, description="배치 ID")
+    last_updated: Optional[str] = Field(None, description="최종 업데이트 시간")
+    message: Optional[str] = Field(None, description="응답 메시지")
+    
+    class Config:
+        from_attributes = True
+
+# =========================
+# 🎯 WebSocket 메시지 스키마들  
+# =========================
+
 class TopGainersUpdateMessage(BaseModel):
     """Top Gainers 업데이트 메시지"""
     type: str = "topgainers_update"
@@ -61,7 +107,64 @@ class TopGainersErrorMessage(BaseModel):
     details: Optional[Dict[str, Any]] = None
 
 # =========================
-# 헬퍼 함수들
+# 🎯 Polling API 헬퍼 함수들
+# =========================
+
+def create_topgainers_list_response(
+    data: List[TopGainerData], 
+    batch_id: int = None,
+    data_source: str = "redis_api",
+    message: str = None
+) -> TopGainersListResponse:
+    """TopGainers 리스트 응답 생성"""
+    categories = list(set(item.category.value for item in data if item.category))
+    
+    return TopGainersListResponse(
+        data=data,
+        total_count=len(data),
+        batch_id=batch_id,
+        categories=categories,
+        last_updated=datetime.now(pytz.UTC).isoformat(),
+        data_source=data_source,
+        message=message
+    )
+
+def create_topgainers_category_response(
+    category: TopGainersCategory,
+    data: List[TopGainerData],
+    batch_id: int = None,
+    data_source: str = "redis_api",
+    message: str = None
+) -> TopGainersCategoryResponse:
+    """TopGainers 카테고리별 응답 생성"""
+    return TopGainersCategoryResponse(
+        category=category,
+        data=data,
+        total_count=len(data),
+        batch_id=batch_id,
+        last_updated=datetime.now(pytz.UTC).isoformat(),
+        data_source=data_source,
+        message=message
+    )
+
+def create_topgainers_symbol_response(
+    symbol: str,
+    data: TopGainerData = None,
+    batch_id: int = None,
+    message: str = None
+) -> TopGainersSymbolResponse:
+    """TopGainers 심볼별 응답 생성"""
+    return TopGainersSymbolResponse(
+        symbol=symbol.upper(),
+        data=data,
+        found=data is not None,
+        batch_id=batch_id,
+        last_updated=data.last_updated if data else None,
+        message=message or ("데이터를 찾았습니다." if data else "데이터를 찾을 수 없습니다.")
+    )
+
+# =========================
+# 🎯 WebSocket 헬퍼 함수들
 # =========================
 
 def create_topgainers_update_message(data: List[TopGainerData], batch_id: int = None) -> TopGainersUpdateMessage:

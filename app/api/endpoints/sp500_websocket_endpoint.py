@@ -13,7 +13,7 @@ from app.websocket.redis_streamer import RedisStreamer
 from app.services.sp500_service import SP500Service
 from app.schemas.sp500_schema import (
     TimeframeEnum, MarketStatus, StockInfo, 
-    SP500WebSocketMessage, SP500StatusMessage, SP500ErrorMessage,
+    SP500UpdateMessage, SP500StatusMessage, SP500ErrorMessage,
     create_error_response
 )
 
@@ -242,7 +242,7 @@ async def _start_sp500_streaming_with_changes(websocket: WebSocket, client_id: i
             # 변경된 경우만 전송
             if current_hash != last_data_hash:
                 # SP500WebSocketMessage 스키마 사용
-                websocket_message = SP500WebSocketMessage(
+                websocket_message = SP500UpdateMessage(
                     data=[StockInfo(**item) for item in data if isinstance(item, dict)],
                     data_count=len(data),
                     market_status=MarketStatus(**sp500_service.market_checker.get_market_status())
