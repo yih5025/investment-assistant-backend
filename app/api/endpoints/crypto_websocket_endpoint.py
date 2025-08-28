@@ -83,8 +83,12 @@ async def initialize_crypto_websocket_services():
     else:
         logger.warning("Crypto Service Redis 연결 실패 (DB로 fallback)")
     
-    # RedisStreamer 초기화
-    redis_streamer = RedisStreamer(crypto_service)
+    # RedisStreamer 초기화 (Crypto만 사용하므로 다른 서비스는 None)
+    redis_streamer = RedisStreamer(
+        topgainers_service=None,
+        crypto_service=crypto_service,
+        sp500_service=None
+    )
     await redis_streamer.initialize()
     redis_streamer.set_websocket_manager(websocket_manager)
     

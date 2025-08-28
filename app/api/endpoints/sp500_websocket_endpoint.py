@@ -42,7 +42,12 @@ async def initialize_sp500_websocket_services():
         logger.warning("⚠️ SP500 Service Redis 연결 실패 (DB로 fallback)")
     
     # RedisStreamer 초기화 (기존 WebSocketService 대신 SP500Service 전달)
-    redis_streamer = RedisStreamer(sp500_service)
+    # RedisStreamer 초기화 (SP500만 사용하므로 다른 서비스는 None)
+    redis_streamer = RedisStreamer(
+        topgainers_service=None,
+        crypto_service=None,
+        sp500_service=sp500_service
+    )
     await redis_streamer.initialize()
     redis_streamer.set_websocket_manager(websocket_manager)
     

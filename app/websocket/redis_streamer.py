@@ -42,9 +42,9 @@ class RedisStreamer:
     """
     
     def __init__(self, 
-                 topgainers_service: TopGainersService,
-                 crypto_service: CryptoService, 
-                 sp500_service: SP500Service,
+                 topgainers_service: Optional[TopGainersService],
+                 crypto_service: Optional[CryptoService], 
+                 sp500_service: Optional[SP500Service],
                  polling_interval: float = 0.5):
         """
         RedisStreamer 초기화

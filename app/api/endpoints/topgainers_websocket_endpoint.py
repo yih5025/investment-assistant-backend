@@ -40,8 +40,12 @@ async def initialize_topgainers_websocket_services():
     else:
         logger.warning("TopGainers Redis 연결 실패 (DB fallback)")
     
-    # RedisStreamer 초기화
-    redis_streamer = RedisStreamer(topgainers_service)
+    # RedisStreamer 초기화 (TopGainers만 사용하므로 다른 서비스는 None)
+    redis_streamer = RedisStreamer(
+        topgainers_service=topgainers_service,
+        crypto_service=None,
+        sp500_service=None
+    )
     await redis_streamer.initialize()
     redis_streamer.set_websocket_manager(websocket_manager)
     
