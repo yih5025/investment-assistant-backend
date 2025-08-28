@@ -17,8 +17,8 @@ from .endpoints import (
     balance_sheet_endpoint,
     treasury_yield_endpoint,
     # websocket_endpoint,  # 제거됨 - 통합 WebSocket 엔드포인트
-    sp500_endpoint,
-    topgainers_endpoint,
+    sp500_polling_endpoint,
+    topgainers_polling_endpoint,
     # 새로운 분리된 WebSocket 엔드포인트들 추가
     sp500_websocket_endpoint,
     topgainers_websocket_endpoint,
@@ -133,14 +133,14 @@ ROUTER_CONFIGS = [
 
     # 실시간 주식 데이터 API
     {
-        "router": topgainers_endpoint.router,
+        "router": topgainers_polling_endpoint.router,
         "prefix": "/stocks/topgainers",
         "tag": "TopGainers",
         "category": "실시간주식",
         "description": "실시간 상승/하락/활발한 주식 데이터 API - WebSocket fallback 지원"
     },
     {
-        "router": sp500_endpoint.router,
+        "router": sp500_polling_endpoint.router,
         "prefix": "/stocks/sp500",
         "tag": "SP500",
         "category": "실시간주식",
