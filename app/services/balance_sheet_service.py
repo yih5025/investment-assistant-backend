@@ -3,18 +3,23 @@ from sqlalchemy import desc, and_, func
 from typing import List, Optional, Dict, Any
 from datetime import date, datetime
 from decimal import Decimal
+import logging
 
+from app.database import get_db
 from app.models.balance_sheet_model import BalanceSheet
 from app.schemas.balance_sheet_schema import (
     FinancialRatio, FinancialHealthGrade, FinancialAnalysis, 
     FinancialTrend, BalanceSheetTrends, BalanceSheetStatistics
 )
 
+logger = logging.getLogger(__name__)
+
 class BalanceSheetService:
     """재무상태표 비즈니스 로직 서비스"""
     
-    def __init__(self, db: Session):
-        self.db = db
+    def __init__(self):
+        """BalanceSheetService 초기화 - DB 세션은 메서드별로 관리"""
+        logger.info("✅ BalanceSheetService 초기화 완료")
     
     # ========== 기본 CRUD 메서드 ==========
     
@@ -27,20 +32,27 @@ class BalanceSheetService:
         end_date: Optional[date] = None
     ) -> List[BalanceSheet]:
         """재무상태표 목록 조회"""
-        query = self.db.query(BalanceSheet)
-        
-        # 필터링 조건 적용
-        if symbol:
-            query = query.filter(BalanceSheet.symbol == symbol.upper())
-        if start_date:
-            query = query.filter(BalanceSheet.fiscaldateending >= start_date)
-        if end_date:
-            query = query.filter(BalanceSheet.fiscaldateending <= end_date)
-        
-        # 최신순 정렬
-        query = query.order_by(desc(BalanceSheet.fiscaldateending), BalanceSheet.symbol)
-        
-        return query.offset(skip).limit(limit).all()
+        try:
+            db = next(get_db())
+            query = db.query(BalanceSheet)
+            
+            # 필터링 조건 적용
+            if symbol:
+                query = query.filter(BalanceSheet.symbol == symbol.upper())
+            if start_date:
+                query = query.filter(BalanceSheet.fiscaldateending >= start_date)
+            if end_date:
+                query = query.filter(BalanceSheet.fiscaldateending <= end_date)
+            
+            # 최신순 정렬
+            query = query.order_by(desc(BalanceSheet.fiscaldateending), BalanceSheet.symbol)
+            
+            return query.offset(skip).limit(limit).all()
+        except Exception as e:
+            logger.error(f"❌ Balance Sheet 목록 조회 실패: {e}")
+            return []
+        finally:
+            db.close()
     
     def get_balance_sheet_count(
         self,
@@ -49,37 +61,72 @@ class BalanceSheetService:
         end_date: Optional[date] = None
     ) -> int:
         """재무상태표 총 개수"""
-        query = self.db.query(BalanceSheet)
-        
-        if symbol:
-            query = query.filter(BalanceSheet.symbol == symbol.upper())
-        if start_date:
-            query = query.filter(BalanceSheet.fiscaldateending >= start_date)
-        if end_date:
-            query = query.filter(BalanceSheet.fiscaldateending <= end_date)
-        
-        return query.count()
+        try:
+            db = next(get_db())
+            query = db.query(BalanceSheet)
+            
+            if symbol:
+                query = query.filter(BalanceSheet.symbol == symbol.upper())
+            if start_date:
+                query = query.filter(BalanceSheet.fiscaldateending >= start_date)
+            if end_date:
+                query = query.filter(BalanceSheet.fiscaldateending <= end_date)
+            
+            return query.count()
+        except Exception as e:
+            logger.error(f"❌ Balance Sheet 개수 조회 실패: {e}")
+            return 0
+        finally:
+            db.close()
     
     def get_by_symbol(self, symbol: str) -> List[BalanceSheet]:
         """특정 기업의 모든 재무상태표"""
-        return self.db.query(BalanceSheet)\
-            .filter(BalanceSheet.symbol == symbol.upper())\
-            .order_by(desc(BalanceSheet.fiscaldateending))\
-            .all()
+        try:
+            db = next(get_db())
+            return db.query(BalanceSheet)\
+                .filter(BalanceSheet.symbol == symbol.upper())\
+                .order_by(desc(BalanceSheet.fiscaldateending))\
+                .all()
+        except Exception as e:
+            logger.error(f"❌ {symbol} Balance Sheet 전체 조회 실패: {e}")
+            return []
+        finally:
+            db.close()
     
     def get_latest_by_symbol(self, symbol: str) -> Optional[BalanceSheet]:
         """특정 기업의 최신 재무상태표"""
-        return self.db.query(BalanceSheet)\
-            .filter(BalanceSheet.symbol == symbol.upper())\
-            .order_by(desc(BalanceSheet.fiscaldateending))\
-            .first()
+        try:
+            db = next(get_db())
+            result = db.query(BalanceSheet)\
+                .filter(BalanceSheet.symbol == symbol.upper())\
+                .order_by(desc(BalanceSheet.fiscaldateending))\
+                .first()
+            
+            if result:
+                logger.info(f"✅ {symbol} Balance Sheet 조회 성공 (fiscal_date: {result.fiscaldateending})")
+            else:
+                logger.warning(f"⚠️ {symbol} Balance Sheet 데이터 없음")
+            
+            return result
+        except Exception as e:
+            logger.error(f"❌ {symbol} 최신 Balance Sheet 조회 실패: {e}")
+            return None
+        finally:
+            db.close()
     
     def get_by_period(self, period_date: date) -> List[BalanceSheet]:
         """특정 기간의 모든 기업 재무상태표"""
-        return self.db.query(BalanceSheet)\
-            .filter(BalanceSheet.fiscaldateending == period_date)\
-            .order_by(BalanceSheet.symbol)\
-            .all()
+        try:
+            db = next(get_db())
+            return db.query(BalanceSheet)\
+                .filter(BalanceSheet.fiscaldateending == period_date)\
+                .order_by(BalanceSheet.symbol)\
+                .all()
+        except Exception as e:
+            logger.error(f"❌ 기간별 Balance Sheet 조회 실패: {period_date} - {e}")
+            return []
+        finally:
+            db.close()
     
     # ========== 재무비율 계산 로직 ==========
     
@@ -500,42 +547,52 @@ class BalanceSheetService:
     
     def get_financial_trends(self, symbol: str, periods: int = 4) -> Optional[BalanceSheetTrends]:
         """재무 트렌드 분석 (최근 N분기)"""
-        balance_sheets = self.db.query(BalanceSheet)\
-            .filter(BalanceSheet.symbol == symbol.upper())\
-            .order_by(desc(BalanceSheet.fiscaldateending))\
-            .limit(periods)\
-            .all()
-        
-        if len(balance_sheets) < 2:
+        try:
+            db = next(get_db())
+            balance_sheets = db.query(BalanceSheet)\
+                .filter(BalanceSheet.symbol == symbol.upper())\
+                .order_by(desc(BalanceSheet.fiscaldateending))\
+                .limit(periods)\
+                .all()
+            
+            if len(balance_sheets) < 2:
+                logger.warning(f"⚠️ {symbol} 트렌드 분석용 데이터 부족 (필요: 2개 이상, 현재: {len(balance_sheets)}개)")
+                return None
+            
+            trends = []
+            current = balance_sheets[0]
+            previous = balance_sheets[1]
+            
+            # 주요 지표별 트렌드 분석
+            trend_metrics = [
+                ('총자산', 'totalassets'),
+                ('총부채', 'totalliabilities'),
+                ('자기자본', 'totalshareholderequity'),
+                ('유동자산', 'totalcurrentassets'),
+                ('현금성자산', 'cashandcashequivalentsatcarryingvalue')
+            ]
+            
+            for metric_name, field_name in trend_metrics:
+                trend = self._calculate_trend(metric_name, current, previous, field_name)
+                if trend:
+                    trends.append(trend)
+            
+            # 트렌드 요약
+            summary = self._generate_trend_summary(trends)
+            
+            logger.info(f"✅ {symbol} 재무 트렌드 분석 완료: {len(trends)}개 지표")
+            
+            return BalanceSheetTrends(
+                symbol=symbol,
+                period_count=len(balance_sheets),
+                trends=trends,
+                summary=summary
+            )
+        except Exception as e:
+            logger.error(f"❌ {symbol} 재무 트렌드 분석 실패: {e}")
             return None
-        
-        trends = []
-        current = balance_sheets[0]
-        previous = balance_sheets[1]
-        
-        # 주요 지표별 트렌드 분석
-        trend_metrics = [
-            ('총자산', 'totalassets'),
-            ('총부채', 'totalliabilities'),
-            ('자기자본', 'totalshareholderequity'),
-            ('유동자산', 'totalcurrentassets'),
-            ('현금성자산', 'cashandcashequivalentsatcarryingvalue')
-        ]
-        
-        for metric_name, field_name in trend_metrics:
-            trend = self._calculate_trend(metric_name, current, previous, field_name)
-            if trend:
-                trends.append(trend)
-        
-        # 트렌드 요약
-        summary = self._generate_trend_summary(trends)
-        
-        return BalanceSheetTrends(
-            symbol=symbol,
-            period_count=len(balance_sheets),
-            trends=trends,
-            summary=summary
-        )
+        finally:
+            db.close()
     
     def _calculate_trend(
         self, 
@@ -593,48 +650,57 @@ class BalanceSheetService:
     
     def get_statistics(self) -> BalanceSheetStatistics:
         """재무상태표 전체 통계"""
-        # 기본 통계
-        total_companies = self.db.query(BalanceSheet.symbol).distinct().count()
-        latest_period = self.db.query(func.max(BalanceSheet.fiscaldateending)).scalar()
-        
-        # 평균 총자산 계산 (최신 분기 기준)
-        avg_assets_result = self.db.query(func.avg(BalanceSheet.totalassets))\
-            .filter(BalanceSheet.fiscaldateending == latest_period)\
-            .scalar()
-        avg_total_assets = float(avg_assets_result) / 1_000_000_000 if avg_assets_result else 0
-        
-        # 중간값 부채비율 계산
-        debt_ratios = self.db.query(
-            (BalanceSheet.totalliabilities / BalanceSheet.totalassets).label('debt_ratio')
-        ).filter(
-            and_(
-                BalanceSheet.fiscaldateending == latest_period,
-                BalanceSheet.totalassets > 0,
-                BalanceSheet.totalliabilities.isnot(None)
+        try:
+            db = next(get_db())
+            # 기본 통계
+            total_companies = db.query(BalanceSheet.symbol).distinct().count()
+            latest_period = db.query(func.max(BalanceSheet.fiscaldateending)).scalar()
+            
+            # 평균 총자산 계산 (최신 분기 기준)
+            avg_assets_result = db.query(func.avg(BalanceSheet.totalassets))\
+                .filter(BalanceSheet.fiscaldateending == latest_period)\
+                .scalar()
+            avg_total_assets = float(avg_assets_result) / 1_000_000_000 if avg_assets_result else 0
+            
+            # 중간값 부채비율 계산
+            debt_ratios = db.query(
+                (BalanceSheet.totalliabilities / BalanceSheet.totalassets).label('debt_ratio')
+            ).filter(
+                and_(
+                    BalanceSheet.fiscaldateending == latest_period,
+                    BalanceSheet.totalassets > 0,
+                    BalanceSheet.totalliabilities.isnot(None)
+                )
+            ).all()
+            
+            if debt_ratios:
+                ratios_list = [float(r.debt_ratio) for r in debt_ratios if r.debt_ratio]
+                ratios_list.sort()
+                median_debt_ratio = ratios_list[len(ratios_list) // 2] if ratios_list else 0
+            else:
+                median_debt_ratio = 0
+            
+            # 규모별 분포
+            size_distribution = self._get_size_distribution(latest_period, db)
+            
+            logger.info(f"✅ Balance Sheet 통계 조회 완료: {total_companies}개 기업")
+            
+            return BalanceSheetStatistics(
+                total_companies=total_companies,
+                latest_period=latest_period,
+                average_total_assets=round(avg_total_assets, 2),
+                median_debt_ratio=round(median_debt_ratio, 3),
+                size_distribution=size_distribution
             )
-        ).all()
-        
-        if debt_ratios:
-            ratios_list = [float(r.debt_ratio) for r in debt_ratios if r.debt_ratio]
-            ratios_list.sort()
-            median_debt_ratio = ratios_list[len(ratios_list) // 2] if ratios_list else 0
-        else:
-            median_debt_ratio = 0
-        
-        # 규모별 분포
-        size_distribution = self._get_size_distribution(latest_period)
-        
-        return BalanceSheetStatistics(
-            total_companies=total_companies,
-            latest_period=latest_period,
-            average_total_assets=round(avg_total_assets, 2),
-            median_debt_ratio=round(median_debt_ratio, 3),
-            size_distribution=size_distribution
-        )
+        except Exception as e:
+            logger.error(f"❌ Balance Sheet 통계 조회 실패: {e}")
+            raise
+        finally:
+            db.close()
     
-    def _get_size_distribution(self, latest_period: date) -> Dict[str, int]:
+    def _get_size_distribution(self, latest_period: date, db: Session) -> Dict[str, int]:
         """규모별 기업 분포"""
-        companies = self.db.query(BalanceSheet.totalassets)\
+        companies = db.query(BalanceSheet.totalassets)\
             .filter(
                 and_(
                     BalanceSheet.fiscaldateending == latest_period,
