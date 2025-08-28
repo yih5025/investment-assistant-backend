@@ -155,6 +155,12 @@ class RedisStreamer:
     async def _topgainers_stream_loop(self):
         """TopGainers 스트리밍 루프"""
         try:
+            # TopGainers 서비스가 없으면 스트리밍 중단
+            if not self.topgainers_service:
+                logger.warning("TopGainers 서비스가 없어 스트리밍을 중단합니다")
+                self.is_streaming_topgainers = False
+                return
+                
             while self.is_streaming_topgainers:
                 try:
                     # TopGainers 서비스에서 데이터 조회
@@ -234,6 +240,12 @@ class RedisStreamer:
     async def _crypto_stream_loop(self):
         """암호화폐 스트리밍 루프"""
         try:
+            # Crypto 서비스가 없으면 스트리밍 중단
+            if not self.crypto_service:
+                logger.warning("Crypto 서비스가 없어 스트리밍을 중단합니다")
+                self.is_streaming_crypto = False
+                return
+                
             while self.is_streaming_crypto:
                 try:
                     # Crypto 서비스에서 데이터 조회
@@ -310,6 +322,12 @@ class RedisStreamer:
     async def _sp500_stream_loop(self):
         """SP500 스트리밍 루프"""
         try:
+            # SP500 서비스가 없으면 스트리밍 중단
+            if not self.sp500_service:
+                logger.warning("SP500 서비스가 없어 스트리밍을 중단합니다")
+                self.is_streaming_sp500 = False
+                return
+                
             while self.is_streaming_sp500:
                 try:
                     # SP500 서비스에서 데이터 조회
@@ -810,10 +828,10 @@ class RedisStreamer:
     async def _get_dashboard_data(self) -> Dict[str, Any]:
         """대시보드용 통합 데이터 조회"""
         try:
-            # 각 서비스에서 요약 데이터 조회
-            top_gainers = await self.topgainers_service.get_realtime_data(limit=10)
-            top_crypto = await self.crypto_service.get_realtime_data(limit=10) 
-            sp500_highlights = await self.sp500_service.get_realtime_data(limit=10)
+            # 각 서비스에서 요약 데이터 조회 (None 체크)
+            top_gainers = await self.topgainers_service.get_realtime_data(limit=10) if self.topgainers_service else []
+            top_crypto = await self.crypto_service.get_realtime_data(limit=10) if self.crypto_service else []
+            sp500_highlights = await self.sp500_service.get_realtime_data(limit=10) if self.sp500_service else []
             
             return {
                 "top_gainers": [item.dict() if hasattr(item, 'dict') else item for item in (top_gainers or [])],
@@ -833,11 +851,11 @@ class RedisStreamer:
     async def _get_symbol_data(self, symbol: str, data_type: str):
         """특정 심볼 데이터 조회"""
         try:
-            if data_type == "topgainers":
+            if data_type == "topgainers" and self.topgainers_service:
                 return await self.topgainers_service.get_symbol_data(symbol)
-            elif data_type == "crypto":
+            elif data_type == "crypto" and self.crypto_service:
                 return await self.crypto_service.get_symbol_data(symbol)
-            elif data_type == "sp500":
+            elif data_type == "sp500" and self.sp500_service:
                 return await self.sp500_service.get_symbol_data(symbol)
             else:
                 logger.warning(f"⚠️ 지원하지 않는 데이터 타입: {data_type}")
