@@ -456,16 +456,23 @@ class CryptoService:
                 # 한국명, 영어명 조회
                 korean_name, english_name = await self._get_crypto_names(market_code)
                 
+                # 안전한 float 변환 함수
+                def safe_float(value, default=0.0):
+                    try:
+                        return float(value) if value is not None else default
+                    except (ValueError, TypeError):
+                        return default
+                
                 formatted_item = {
                     "market_code": market_code,
                     "symbol": symbol,
                     "korean_name": korean_name,
                     "english_name": english_name,
-                    "price": float(item_dict.get('price', 0)),
-                    "change_24h": float(item_dict.get('change_24h', 0)),
-                    "change_rate_24h": f"{float(item_dict.get('change_rate', 0)):.2f}%" if item_dict.get('change_rate') else "0.00%",
-                    "volume": float(item_dict.get('volume', 0)),
-                    "acc_trade_value_24h": float(item_dict.get('acc_trade_value_24h', 0)),
+                    "price": safe_float(item_dict.get('price')),
+                    "change_24h": safe_float(item_dict.get('change_24h')),
+                    "change_rate_24h": f"{safe_float(item_dict.get('change_rate')):.2f}%" if item_dict.get('change_rate') is not None else "0.00%",
+                    "volume": safe_float(item_dict.get('volume')),
+                    "acc_trade_value_24h": safe_float(item_dict.get('acc_trade_value_24h')),
                     "timestamp": item_dict.get('timestamp')
                 }
                 formatted_data.append(formatted_item)
