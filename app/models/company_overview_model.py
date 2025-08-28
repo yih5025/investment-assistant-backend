@@ -138,8 +138,6 @@ class CompanyOverview(BaseModel):
     # 메타데이터
     created_at = Column(DateTime, nullable=False, server_default=func.now(),
                        comment="레코드 생성 시간")
-    updated_at = Column(DateTime, nullable=False, server_default=func.now(),
-                       comment="레코드 업데이트 시간")
     
     def __repr__(self):
         return f"<CompanyOverview(batch_id={self.batch_id}, symbol='{self.symbol}', name='{self.name}')>"

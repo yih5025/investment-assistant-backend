@@ -98,7 +98,6 @@ class CompanyOverviewData(BaseModel):
     
     # 메타데이터
     created_at: str = Field(..., description="생성 시간")
-    updated_at: str = Field(..., description="업데이트 시간")
 
 class CompanyOverviewSummary(BaseModel):
     """Company Overview 요약 정보 (리스트용)"""
@@ -278,8 +277,7 @@ def db_to_company_overview_data(company: Any) -> CompanyOverviewData:
         shares_outstanding=company.shares_outstanding,
         fiscal_year_end=company.fiscal_year_end,
         latest_quarter=company.latest_quarter,
-        created_at=company.created_at.isoformat() if company.created_at else "",
-        updated_at=company.updated_at.isoformat() if company.updated_at else ""
+        created_at=company.created_at.isoformat() if company.created_at else ""
     )
 
 def db_to_company_overview_summary(company: Any) -> CompanyOverviewSummary:
