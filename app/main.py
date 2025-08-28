@@ -27,11 +27,24 @@ async def lifespan(app: FastAPI):
     else:
         logger.error("❌ 데이터베이스 연결 실패")
     
-    # WebSocket 서비스들 초기화
+    # 분리된 WebSocket 서비스들 초기화
     try:
-        from .api.endpoints.websocket_endpoint import initialize_websocket_services
-        await initialize_websocket_services()
-        logger.info("✅ WebSocket 서비스 초기화 완료")
+        # TopGainers WebSocket 초기화
+        from .api.endpoints.topgainers_websocket_endpoint import initialize_topgainers_websocket_services
+        await initialize_topgainers_websocket_services()
+        logger.info("✅ TopGainers WebSocket 서비스 초기화 완료")
+        
+        # SP500 WebSocket 초기화
+        from .api.endpoints.sp500_websocket_endpoint import initialize_sp500_websocket_services
+        await initialize_sp500_websocket_services()
+        logger.info("✅ SP500 WebSocket 서비스 초기화 완료")
+        
+        # Crypto WebSocket 초기화
+        from .api.endpoints.crypto_websocket_endpoint import initialize_crypto_websocket_services
+        await initialize_crypto_websocket_services()
+        logger.info("✅ Crypto WebSocket 서비스 초기화 완료")
+        
+        logger.info("✅ 모든 WebSocket 서비스 초기화 완료")
     except Exception as e:
         logger.error(f"❌ WebSocket 서비스 초기화 실패: {e}")
     
@@ -40,12 +53,25 @@ async def lifespan(app: FastAPI):
     
     yield
     
-    # Shutdown
+    # Shutdown - 분리된 WebSocket 서비스들 종료
     logger.info("🛑 애플리케이션 종료 중...")
     try:
-        from .api.endpoints.websocket_endpoint import shutdown_websocket_services
-        await shutdown_websocket_services()
-        logger.info("✅ WebSocket 서비스 종료 완료")
+        # TopGainers WebSocket 종료
+        from .api.endpoints.topgainers_websocket_endpoint import shutdown_topgainers_websocket_services
+        await shutdown_topgainers_websocket_services()
+        logger.info("✅ TopGainers WebSocket 서비스 종료 완료")
+        
+        # SP500 WebSocket 종료
+        from .api.endpoints.sp500_websocket_endpoint import shutdown_sp500_websocket_services
+        await shutdown_sp500_websocket_services()
+        logger.info("✅ SP500 WebSocket 서비스 종료 완료")
+        
+        # Crypto WebSocket 종료
+        from .api.endpoints.crypto_websocket_endpoint import shutdown_crypto_websocket_services
+        await shutdown_crypto_websocket_services()
+        logger.info("✅ Crypto WebSocket 서비스 종료 완료")
+        
+        logger.info("✅ 모든 WebSocket 서비스 종료 완료")
     except Exception as e:
         logger.error(f"❌ WebSocket 서비스 종료 실패: {e}")
     logger.info("✅ 정리 작업 완료")

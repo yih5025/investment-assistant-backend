@@ -1,5 +1,6 @@
 # app/services/sp500_service.py
 import logging
+import json
 from typing import List, Dict, Any, Optional, Union
 from datetime import datetime, timedelta
 import pytz
@@ -110,15 +111,12 @@ class SP500Service:
         WebSocket 서비스와 연동만 추가
         """
         try:
-            from app.services.sp500_service import SP500Service
-            
-            # WebSocket 서비스와 동일한 데이터 소스 사용
-            sp500_service = SP500Service()
-            if not sp500_service.redis_client:
-                await sp500_service.init_redis()
+            # Redis 클라이언트가 없으면 초기화
+            if not self.redis_client:
+                await self.init_redis()
             
             # 🎯 Redis에서 기본 데이터 조회 후 변화율 직접 계산
-            redis_data = await sp500_service.get_sp500_from_redis(limit=1000)
+            redis_data = await self.get_sp500_from_redis(limit=1000)
             
             if not redis_data:
                 logger.warning("📊 Redis SP500 데이터 없음, DB fallback")
@@ -127,27 +125,18 @@ class SP500Service:
             # 🎯 실제 변화율 계산 로직으로 변경
             all_data = []
             
-            # 심볼 리스트 추출
+            # 심볼 리스트 추출 (Redis 데이터는 이미 딕셔너리 형태)
             symbols = []
             for item in redis_data:
-                if hasattr(item, 'symbol'):
-                    symbols.append(item.symbol)
-                elif hasattr(item, 'dict') and 'symbol' in item.dict():
-                    symbols.append(item.dict()['symbol'])
-                elif isinstance(item, dict) and 'symbol' in item:
+                if isinstance(item, dict) and 'symbol' in item:
                     symbols.append(item['symbol'])
             
             # 전날 종가 일괄 조회
             previous_close_prices = await self._get_batch_previous_close_prices(symbols)
             
             for item in redis_data:
-                # 기본 데이터를 딕셔너리로 변환
-                if hasattr(item, 'dict'):
-                    item_dict = item.dict()
-                elif hasattr(item, '__dict__'):
-                    item_dict = item.__dict__.copy()
-                else:
-                    item_dict = dict(item) if hasattr(item, 'keys') else {}
+                # Redis 데이터는 이미 딕셔너리 형태
+                item_dict = item.copy() if isinstance(item, dict) else {}
                 
                 # 심볼과 현재가 추출
                 symbol = item_dict.get('symbol', '')
@@ -1144,6 +1133,54 @@ class SP500Service:
             logger.warning(f"SP500 Redis 연결 실패: {e}")
             self.redis_client = None
             return False
+
+    async def get_sp500_from_redis(self, limit: int = 100) -> List[Dict[str, Any]]:
+        """
+        Redis에서 SP500 데이터 조회
+        
+        Args:
+            limit: 반환할 최대 개수
+            
+        Returns:
+            List[Dict]: SP500 데이터 리스트
+        """
+        if not self.redis_client:
+            logger.warning("Redis 클라이언트가 없습니다. 빈 리스트 반환")
+            return []
+            
+        try:
+            # Redis 키 패턴: latest:stocks:sp500:{symbol}
+            pattern = "latest:stocks:sp500:*"
+            keys = await self.redis_client.keys(pattern)
+            
+            if not keys:
+                logger.debug("📊 Redis SP500 데이터 없음")
+                return []
+            
+            # 모든 키의 데이터 가져오기
+            pipeline = self.redis_client.pipeline()
+            for key in keys:
+                pipeline.get(key)
+            
+            results = await pipeline.execute()
+            
+            # JSON 파싱
+            data = []
+            for result in results:
+                if result:
+                    try:
+                        json_data = json.loads(result)
+                        data.append(json_data)
+                    except json.JSONDecodeError as e:
+                        logger.warning(f"Redis 데이터 JSON 파싱 실패: {e}")
+                        continue
+            
+            # limit 적용하여 반환
+            return data[:limit]
+            
+        except Exception as e:
+            logger.error(f"❌ Redis SP500 데이터 조회 실패: {e}")
+            return []
 
     async def shutdown_websocket(self):
         """WebSocket 관련 리소스 정리"""
