@@ -105,9 +105,9 @@ async def cors_debug_middleware(request: Request, call_next):
         logger.info(f"   Host: {host}")
         logger.info(f"   Headers: {dict(request.headers)}")
     
-    # OPTIONS 요청 (Preflight) 특별 처리
+    # OPTIONS 요청 (Preflight) 특별 처리 - 즉시 반환
     if method == "OPTIONS":
-        logger.info("✈️ Preflight 요청 처리 중...")
+        logger.info(f"✈️ Preflight 요청 즉시 처리: {request.url}")
         
         response = JSONResponse(
             content={"message": "CORS preflight OK"},
