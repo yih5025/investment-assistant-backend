@@ -1,9 +1,9 @@
-# app/models/bithumb_ticker_model.py
+# app/models/crypto_model.py
 from sqlalchemy import Column, Integer, String, Numeric, BigInteger, DateTime, Text
 from sqlalchemy.sql import func
 from app.models.base import BaseModel
 
-class BithumbTicker(BaseModel):
+class Crypto(BaseModel):
     """
     빗썸 티커 데이터 테이블 ORM 모델
     

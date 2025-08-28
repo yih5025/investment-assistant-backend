@@ -9,7 +9,7 @@ import pytz
 from app.database import get_db
 from app.config import settings
 from app.models.topgainers_model import TopGainers
-from app.schemas.websocket_schema import TopGainerData, db_to_topgainer_data
+from app.schemas.topgainers_schema import TopGainerData, db_to_topgainer_data
 
 logger = logging.getLogger(__name__)
 
@@ -19,8 +19,14 @@ class MarketTimeChecker:
     def __init__(self):
         self.us_eastern = pytz.timezone('US/Eastern')
         # 주요 공휴일만 포함 (간소화)
+        # 미국 공휴일 (주식시장 휴장일)
         self.market_holidays = {
-            '2024-12-25', '2025-01-01', '2025-01-20', '2025-07-04', '2025-12-25'
+            '2024-01-01', '2024-01-15', '2024-02-19', '2024-03-29',
+            '2024-05-27', '2024-06-19', '2024-07-04', '2024-09-02',
+            '2024-11-28', '2024-12-25',
+            '2025-01-01', '2025-01-20', '2025-02-17', '2025-04-18',
+            '2025-05-26', '2025-06-19', '2025-07-04', '2025-09-01',
+            '2025-11-27', '2025-12-25'
         }
     
     def is_market_open(self) -> bool:
@@ -755,3 +761,237 @@ class TopGainersService:
             
         except Exception as e:
             logger.error(f"❌ TopGainersService 종료 실패: {e}")
+
+    # =========================
+    # WebSocket 전용 메서드 추가
+    # =========================
+
+    async def get_websocket_updates(self, category: str = None, limit: int = 50) -> List[TopGainerData]:
+        """
+        WebSocket용 실시간 TopGainers 데이터
+        
+        Args:
+            category: 카테고리 필터 (None=전체, "top_gainers", "top_losers", "most_actively_traded")
+            limit: 반환할 최대 개수
+            
+        Returns:
+            List[TopGainerData]: WebSocket 전송용 데이터
+        """
+        self.stats["api_calls"] += 1
+        return await self.get_market_data_with_categories(category, limit)
+
+    async def get_realtime_streaming_data(self, category: str = None, limit: int = 50) -> Dict[str, Any]:
+        """
+        WebSocket 스트리밍용 TopGainers 데이터 (변화율 포함)
+        
+        Args:
+            category: 카테고리 필터
+            limit: 반환할 항목 수
+            
+        Returns:
+            Dict[str, Any]: WebSocket 스트리밍 응답 데이터
+        """
+        try:
+            # 기존 변화율 계산 로직 활용
+            enhanced_data = await self._get_enhanced_data_for_streaming(category, limit)
+            
+            return {
+                "type": "topgainers_update",
+                "data": enhanced_data,
+                "timestamp": datetime.now(pytz.UTC).isoformat(),
+                "data_count": len(enhanced_data),
+                "category_filter": category,
+                "market_status": self._get_market_status(),
+                "data_source": "redis_realtime" if self.market_checker.is_market_open() else "database"
+            }
+            
+        except Exception as e:
+            logger.error(f"TopGainers 스트리밍 데이터 조회 실패: {e}")
+            return {
+                "type": "topgainers_error",
+                "error": str(e),
+                "timestamp": datetime.now(pytz.UTC).isoformat()
+            }
+
+    async def _get_enhanced_data_for_streaming(self, category: str = None, limit: int = 50) -> List[Dict]:
+        """
+        WebSocket 스트리밍용 데이터 가공 (변화율 포함)
+        
+        Args:
+            category: 카테고리 필터
+            limit: 반환할 최대 개수
+            
+        Returns:
+            List[Dict]: 변화율이 포함된 스트리밍용 데이터
+        """
+        try:
+            # 기본 데이터 조회
+            raw_data = await self.get_market_data_with_categories(category, limit * 2)
+            
+            if not raw_data:
+                return []
+            
+            # 변화율 계산 추가 (기존 로직 재사용)
+            enhanced_data = await self._add_change_calculations(raw_data)
+            
+            # WebSocket 스트리밍에 최적화된 형태로 변환
+            streaming_data = []
+            for item in enhanced_data[:limit]:
+                if isinstance(item, dict):
+                    streaming_item = item.copy()
+                else:
+                    streaming_item = item.dict() if hasattr(item, 'dict') else {}
+                
+                # 회사명 추가
+                symbol = streaming_item.get('symbol', '')
+                if symbol:
+                    streaming_item['company_name'] = self._get_company_name(symbol)
+                
+                # WebSocket 전송에 필요한 추가 필드
+                streaming_item.update({
+                    'last_updated': datetime.now(pytz.UTC).isoformat(),
+                    'data_type': 'topgainers',
+                    'websocket_timestamp': datetime.now(pytz.UTC).timestamp()
+                })
+                
+                streaming_data.append(streaming_item)
+            
+            return streaming_data
+            
+        except Exception as e:
+            logger.error(f"TopGainers 스트리밍 데이터 가공 실패: {e}")
+            return []
+
+    async def get_category_streaming_data(self, category: str, limit: int = 20) -> Dict[str, Any]:
+        """
+        특정 카테고리 WebSocket 스트리밍 데이터
+        
+        Args:
+            category: 카테고리 (top_gainers, top_losers, most_actively_traded)
+            limit: 반환할 최대 개수
+            
+        Returns:
+            Dict[str, Any]: 카테고리별 스트리밍 데이터
+        """
+        try:
+            # 카테고리별 데이터 조회
+            category_data = await self.get_category_data_for_websocket(category, limit)
+            
+            if not category_data:
+                return {
+                    "type": "topgainers_category_update",
+                    "category": category,
+                    "data": [],
+                    "data_count": 0,
+                    "timestamp": datetime.now(pytz.UTC).isoformat(),
+                    "message": f"No data available for category {category}"
+                }
+            
+            # 딕셔너리 형태로 변환
+            formatted_data = []
+            for item in category_data:
+                if hasattr(item, 'dict'):
+                    item_dict = item.dict()
+                else:
+                    item_dict = item
+                
+                # 회사명 추가
+                symbol = item_dict.get('symbol', '')
+                if symbol:
+                    item_dict['company_name'] = self._get_company_name(symbol)
+                
+                formatted_data.append(item_dict)
+            
+            return {
+                "type": "topgainers_category_update",
+                "category": category,
+                "data": formatted_data,
+                "data_count": len(formatted_data),
+                "timestamp": datetime.now(pytz.UTC).isoformat(),
+                "market_status": self._get_market_status(),
+                "data_source": "redis_realtime" if self.market_checker.is_market_open() else "database"
+            }
+            
+        except Exception as e:
+            logger.error(f"TopGainers 카테고리 {category} 스트리밍 데이터 실패: {e}")
+            return {
+                "type": "topgainers_error",
+                "category": category,
+                "error": str(e),
+                "timestamp": datetime.now(pytz.UTC).isoformat()
+            }
+
+    def _get_company_name(self, symbol: str) -> str:
+        """
+        심볼로 회사명 조회 (sp500_companies 테이블 사용)
+        기존 WebSocketService의 getStockName 로직 이동
+        
+        Args:
+            symbol: 주식 심볼
+            
+        Returns:
+            str: 회사명
+        """
+        try:
+            db = next(get_db())
+            
+            # sp500_companies 테이블에서 회사명 조회
+            result = db.execute(
+                "SELECT company_name FROM sp500_companies WHERE symbol = %s",
+                (symbol,)
+            ).fetchone()
+            
+            if result and result[0]:
+                return result[0]
+            else:
+                # 기본값: 심볼을 회사명으로 사용
+                return f"{symbol} Inc."
+                    
+        except Exception as e:
+            logger.warning(f"{symbol} 회사명 조회 실패: {e}")
+            return f"{symbol} Inc."
+        finally:
+            if 'db' in locals():
+                db.close()
+
+    # =========================
+    # 변화 감지 및 업데이트 확인
+    # =========================
+
+    async def detect_data_changes(self, last_check_time: Optional[datetime] = None) -> Dict[str, Any]:
+        """
+        데이터 변화 감지 (WebSocket에서 변경 사항 확인용)
+        
+        Args:
+            last_check_time: 마지막 확인 시간
+            
+        Returns:
+            Dict[str, Any]: 변화 감지 결과
+        """
+        try:
+            # 현재 데이터 조회
+            current_data = await self.get_market_data_with_categories()
+            
+            # 변화 감지 로직 (간단 버전)
+            has_changes = True  # 실제로는 이전 데이터와 비교
+            
+            if has_changes:
+                return {
+                    "has_changes": True,
+                    "change_count": len(current_data),
+                    "last_update": datetime.now(pytz.UTC).isoformat(),
+                    "data": current_data[:10]  # 변화된 데이터의 일부만
+                }
+            else:
+                return {
+                    "has_changes": False,
+                    "last_check": last_check_time.isoformat() if last_check_time else None,
+                    "message": "No changes detected"
+                }
+                
+        except Exception as e:
+            logger.error(f"TopGainers 변화 감지 실패: {e}")
+            return {
+                "has_changes": False,
+                "error": str(e)
+            }

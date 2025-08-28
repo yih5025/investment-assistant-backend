@@ -177,6 +177,43 @@ class ErrorResponse(BaseModel):
 # 🎯 유틸리티 함수들
 # =========================
 
+class SP500WebSocketMessage(BaseModel):
+    """SP500 WebSocket 업데이트 메시지"""
+    type: str = "sp500_update"
+    data: List[StockInfo]  # 기존 StockInfo 재사용
+    timestamp: str = Field(default_factory=lambda: datetime.now(pytz.UTC).isoformat())
+    data_count: int = Field(..., description="전송된 데이터 개수")
+    market_status: MarketStatus = Field(..., description="시장 상태")
+    data_source: str = Field(default="redis_api", description="데이터 소스")
+    
+    class Config:
+        from_attributes = True
+
+class SP500StatusMessage(BaseModel):
+    """SP500 WebSocket 상태 메시지"""
+    type: str = "sp500_status"
+    status: str = Field(..., description="connected, disconnected, error, api_mode")
+    timestamp: str = Field(default_factory=lambda: datetime.now(pytz.UTC).isoformat())
+    market_status: MarketStatus = Field(..., description="시장 상태")
+    data_source: str = Field(default="redis_api")
+
+class SP500ErrorMessage(BaseModel):
+    """SP500 WebSocket 에러 메시지"""
+    type: str = "sp500_error"
+    error_code: str
+    message: str
+    timestamp: str = Field(default_factory=lambda: datetime.now(pytz.UTC).isoformat())
+    symbol: Optional[str] = None
+
+# 헬퍼 함수도 추가
+def create_sp500_websocket_message(data: List[StockInfo], market_status: MarketStatus) -> SP500WebSocketMessage:
+    """SP500 WebSocket 메시지 생성"""
+    return SP500WebSocketMessage(
+        data=data,
+        data_count=len(data),
+        market_status=market_status
+    )
+
 def create_error_response(error_type: str, message: str, code: str = None, path: str = None) -> ErrorResponse:
     """에러 응답 생성 유틸리티"""
     return ErrorResponse(

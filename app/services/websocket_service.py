@@ -308,18 +308,13 @@ class WebSocketService:
             
             # 🎯 시장 상태에 따른 조회 전략
             if self.should_use_db_fallback():
-                # 장 마감 시: 각 심볼의 최신 가격 조회
-                db_objects = SP500WebsocketTrades.get_latest_prices_by_symbols(db, limit)
+                # 장 마감 시: 각 심볼의 최신 가격 조회 (기존 메서드 사용)
+                db_objects = SP500WebsocketTrades.get_all_current_prices(db, limit)
                 logger.debug(f"📊 장 마감 시 SP500 최신 데이터 조회: {len(db_objects)}개")
             else:
-                # 장 개장 시: 카테고리별 최신 가격들 조회
-                if category:
-                    db_objects = SP500WebsocketTrades.get_latest_prices(db, category=category)
-                else:
-                    db_objects = SP500WebsocketTrades.get_latest_prices(db)
-                
-                # 결과 제한
-                db_objects = db_objects[:limit]
+                # 장 개장 시: 동일한 메서드 사용 (Redis 우선, DB fallback)
+                db_objects = SP500WebsocketTrades.get_all_current_prices(db, limit)
+                logger.debug(f"📊 장 개장 시 SP500 데이터 조회: {len(db_objects)}개")
             
             # Pydantic 모델로 변환
             data = [db_to_sp500_data(obj) for obj in db_objects]

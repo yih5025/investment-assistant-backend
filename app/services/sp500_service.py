@@ -3,8 +3,7 @@ import logging
 from typing import List, Dict, Any, Optional, Union
 from datetime import datetime, timedelta
 import pytz
-from sqlalchemy.orm import Session
-
+from app.config import settings
 from app.database import get_db
 from app.models.sp500_model import SP500WebsocketTrades
 
@@ -86,6 +85,7 @@ class SP500Service:
     def __init__(self):
         """SP500Service 초기화"""
         self.market_checker = MarketTimeChecker()
+        self.redis_client = None  # 이 줄을 추가
         
         # 성능 통계
         self.stats = {
@@ -854,3 +854,305 @@ class SP500Service:
             }
         finally:
             db.close()
+
+    # =========================
+    # WebSocket 전용 메서드 추가
+    # =========================
+
+    async def get_websocket_updates(self, limit: int = 100) -> List[Dict]:
+        """
+        WebSocket용 실시간 SP500 데이터
+        
+        Args:
+            limit: 반환할 최대 개수
+            
+        Returns:
+            List[Dict]: WebSocket 전송용 데이터
+        """
+        self.stats["api_requests"] += 1
+        result = await self.get_realtime_polling_data(limit)
+        return result.get("data", [])
+
+    async def get_realtime_streaming_data(self, limit: int = 100) -> Dict[str, Any]:
+        """
+        WebSocket 스트리밍용 SP500 데이터 (변화율 포함)
+        
+        Args:
+            limit: 반환할 항목 수
+            
+        Returns:
+            Dict[str, Any]: WebSocket 스트리밍 응답 데이터
+        """
+        try:
+            # 기존 변화율 계산 로직 활용
+            polling_result = await self.get_realtime_polling_data(limit)
+            
+            if polling_result.get("error"):
+                return {
+                    "type": "sp500_error",
+                    "error": polling_result["error"],
+                    "timestamp": datetime.now(pytz.UTC).isoformat()
+                }
+            
+            # WebSocket 형태로 변환
+            streaming_data = polling_result.get("data", [])
+            
+            # 각 항목에 WebSocket 전용 필드 추가
+            for item in streaming_data:
+                item.update({
+                    'data_type': 'sp500',
+                    'websocket_timestamp': datetime.now(pytz.UTC).timestamp(),
+                    'last_updated': datetime.now(pytz.UTC).isoformat()
+                })
+            
+            return {
+                "type": "sp500_update",
+                "data": streaming_data,
+                "timestamp": datetime.now(pytz.UTC).isoformat(),
+                "data_count": len(streaming_data),
+                "market_status": self._get_market_status(),
+                "metadata": polling_result.get("metadata", {})
+            }
+            
+        except Exception as e:
+            logger.error(f"SP500 스트리밍 데이터 조회 실패: {e}")
+            return {
+                "type": "sp500_error",
+                "error": str(e),
+                "timestamp": datetime.now(pytz.UTC).isoformat()
+            }
+
+    async def get_category_streaming_data(self, category: str, limit: int = 50) -> Dict[str, Any]:
+        """
+        특정 카테고리 SP500 WebSocket 스트리밍 데이터
+        
+        Args:
+            category: 카테고리 (top_gainers, top_losers, most_active)
+            limit: 반환할 최대 개수
+            
+        Returns:
+            Dict[str, Any]: 카테고리별 스트리밍 데이터
+        """
+        try:
+            # 카테고리별 데이터 조회
+            if category == "top_gainers":
+                result = self.get_top_gainers(limit)
+            elif category == "top_losers":
+                result = self.get_top_losers(limit)
+            elif category == "most_active":
+                result = self.get_most_active(limit)
+            else:
+                return {
+                    "type": "sp500_error",
+                    "error": f"Unknown category: {category}",
+                    "timestamp": datetime.now(pytz.UTC).isoformat()
+                }
+            
+            if result.get('error'):
+                return {
+                    "type": "sp500_category_error",
+                    "category": category,
+                    "error": result['error'],
+                    "timestamp": datetime.now(pytz.UTC).isoformat()
+                }
+            
+            # WebSocket 스트리밍 형태로 변환
+            category_data = result.get('stocks', [])
+            
+            # 각 항목에 WebSocket 전용 필드 추가
+            for item in category_data:
+                item.update({
+                    'data_type': 'sp500',
+                    'category': category,
+                    'websocket_timestamp': datetime.now(pytz.UTC).timestamp(),
+                    'last_updated': datetime.now(pytz.UTC).isoformat()
+                })
+            
+            return {
+                "type": "sp500_category_update",
+                "category": category,
+                "data": category_data,
+                "data_count": len(category_data),
+                "timestamp": datetime.now(pytz.UTC).isoformat(),
+                "market_status": result.get('market_status', self._get_market_status())
+            }
+            
+        except Exception as e:
+            logger.error(f"SP500 카테고리 {category} 스트리밍 데이터 실패: {e}")
+            return {
+                "type": "sp500_category_error",
+                "category": category,
+                "error": str(e),
+                "timestamp": datetime.now(pytz.UTC).isoformat()
+            }
+
+    async def get_symbol_streaming_data(self, symbol: str) -> Dict[str, Any]:
+        """
+        특정 심볼 SP500 WebSocket 스트리밍 데이터
+        
+        Args:
+            symbol: 주식 심볼 (예: 'AAPL')
+            
+        Returns:
+            Dict[str, Any]: 심볼별 스트리밍 데이터
+        """
+        try:
+            # 기본 정보 조회 (차트 제외)
+            basic_info = self.get_stock_basic_info(symbol)
+            
+            if basic_info.get('error'):
+                return {
+                    "type": "sp500_symbol_error",
+                    "symbol": symbol,
+                    "error": basic_info['error'],
+                    "timestamp": datetime.now(pytz.UTC).isoformat()
+                }
+            
+            # WebSocket 스트리밍 형태로 변환
+            basic_info.update({
+                'data_type': 'sp500',
+                'websocket_timestamp': datetime.now(pytz.UTC).timestamp(),
+                'streaming_mode': 'symbol_focus'
+            })
+            
+            return {
+                "type": "sp500_symbol_update",
+                "symbol": symbol,
+                "data": basic_info,
+                "timestamp": datetime.now(pytz.UTC).isoformat()
+            }
+            
+        except Exception as e:
+            logger.error(f"SP500 심볼 {symbol} 스트리밍 데이터 실패: {e}")
+            return {
+                "type": "sp500_symbol_error",
+                "symbol": symbol,
+                "error": str(e),
+                "timestamp": datetime.now(pytz.UTC).isoformat()
+            }
+
+    # =========================
+    # 변화 감지 및 업데이트 확인
+    # =========================
+
+    async def detect_data_changes(self, last_check_time: Optional[datetime] = None) -> Dict[str, Any]:
+        """
+        SP500 데이터 변화 감지 (WebSocket에서 변경 사항 확인용)
+        
+        Args:
+            last_check_time: 마지막 확인 시간
+            
+        Returns:
+            Dict[str, Any]: 변화 감지 결과
+        """
+        try:
+            # 현재 데이터 조회 (소량)
+            current_data = await self.get_realtime_polling_data(20)
+            
+            if current_data.get("error"):
+                return {
+                    "has_changes": False,
+                    "error": current_data["error"]
+                }
+            
+            # 변화 감지 로직 (간단 버전)
+            has_changes = True  # 실제로는 이전 데이터와 비교 필요
+            
+            if has_changes:
+                return {
+                    "has_changes": True,
+                    "change_count": len(current_data.get("data", [])),
+                    "last_update": datetime.now(pytz.UTC).isoformat(),
+                    "sample_data": current_data.get("data", [])[:5],  # 변화된 데이터 일부
+                    "market_status": self._get_market_status()
+                }
+            else:
+                return {
+                    "has_changes": False,
+                    "last_check": last_check_time.isoformat() if last_check_time else None,
+                    "message": "No changes detected"
+                }
+                
+        except Exception as e:
+            logger.error(f"SP500 변화 감지 실패: {e}")
+            return {
+                "has_changes": False,
+                "error": str(e)
+            }
+
+    # =========================
+    # 회사명 조회 메서드 (WebSocketService에서 이동)
+    # =========================
+
+    def _get_company_name(self, symbol: str) -> str:
+        """
+        심볼로 회사명 조회 (sp500_companies 테이블 사용)
+        기존 WebSocketService의 getStockName 로직 이동
+        
+        Args:
+            symbol: 주식 심볼
+            
+        Returns:
+            str: 회사명
+        """
+        try:
+            db = next(get_db())
+            
+            # sp500_companies 테이블에서 회사명 조회
+            result = db.execute(
+                "SELECT company_name FROM sp500_companies WHERE symbol = %s",
+                (symbol,)
+            ).fetchone()
+            
+            if result and result[0]:
+                return result[0]
+            else:
+                # 기본값: 심볼을 회사명으로 사용
+                return f"{symbol} Inc."
+                    
+        except Exception as e:
+            logger.warning(f"{symbol} 회사명 조회 실패: {e}")
+            return f"{symbol} Inc."
+        finally:
+            if 'db' in locals():
+                db.close()
+
+    # =========================
+    # Redis 연동 메서드 추가 (WebSocket 지원)
+    # =========================
+
+    async def init_redis(self) -> bool:
+        """Redis 연결 초기화 (WebSocket 지원용)"""
+        try:
+            import redis.asyncio as redis
+            
+            self.redis_client = redis.Redis(
+                host=settings.redis_host,
+                port=settings.redis_port,
+                db=settings.redis_db,
+                password=settings.redis_password,
+                decode_responses=True,
+                socket_connect_timeout=5,
+                socket_timeout=5
+            )
+            
+            await self.redis_client.ping()
+            logger.info("SP500 Redis 연결 성공")
+            return True
+            
+        except Exception as e:
+            logger.warning(f"SP500 Redis 연결 실패: {e}")
+            self.redis_client = None
+            return False
+
+    async def shutdown_websocket(self):
+        """WebSocket 관련 리소스 정리"""
+        try:
+            if hasattr(self, 'redis_client') and self.redis_client:
+                await self.redis_client.close()
+                logger.info("SP500 Redis 연결 종료")
+            
+            logger.info("SP500 WebSocket 리소스 정리 완료")
+            
+        except Exception as e:
+            logger.error(f"SP500 WebSocket 리소스 정리 실패: {e}")

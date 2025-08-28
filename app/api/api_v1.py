@@ -16,9 +16,13 @@ from .endpoints import (
     x_posts_endpoint,
     balance_sheet_endpoint,
     treasury_yield_endpoint,
-    websocket_endpoint,
+    # websocket_endpoint,  # 제거됨 - 통합 WebSocket 엔드포인트
     sp500_endpoint,
-    topgainers_endpoint
+    topgainers_endpoint,
+    # 새로운 분리된 WebSocket 엔드포인트들 추가
+    sp500_websocket_endpoint,
+    topgainers_websocket_endpoint,
+    crypto_websocket_endpoint
 )
 
 # API v1 메인 라우터 생성
@@ -127,16 +131,7 @@ ROUTER_CONFIGS = [
         "description": "국채 수익률 API"
     },
 
-    # WebSocket 실시간 데이터 API (이미 router 내부에 prefix="/ws" 보유)
-    {
-        "router": websocket_endpoint.router,
-        "prefix": "",
-        "tag": "WebSocket",
-        "category": "실시간",
-        "description": "실시간 WebSocket 데이터 API"
-    },
-
-    # 🎯 실시간 주식 데이터 API (새로 추가)
+    # 실시간 주식 데이터 API
     {
         "router": topgainers_endpoint.router,
         "prefix": "/stocks/topgainers",
@@ -150,6 +145,29 @@ ROUTER_CONFIGS = [
         "tag": "SP500",
         "category": "실시간주식",
         "description": "실시간 S&P 500 주식 데이터 API - WebSocket fallback 지원"
+    },
+
+    # 분리된 WebSocket 실시간 데이터 API (각각 자체 prefix 보유)
+    {
+        "router": topgainers_websocket_endpoint.router,
+        "prefix": "",  # 라우터 내부에 prefix="/ws/topgainers" 이미 있음
+        "tag": "TopGainers WebSocket",
+        "category": "실시간WebSocket",
+        "description": "TopGainers 실시간 WebSocket API - 카테고리별 분류, 변화율 포함"
+    },
+    {
+        "router": sp500_websocket_endpoint.router,
+        "prefix": "",  # 라우터 내부에 prefix="/ws/sp500" 이미 있음
+        "tag": "SP500 WebSocket",
+        "category": "실시간WebSocket",
+        "description": "S&P 500 실시간 WebSocket API - 전날 종가 대비 변화율 포함"
+    },
+    {
+        "router": crypto_websocket_endpoint.router,
+        "prefix": "",  # 라우터 내부에 prefix="/ws/crypto" 이미 있음
+        "tag": "Crypto WebSocket",
+        "category": "실시간WebSocket",
+        "description": "암호화폐 실시간 WebSocket API - 빗썸 거래소 24시간 데이터"
     },
 ]
 
@@ -174,7 +192,12 @@ async def api_v1_info():
     # 동적으로 엔드포인트 정보 생성
     available_endpoints = {}
     for config in ROUTER_CONFIGS:
-        key = config["prefix"].lstrip("/") or "ws"
+        # WebSocket 엔드포인트들은 특별 처리
+        if "websocket" in config["tag"].lower():
+            key = config["tag"].lower().replace(" websocket", "_ws").replace(" ", "_")
+        else:
+            key = config["prefix"].lstrip("/") or "root"
+            
         available_endpoints[key] = {
             "description": config["description"],
             "prefix": f"{settings.api_v1_prefix}{config['prefix']}",
@@ -185,7 +208,9 @@ async def api_v1_info():
     # 카테고리 매핑
     categories = {}
     for config in ROUTER_CONFIGS:
-        categories.setdefault(config["category"], []).append(config["prefix"].lstrip("/"))
+        category_key = config["category"]
+        endpoint_key = config["prefix"].lstrip("/") if config["prefix"] else config["tag"]
+        categories.setdefault(category_key, []).append(endpoint_key)
 
     return {
         "service": settings.app_name,
@@ -195,6 +220,11 @@ async def api_v1_info():
         "total_endpoints": len(ROUTER_CONFIGS),
         "categories": categories,
         "available_endpoints": available_endpoints,
+        "websocket_endpoints": {
+            "topgainers": "/ws/topgainers/",
+            "sp500": "/ws/sp500/",
+            "crypto": "/ws/crypto/"
+        },
         "documentation": {
             "swagger_ui": "/docs",
             "redoc": "/redoc",
@@ -216,6 +246,7 @@ async def health_check():
         "service": settings.app_name,
         "version": settings.app_version,
         "uptime": "operational",
+        "websocket_status": "분리된 도메인별 WebSocket 지원",
         "docs": "/docs",
     }
 
@@ -238,7 +269,10 @@ async def api_stats():
             "total_routers": len(ROUTER_CONFIGS),
             "categories": category_counts,
         },
-        "implemented_domains": [config["prefix"].lstrip("/") for config in ROUTER_CONFIGS],
+        "implemented_domains": [
+            config["prefix"].lstrip("/") if config["prefix"] else config["tag"] 
+            for config in ROUTER_CONFIGS
+        ],
         "base_url": settings.api_v1_prefix,
         "documentation": {"swagger_ui": "/docs", "redoc": "/redoc"},
         "features": [
@@ -247,8 +281,15 @@ async def api_stats():
             "sorting",
             "real_time",
             "sentiment_analysis",
-            "websocket_fallback",  # 🎯 새로운 기능 추가
+            "websocket_fallback",
+            "separated_websocket_domains",  # 새로운 기능
+            "change_rate_calculation",      # 새로운 기능
         ],
+        "websocket_architecture": {
+            "approach": "도메인별 분리된 WebSocket",
+            "domains": ["topgainers", "sp500", "crypto"],
+            "benefits": ["독립적 운영", "에러 격리", "도메인 특화"]
+        }
     }
 
 
@@ -263,6 +304,11 @@ async def api_test():
     """
     return {
         "message": "API v1 연결 테스트 성공",
-        "timestamp": "2025-01-27",
-        "status": "ok"
+        "timestamp": "2025-08-28",
+        "status": "ok",
+        "websocket_endpoints": {
+            "topgainers": "/api/v1/ws/topgainers/",
+            "sp500": "/api/v1/ws/sp500/",
+            "crypto": "/api/v1/ws/crypto/"
+        }
     }
