@@ -65,7 +65,7 @@ class CryptoService:
     # 핵심 데이터 조회 메서드
     # =========================
     
-    async def get_crypto_from_redis(self, limit: int = 100) -> List[CryptoData]:
+    async def get_crypto_from_redis(self, limit: int = 415) -> List[CryptoData]:
         """
         Redis에서 암호화폐 데이터 조회 (24시간 거래이므로 Redis 우선)
         
@@ -148,7 +148,7 @@ class CryptoService:
             self.stats["errors"] += 1
             return await self.get_crypto_from_db(limit)
     
-    async def get_crypto_from_db(self, limit: int = 100) -> List[CryptoData]:
+    async def get_crypto_from_db(self, limit: int = 415) -> List[CryptoData]:
         """
         데이터베이스에서 암호화폐 데이터 조회
         
@@ -189,7 +189,7 @@ class CryptoService:
     # WebSocket 전용 메서드
     # =========================
     
-    async def get_websocket_updates(self, limit: int = 50) -> List[CryptoData]:
+    async def get_websocket_updates(self, limit: int = 415) -> List[CryptoData]:
         """
         WebSocket용 실시간 암호화폐 데이터
         
@@ -202,7 +202,7 @@ class CryptoService:
         self.stats["api_calls"] += 1
         return await self.get_crypto_from_redis(limit)
     
-    async def get_realtime_polling_data(self, limit: int = 50) -> Dict[str, Any]:
+    async def get_realtime_polling_data(self, limit: int = 415) -> Dict[str, Any]:
         """
         암호화폐 실시간 폴링 데이터 ("더보기" 방식)
         
@@ -430,7 +430,7 @@ class CryptoService:
         
         return health_info
     
-    async def get_realtime_crypto_data(self, limit: int = 200) -> List[Dict[str, Any]]:
+    async def get_realtime_crypto_data(self, limit: int = 415) -> List[Dict[str, Any]]:
         """
         WebSocket용 암호화폐 실시간 데이터 조회
         
@@ -538,7 +538,7 @@ class CryptoService:
                 db.close()
 
 
-    async def _get_crypto_from_db_with_names(self, limit: int = 200) -> List[Dict[str, Any]]:
+    async def _get_crypto_from_db_with_names(self, limit: int = 415) -> List[Dict[str, Any]]:
         """
         DB에서 암호화폐 데이터 조회 (이름 포함)
         
