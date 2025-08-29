@@ -126,7 +126,7 @@ async def websocket_crypto_all(websocket: WebSocket):
             }
         ],
         "timestamp": "2025-08-28T10:30:00Z",
-        "data_count": 200,
+        "data_count": len(data),
         "exchange": "bithumb",
         "features": ["real_time_prices", "24h_trading"]
     }
@@ -277,7 +277,7 @@ async def _start_crypto_streaming(websocket: WebSocket, client_id: int):
     while True:
         try:
             # CryptoService를 통한 데이터 조회 (한국명, 영어명 포함)
-            data = await crypto_service.get_realtime_crypto_data(limit=200)
+            data = await crypto_service.get_realtime_crypto_data(limit=415)
             
             if not data:
                 logger.warning("Crypto 데이터 없음, 재시도...")
