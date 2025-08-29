@@ -40,7 +40,7 @@ def get_balance_sheet_service() -> BalanceSheetService:
 
 @router.get("/", response_model=StockListResponse, summary="전체 주식 리스트 조회")
 async def get_all_stocks(
-    limit: int = Query(default=500, ge=1, le=1000, description="반환할 최대 주식 개수"),
+    limit: int = Query(default=500, ge=1, le=500, description="반환할 최대 주식 개수"),
     sp500_service: SP500Service = Depends(get_sp500_service)
 ):
     """
@@ -153,7 +153,7 @@ async def get_market_overview(
 
 @router.get("/polling", response_model=dict, summary="SP500 실시간 폴링 데이터 (더보기 방식)")
 async def get_sp500_polling_data(
-    limit: int = Query(default=50, ge=1, le=500, description="반환할 항목 수 (누적)"),
+    limit: int = Query(default=500, ge=1, le=500, description="반환할 항목 수 (누적)"),
     sort_by: str = Query(default="volume", description="정렬 기준: volume, change_percent, price"),
     order: str = Query(default="desc", regex="^(asc|desc)$", description="정렬 순서"),
     sp500_service: SP500Service = Depends(get_sp500_service)
@@ -236,7 +236,7 @@ async def get_stock_detail_with_integrated_data(
     ```
     
     **응답 구조:**
-    - `stock_data`: 실시간 주가 정보 (SP500)
+    - `current_price`: 실시간 주가 정보 (SP500)
     - `company_info`: 회사 상세 정보 (Company Overview)
     - `financial_data`: 재무상태표 정보 (Balance Sheet)
     - `integrated_analysis`: 통합 분석 결과
@@ -294,7 +294,7 @@ async def get_stock_detail_with_integrated_data(
         integrated_response = _build_integrated_response(
             symbol=symbol,
             data_case=data_case,
-            stock_data=stock_result,
+            current_price=stock_result,
             company_data=company_result,
             balance_data=balance_result
         )
@@ -400,7 +400,7 @@ def _determine_data_case(has_company: bool, has_balance: bool) -> str:
 def _build_integrated_response(
     symbol: str,
     data_case: str,
-    stock_data: Dict[str, Any],
+    current_price: Dict[str, Any],
     company_data: Dict[str, Any],
     balance_data: Dict[str, Any]
 ) -> Dict[str, Any]:
@@ -413,11 +413,11 @@ def _build_integrated_response(
         'timestamp': datetime.now(pytz.UTC).isoformat(),
         
         # 실시간 주가 데이터 (항상 포함)
-        'stock_data': stock_data,
+        'current_price': current_price,
         
         # 데이터 가용성 상태
         'data_availability': {
-            'stock_data': True,  # 여기까지 왔으면 주가 데이터는 있음
+            'current_price': True,  # 여기까지 왔으면 주가 데이터는 있음
             'company_overview': company_data.get('data_available', False),
             'balance_sheet': balance_data.get('data_available', False)
         }
@@ -529,7 +529,7 @@ def _build_integrated_response(
     
     # 데이터 소스 정보 추가
     response['data_sources'] = {
-        'stock_data': 'sp500_websocket_trades',
+        'current_price': 'sp500_websocket_trades',
         'company_overview': 'alpha_vantage_company_overview' if company_data.get('data_available') else 'not_collected',
         'balance_sheet': 'alpha_vantage_balance_sheet' if balance_data.get('data_available') else 'not_collected'
     }

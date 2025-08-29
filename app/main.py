@@ -85,7 +85,6 @@ app = FastAPI(
     redoc_url="/redoc",
     openapi_url="/openapi.json",
     lifespan=lifespan,
-    # HTTPS 리다이렉트 방지를 위한 설정
     redirect_slashes=False
 )
 
