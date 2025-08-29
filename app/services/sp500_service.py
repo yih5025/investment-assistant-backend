@@ -115,8 +115,8 @@ class SP500Service:
             if not self.redis_client:
                 await self.init_redis()
             
-            # 🎯 Redis에서 기본 데이터 조회 후 변화율 직접 계산
-            redis_data = await self.get_sp500_from_redis(limit=1000)
+            # 🎯 Redis에서 기본 데이터 조회 후 변화율 직접 계산 (성능 최적화)
+            redis_data = await self.get_sp500_from_redis(limit=limit*2)
             
             if not redis_data:
                 logger.warning("📊 Redis SP500 데이터 없음, DB fallback")
