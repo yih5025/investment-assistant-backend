@@ -303,7 +303,7 @@ class SP500WebsocketTrades(BaseModel):
     def _sample_data_by_interval(cls, data: List['SP500WebsocketTrades'], 
                                 minutes: int = 0, hours: int = 0) -> List['SP500WebsocketTrades']:
         """
-        데이터를 지정된 시간 간격으로 샘플링
+        데이터를 지정된 시간 간격으로 OHLC 샘플링
         
         Args:
             data: 원본 데이터 리스트
@@ -311,21 +311,71 @@ class SP500WebsocketTrades(BaseModel):
             hours: 샘플링 간격 (시간)
             
         Returns:
-            List[SP500WebsocketTrades]: 샘플링된 데이터
+            List[SP500WebsocketTrades]: OHLC 기반 샘플링된 데이터
         """
         if not data:
             return []
         
         interval = timedelta(minutes=minutes, hours=hours)
         sampled_data = []
-        last_time = None
+        current_bucket = []
+        bucket_start_time = data[0].created_at
         
         for trade in data:
-            if last_time is None or trade.created_at >= last_time + interval:
-                sampled_data.append(trade)
-                last_time = trade.created_at
+            # 현재 버킷 시간 범위 내인지 확인
+            if trade.created_at < bucket_start_time + interval:
+                current_bucket.append(trade)
+            else:
+                # 이전 버킷 처리 (OHLC 계산)
+                if current_bucket:
+                    ohlc_trade = cls._create_ohlc_from_bucket(current_bucket)
+                    if ohlc_trade:
+                        sampled_data.append(ohlc_trade)
+                
+                # 새 버킷 시작
+                current_bucket = [trade]
+                bucket_start_time = trade.created_at
+        
+        # 마지막 버킷 처리
+        if current_bucket:
+            ohlc_trade = cls._create_ohlc_from_bucket(current_bucket)
+            if ohlc_trade:
+                sampled_data.append(ohlc_trade)
         
         return sampled_data
+    
+    @classmethod
+    def _create_ohlc_from_bucket(cls, bucket: List['SP500WebsocketTrades']) -> 'SP500WebsocketTrades':
+        """
+        거래 데이터 버킷에서 OHLC 데이터 생성
+        
+        Args:
+            bucket: 같은 시간 구간의 거래 데이터들
+            
+        Returns:
+            SP500WebsocketTrades: OHLC 정보를 담은 거래 데이터
+        """
+        if not bucket:
+            return None
+        
+        # OHLC 계산
+        prices = [float(trade.price) for trade in bucket]
+        open_price = prices[0]  # 첫 번째 가격
+        high_price = max(prices)  # 최고가
+        low_price = min(prices)   # 최저가
+        close_price = prices[-1]  # 마지막 가격
+        
+        # 거래량 합계
+        total_volume = sum(trade.volume for trade in bucket)
+        
+        # 대표 거래 데이터 생성 (마지막 거래를 기준으로 하되 OHLC 정보 반영)
+        representative_trade = bucket[-1]  # 마지막 거래를 기준으로
+        
+        # Close 가격을 사용 (차트에서 가장 중요한 가격)
+        representative_trade.price = close_price
+        representative_trade.volume = total_volume
+        
+        return representative_trade
     
     @classmethod
     def get_trading_volume_24h(cls, db_session: Session, symbol: str) -> int:

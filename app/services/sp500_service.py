@@ -453,11 +453,15 @@ class SP500Service:
             # 차트 데이터 포맷 변환 (프론트엔드용)
             formatted_chart_data = []
             for trade in chart_data:
+                # 시간대별 timestamp 포맷팅
+                formatted_timestamp = self._format_timestamp_by_timeframe(trade.created_at, timeframe)
+                
                 formatted_chart_data.append({
-                    'timestamp': trade.timestamp_ms,
+                    'timestamp': formatted_timestamp,
                     'price': float(trade.price),
                     'volume': trade.volume,
-                    'datetime': trade.created_at.isoformat()
+                    'datetime': trade.created_at.isoformat(),
+                    'raw_timestamp': trade.timestamp_ms  # 원본 타임스탬프 보존
                 })
             
             self.stats["db_queries"] += 1
@@ -519,6 +523,27 @@ class SP500Service:
                 'symbol': symbol,
                 'error': str(e)
             }
+    
+    def _format_timestamp_by_timeframe(self, dt: datetime, timeframe: str) -> str:
+        """
+        시간대별로 적절한 timestamp 포맷 생성
+        
+        Args:
+            dt: datetime 객체
+            timeframe: 시간대 ('1M', '5M', '1H', '1D', '1W', '1MO')
+            
+        Returns:
+            str: 포맷된 timestamp 문자열
+        """
+        if timeframe in ['1M', '5M', '1H']:
+            # 분/시간별: YYYY-MM-DD HH:MM:SS 형식
+            return dt.strftime('%Y-%m-%d %H:%M:%S')
+        elif timeframe == '1D':
+            # 일별: YYYY-MM-DD HH:MM 형식 (시간만 표시)
+            return dt.strftime('%Y-%m-%d %H:%M')
+        else:  # '1W', '1MO'
+            # 주별/월별: YYYY-MM-DD 형식 (날짜만 표시)
+            return dt.strftime('%Y-%m-%d')
     
     # =========================
     # 🎯 카테고리별 주식 조회 API (섹터 정보 제거) 🆕
