@@ -113,12 +113,17 @@ async def cors_debug_middleware(request: Request, call_next):
             status_code=200
         )
         
-        # 🔧 매우 관대한 CORS 헤더 설정 (K3s 환경 지원)
+        # 🔧 CORS 헤더 설정 - 디버깅 강화
         if origin:
-            # 모든 오리진 허용 (개발/테스트 환경)
-            response.headers["Access-Control-Allow-Origin"] = origin
+            if origin in cors_origins:
+                response.headers["Access-Control-Allow-Origin"] = origin
+                logger.info(f"✅ Preflight CORS 허용: {origin}")
+            else:
+                logger.warning(f"❌ Preflight CORS 거부: {origin} (허용되지 않은 오리진)")
+                response.headers["Access-Control-Allow-Origin"] = "null"
         else:
             # Origin 헤더가 없는 경우 (내부 네트워크)
+            logger.info("⚠️ Preflight Origin 헤더 없음")
             response.headers["Access-Control-Allow-Origin"] = "*"
             
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
@@ -132,10 +137,17 @@ async def cors_debug_middleware(request: Request, call_next):
     # 일반 요청 처리
     response = await call_next(request)
     
-    # 응답에 CORS 헤더 추가
+    # 응답에 CORS 헤더 추가 - 디버깅 강화
     if origin:
-        response.headers["Access-Control-Allow-Origin"] = origin
+        # 허용된 오리진인지 확인
+        if origin in cors_origins:
+            response.headers["Access-Control-Allow-Origin"] = origin
+            logger.info(f"✅ CORS 허용: {origin}")
+        else:
+            logger.warning(f"❌ CORS 거부: {origin} (허용되지 않은 오리진)")
+            response.headers["Access-Control-Allow-Origin"] = "null"
     else:
+        logger.info("⚠️ Origin 헤더 없음 - 내부 요청으로 처리")
         response.headers["Access-Control-Allow-Origin"] = "*"
         
     response.headers["Access-Control-Allow-Credentials"] = "false"
@@ -215,6 +227,8 @@ cors_origins = production_origins + (development_origins if is_development else 
 
 logger.info(f"🔒 CORS 보안 설정 - 환경: {'프로덕션' if is_production else '개발'}")
 logger.info(f"🔒 허용된 오리진 수: {len(cors_origins)}")
+logger.info(f"🔒 허용된 오리진 목록: {cors_origins}")
+logger.info(f"🔧 환경변수 ENVIRONMENT: {os.getenv('ENVIRONMENT', 'not_set')}")
 
 app.add_middleware(
     CORSMiddleware,
