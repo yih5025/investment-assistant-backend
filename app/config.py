@@ -69,7 +69,7 @@ class Settings(BaseSettings):
     )
     
     # === 캐시 설정 ===
-    cache_ttl: int = Field(300, description="캐시 TTL (초)")
+    cache_ttl: int = Field(60, description="캐시 TTL (초) - 실시간성 향상을 위해 60초로 단축")
     
     @property
     def database_url(self) -> str:

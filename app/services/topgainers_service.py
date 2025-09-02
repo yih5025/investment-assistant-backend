@@ -69,7 +69,7 @@ class TopGainersService:
         # 캐시
         self.symbol_category_cache: Dict[str, str] = {}
         self.last_cache_update = 0
-        self.cache_ttl = 300  # 5분
+        self.cache_ttl = 60   # 1분 (실시간성 향상)
         
         # 통계
         self.stats = {
