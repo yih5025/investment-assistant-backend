@@ -24,7 +24,9 @@ from .endpoints import (
     topgainers_websocket_endpoint,
     crypto_websocket_endpoint,
     # 암호화폐 투자 분석 엔드포인트 추가
-    crypto_detail_investment_endpoint
+    crypto_detail_investment_endpoint,
+    crypto_detail_concept_endpoint
+
 )
 
 # API v1 메인 라우터 생성
@@ -179,6 +181,13 @@ ROUTER_CONFIGS = [
         "tag": "Crypto Detail - Investment",
         "category": "암호화폐분석",
         "description": "암호화폐 투자 분석 API - 김치 프리미엄, 파생상품, 위험도, 투자 기회, 포트폴리오 가이드 제공"
+    },
+    {
+        "router": crypto_detail_concept_endpoint.router,
+        "prefix": "/crypto/details",
+        "tag": "Crypto Detail - Concept",
+        "category": "암호화폐분석",
+        "description": "암호화폐 개념 설명 API - 기본 정보, 프로젝트 탄생 배경, 카테고리 분류 및 설명, 핵심 특징 및 기술, 시장 위치 분석, 초보자를 위한 교육 콘텐츠, 자주 묻는 질문 (FAQ) 제공"
     },
 ]
 

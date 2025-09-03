@@ -13,7 +13,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/crypto/details/investment/{symbol}",
+    "/investment/{symbol}",
     response_model=CryptoInvestmentAnalysisResponse,
     responses={
         404: {"model": ErrorResponse, "description": "Cryptocurrency not found"},
@@ -74,7 +74,7 @@ async def get_crypto_investment_analysis(
 
 
 @router.get(
-    "/crypto/details/kimchi-premium/{symbol}",
+    "/kimchi-premium/{symbol}",
     summary="Kimchi Premium Analysis",
     description="김치 프리미엄 분석 데이터만 조회합니다.",
     tags=["Crypto Detail - Investment"]
@@ -110,7 +110,7 @@ async def get_kimchi_premium(
 
 
 @router.get(
-    "/crypto/details/derivatives/{symbol}",
+    "/derivatives/{symbol}",
     summary="Derivatives Market Analysis", 
     description="파생상품 시장 분석 데이터만 조회합니다.",
     tags=["Crypto Detail - Investment"]
