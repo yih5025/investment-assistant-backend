@@ -25,7 +25,8 @@ from .endpoints import (
     crypto_websocket_endpoint,
     # 암호화폐 투자 분석 엔드포인트 추가
     crypto_detail_investment_endpoint,
-    crypto_detail_concept_endpoint
+    crypto_detail_concept_endpoint,
+    crypto_detail_ecosystem_endpoint
 
 )
 
@@ -188,6 +189,13 @@ ROUTER_CONFIGS = [
         "tag": "Crypto Detail - Concept",
         "category": "암호화폐분석",
         "description": "암호화폐 개념 설명 API - 기본 정보, 프로젝트 탄생 배경, 카테고리 분류 및 설명, 핵심 특징 및 기술, 시장 위치 분석, 초보자를 위한 교육 콘텐츠, 자주 묻는 질문 (FAQ) 제공"
+    },
+    {
+        "router": crypto_detail_ecosystem_endpoint.router,
+        "prefix": "/crypto/details",
+        "tag": "Crypto Detail - Ecosystem",
+        "category": "암호화폐분석",
+        "description": "암호화폐 생태계 분석 API - 개발 활성도, 커뮤니티 건강도, 생태계 성숙도, 기술적 혁신성, 리스크 요인, 경쟁 분석, 투자 관점 요약 제공"
     },
 ]
 
