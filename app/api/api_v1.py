@@ -22,7 +22,9 @@ from .endpoints import (
     # 새로운 분리된 WebSocket 엔드포인트들 추가
     sp500_websocket_endpoint,
     topgainers_websocket_endpoint,
-    crypto_websocket_endpoint
+    crypto_websocket_endpoint,
+    # 암호화폐 투자 분석 엔드포인트 추가
+    crypto_detail_investment_endpoint
 )
 
 # API v1 메인 라우터 생성
@@ -168,6 +170,15 @@ ROUTER_CONFIGS = [
         "tag": "Crypto WebSocket",
         "category": "실시간WebSocket",
         "description": "암호화폐 실시간 WebSocket API - 빗썸 거래소 24시간 데이터"
+    },
+
+    # 암호화폐 투자 분석 API
+    {
+        "router": crypto_detail_investment_endpoint.router,
+        "prefix": "/crypto/details",
+        "tag": "Crypto Detail - Investment",
+        "category": "암호화폐분석",
+        "description": "암호화폐 투자 분석 API - 김치 프리미엄, 파생상품, 위험도, 투자 기회, 포트폴리오 가이드 제공"
     },
 ]
 
