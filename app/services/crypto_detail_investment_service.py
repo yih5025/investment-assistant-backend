@@ -168,23 +168,18 @@ class CryptoInvestmentService:
     async def _get_all_tickers_for_symbol(self, symbol: str):
         """특정 심볼의 모든 거래소 티커 데이터 조회"""
         
-        # 최신 배치 ID 조회
-        latest_batch = self.db.query(CoingeckoTickers.batch_id).order_by(
-            desc(CoingeckoTickers.collected_at)
-        ).first()
+        # 최신 데이터 조회 (최근 3일 내 데이터)
+        from datetime import datetime, timedelta
+        three_days_ago = datetime.now() - timedelta(days=3)
         
-        if not latest_batch:
-            return None
-        
-        # 모든 거래소 데이터 조회
         all_tickers = self.db.query(CoingeckoTickers).filter(
             and_(
-                CoingeckoTickers.batch_id == latest_batch.batch_id,
+                CoingeckoTickers.created_at >= three_days_ago,
                 func.upper(CoingeckoTickers.symbol) == symbol.upper(),
                 CoingeckoTickers.converted_last_usd.isnot(None),
                 CoingeckoTickers.converted_volume_usd > 0
             )
-        ).order_by(desc(CoingeckoTickers.converted_volume_usd)).all()
+        ).order_by(desc(CoingeckoTickers.created_at), desc(CoingeckoTickers.converted_volume_usd)).all()
         
         return all_tickers
     
@@ -265,23 +260,18 @@ class CryptoInvestmentService:
     async def _analyze_kimchi_premium(self, symbol: str) -> KimchiPremiumData:
         """김치 프리미엄 분석 - 수치 그대로 반환"""
         
-        # 최신 배치 ID 조회
-        latest_batch = self.db.query(CoingeckoTickers.batch_id).order_by(
-            desc(CoingeckoTickers.collected_at)
-        ).first()
+        # 전체 거래소 데이터 조회 (최근 3일 내 데이터)
+        from datetime import datetime, timedelta
+        three_days_ago = datetime.now() - timedelta(days=3)
         
-        if not latest_batch:
-            return KimchiPremiumData()
-        
-        # 전체 거래소 데이터 조회 (필터링 최소화)
         all_tickers = self.db.query(CoingeckoTickers).filter(
             and_(
-                CoingeckoTickers.batch_id == latest_batch.batch_id,
+                CoingeckoTickers.created_at >= three_days_ago,
                 func.upper(CoingeckoTickers.symbol) == symbol.upper(),
                 CoingeckoTickers.converted_last_usd.isnot(None),
                 CoingeckoTickers.converted_volume_usd > 0  # 거래량이 있는 것만
             )
-        ).all()
+        ).order_by(desc(CoingeckoTickers.created_at)).all()
         
         if not all_tickers:
             return KimchiPremiumData()
@@ -375,15 +365,10 @@ class CryptoInvestmentService:
     async def _get_all_exchange_details(self, symbol: str):
         """모든 거래소 상세 정보 조회 (내부 메서드)"""
         
-        # 최신 배치 ID 조회
-        latest_batch = self.db.query(CoingeckoTickers.batch_id).order_by(
-            desc(CoingeckoTickers.collected_at)
-        ).first()
+        # 모든 거래소 데이터 조회 (최근 3일 내 데이터)
+        from datetime import datetime, timedelta
+        three_days_ago = datetime.now() - timedelta(days=3)
         
-        if not latest_batch:
-            return None
-        
-        # 모든 거래소 데이터 조회
         exchange_details = self.db.query(
             CoingeckoTickers.exchange_id,
             CoingeckoTickers.converted_last_usd,
@@ -391,11 +376,11 @@ class CryptoInvestmentService:
             CoingeckoTickers.bid_ask_spread_percentage
         ).filter(
             and_(
-                CoingeckoTickers.batch_id == latest_batch.batch_id,
+                CoingeckoTickers.created_at >= three_days_ago,
                 func.upper(CoingeckoTickers.symbol) == symbol.upper(),
                 CoingeckoTickers.converted_last_usd.isnot(None)
             )
-        ).all()
+        ).order_by(desc(CoingeckoTickers.created_at)).all()
         
         return exchange_details
 

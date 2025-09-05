@@ -1,6 +1,6 @@
 # app/models/coingecko_coin_details_model.py
 
-from sqlalchemy import Column, Integer, String, DECIMAL, TIMESTAMP, BIGINT, Text
+from sqlalchemy import Column, Integer, String, DECIMAL, TIMESTAMP, BIGINT, Text, Date
 from sqlalchemy.dialects.postgresql import JSONB
 from .base import Base
 
@@ -16,7 +16,7 @@ class CoingeckoCoinDetails(Base):
     
     # Tab 1: 개념 설명용 데이터
     description_en = Column(Text)
-    genesis_date = Column(String(20))
+    genesis_date = Column(Date)
     country_origin = Column(String(100))
     
     # Links (Tab 1, Tab 2)

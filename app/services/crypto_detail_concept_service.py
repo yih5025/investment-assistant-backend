@@ -104,18 +104,27 @@ class CryptoConceptService:
         """개념 설명 구성"""
         # 프로젝트 연령 계산
         project_age = None
+        genesis_date_str = None
+        
         if coin.genesis_date:
             try:
-                genesis_year = int(coin.genesis_date.split('-')[0])
+                if hasattr(coin.genesis_date, 'year'):  # Date 객체인 경우
+                    genesis_year = coin.genesis_date.year
+                    genesis_date_str = coin.genesis_date.strftime('%Y-%m-%d')
+                else:  # string인 경우
+                    genesis_year = int(str(coin.genesis_date).split('-')[0])
+                    genesis_date_str = str(coin.genesis_date)
+                
                 current_year = datetime.now().year
                 project_age = current_year - genesis_year
             except:
                 project_age = None
+                genesis_date_str = str(coin.genesis_date) if coin.genesis_date else None
         
         return ConceptDescription(
             description_original=coin.description_en,
             description_summary=None,  # 향후 번역/요약 기능 추가
-            genesis_date=coin.genesis_date,
+            genesis_date=genesis_date_str,  # string으로 변환된 값
             project_age_years=project_age,
             country_origin=coin.country_origin
         )

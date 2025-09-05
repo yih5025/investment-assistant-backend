@@ -9,7 +9,6 @@ class CoingeckoTickers(Base):
     __tablename__ = "coingecko_tickers_bithumb"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    batch_id = Column(String(50), nullable=False)
     
     # 코인 기본 정보 (DAG와 일치)
     market_code = Column(String(50))
@@ -31,7 +30,7 @@ class CoingeckoTickers(Base):
     
     # USD 변환 가격 (김치프리미엄 계산 핵심, DAG와 일치)
     converted_last_usd = Column(DECIMAL(32, 8))  # 정밀도 증가
-    converted_volume_usd = Column(DECIMAL(32, 8))  # 정밀도 증가
+    converted_volume_usd = Column(Integer)  # DAG와 일치: BIGINT
     
     # 거래소 품질 지표 (DAG와 일치)
     trust_score = Column(String(20))
@@ -45,14 +44,13 @@ class CoingeckoTickers(Base):
     trade_url = Column(String(500))
     
     # 코인 시장 정보 (DAG와 일치)
-    coin_mcap_usd = Column(DECIMAL(32, 2))
+    coin_mcap_usd = Column(Integer)  # DAG와 일치: BIGINT
     match_method = Column(String(100))
     market_cap_rank = Column(Integer)
     
-    # 시간 정보
+    # 시간 정보 (DAG와 일치)
     timestamp = Column(TIMESTAMP)
     last_traded_at = Column(TIMESTAMP)
     last_fetch_at = Column(TIMESTAMP)
-    collected_at = Column(TIMESTAMP, nullable=False)
     created_at = Column(TIMESTAMP)
     updated_at = Column(TIMESTAMP)
