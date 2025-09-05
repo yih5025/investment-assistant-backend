@@ -13,7 +13,7 @@ from ..models.coingecko_global_model import CoingeckoGlobal
 from ..schemas.crypto_detail_investment_schema import (
     CryptoInvestmentAnalysisResponse, BasicCoinInfo, MarketData, SupplyData,
     KimchiPremiumData, DerivativesData, GlobalMarketContext, RiskAnalysis,
-    InvestmentOpportunity, PortfolioGuidance
+    InvestmentOpportunity, PortfolioGuidance, DetailedKimchiPremiumResponse, ExchangeComparisonData
 )
 
 
@@ -55,6 +55,138 @@ class CryptoInvestmentService:
             investment_opportunity=investment_opportunity,
             portfolio_guidance=portfolio_guidance
         )
+    
+    async def get_detailed_kimchi_premium(self, symbol: str, sort_by: str = "premium_desc", min_volume: float = 0) -> Optional[Dict]:
+        """거래소별 상세 김치 프리미엄 분석 (정렬, 필터링 포함)"""
+        
+        # 1. 기본 요약 정보 조회
+        summary_data = await self._analyze_kimchi_premium(symbol)
+        if not summary_data.korean_price_usd:
+            return None
+        
+        # 2. 모든 거래소 데이터 조회
+        all_tickers = await self._get_all_tickers_for_symbol(symbol)
+        if not all_tickers:
+            return None
+        
+        # 3. 국내/해외 거래소 분리
+        korean_tickers = [t for t in all_tickers if t.exchange_id in ['bithumb', 'upbit']]
+        global_tickers = [t for t in all_tickers if t.exchange_id not in ['bithumb', 'upbit']]
+        
+        if not korean_tickers or not global_tickers:
+            return None
+        
+        # 4. 거래소별 상세 비교 계산
+        exchange_comparisons = []
+        
+        for korean_ticker in korean_tickers:
+            for global_ticker in global_tickers:
+                # 최소 거래량 필터 적용
+                if (korean_ticker.converted_volume_usd < min_volume and 
+                    global_ticker.converted_volume_usd < min_volume):
+                    continue
+                    
+                korean_price = float(korean_ticker.converted_last_usd)
+                global_price = float(global_ticker.converted_last_usd)
+                
+                # 김치 프리미엄 계산
+                premium_percent = ((korean_price - global_price) / global_price) * 100
+                price_diff = korean_price - global_price
+                
+                # 거래량 비율 계산
+                volume_ratio = (korean_ticker.converted_volume_usd / global_ticker.converted_volume_usd 
+                            if global_ticker.converted_volume_usd > 0 else 0)
+                
+                exchange_comparisons.append({
+                    "korean_exchange": korean_ticker.exchange_id,
+                    "korean_price_usd": round(korean_price, 2),
+                    "korean_volume_usd": korean_ticker.converted_volume_usd,
+                    "korean_spread": korean_ticker.bid_ask_spread_percentage,
+                    
+                    "global_exchange": global_ticker.exchange_id,
+                    "global_price_usd": round(global_price, 2),
+                    "global_volume_usd": global_ticker.converted_volume_usd,
+                    "global_spread": global_ticker.bid_ask_spread_percentage,
+                    
+                    "premium_percentage": round(premium_percent, 3),
+                    "price_diff_usd": round(price_diff, 2),
+                    "volume_ratio": round(volume_ratio, 3)
+                })
+        
+        # 5. 정렬 적용
+        if sort_by == "premium_desc":
+            exchange_comparisons.sort(key=lambda x: x["premium_percentage"], reverse=True)
+        elif sort_by == "premium_asc":
+            exchange_comparisons.sort(key=lambda x: x["premium_percentage"], reverse=False)
+        elif sort_by == "volume_desc":
+            exchange_comparisons.sort(
+                key=lambda x: max(x["korean_volume_usd"], x["global_volume_usd"]), reverse=True
+            )
+        elif sort_by == "volume_asc":
+            exchange_comparisons.sort(
+                key=lambda x: max(x["korean_volume_usd"], x["global_volume_usd"]), reverse=False
+            )
+        
+        # 6. 통계 정보 계산
+        if exchange_comparisons:
+            premiums = [comp["premium_percentage"] for comp in exchange_comparisons]
+            
+            statistics = {
+                "total_comparisons": len(exchange_comparisons),
+                "korean_exchanges_count": len(korean_tickers),
+                "global_exchanges_count": len(global_tickers),
+                "filters_applied": {
+                    "sort_by": sort_by,
+                    "min_volume": min_volume
+                },
+                "premium_stats": {
+                    "average": round(sum(premiums) / len(premiums), 3),
+                    "max": round(max(premiums), 3),
+                    "min": round(min(premiums), 3),
+                    "positive_count": len([p for p in premiums if p > 0]),
+                    "negative_count": len([p for p in premiums if p < 0])
+                },
+                "volume_stats": {
+                    "total_korean_volume": sum(t.converted_volume_usd for t in korean_tickers),
+                    "total_global_volume": sum(t.converted_volume_usd for t in global_tickers)
+                }
+            }
+        else:
+            statistics = {
+                "total_comparisons": 0,
+                "message": f"No data found with min_volume >= {min_volume}"
+            }
+        
+        return {
+            "symbol": symbol.upper(),
+            "timestamp": datetime.utcnow().isoformat(),
+            "summary": summary_data,
+            "exchange_comparisons": exchange_comparisons,
+            "statistics": statistics
+        }
+
+    async def _get_all_tickers_for_symbol(self, symbol: str):
+        """특정 심볼의 모든 거래소 티커 데이터 조회"""
+        
+        # 최신 배치 ID 조회
+        latest_batch = self.db.query(CoingeckoTickers.batch_id).order_by(
+            desc(CoingeckoTickers.collected_at)
+        ).first()
+        
+        if not latest_batch:
+            return None
+        
+        # 모든 거래소 데이터 조회
+        all_tickers = self.db.query(CoingeckoTickers).filter(
+            and_(
+                CoingeckoTickers.batch_id == latest_batch.batch_id,
+                func.upper(CoingeckoTickers.symbol) == symbol.upper(),
+                CoingeckoTickers.converted_last_usd.isnot(None),
+                CoingeckoTickers.converted_volume_usd > 0
+            )
+        ).order_by(desc(CoingeckoTickers.converted_volume_usd)).all()
+        
+        return all_tickers
     
     async def _get_coin_details(self, symbol: str) -> Optional[CoingeckoCoinDetails]:
         """코인 기본 정보 조회"""
@@ -128,8 +260,11 @@ class CryptoInvestmentService:
             scarcity_score=scarcity_score
         )
     
+    # app/services/crypto_detail_investment_service.py 의 _analyze_kimchi_premium 메서드 수정
+
     async def _analyze_kimchi_premium(self, symbol: str) -> KimchiPremiumData:
-        """김치 프리미엄 분석"""
+        """김치 프리미엄 분석 - 수치 그대로 반환"""
+        
         # 최신 배치 ID 조회
         latest_batch = self.db.query(CoingeckoTickers.batch_id).order_by(
             desc(CoingeckoTickers.collected_at)
@@ -138,67 +273,135 @@ class CryptoInvestmentService:
         if not latest_batch:
             return KimchiPremiumData()
         
-        # 한국 거래소 가격 조회 (Upbit 우선)
-        korean_ticker = self.db.query(CoingeckoTickers).filter(
+        # 전체 거래소 데이터 조회 (필터링 최소화)
+        all_tickers = self.db.query(CoingeckoTickers).filter(
             and_(
                 CoingeckoTickers.batch_id == latest_batch.batch_id,
-                func.upper(CoingeckoTickers.coin_symbol) == symbol.upper(),
-                CoingeckoTickers.is_korean_exchange == True,
-                CoingeckoTickers.converted_last_usd.isnot(None)
+                func.upper(CoingeckoTickers.symbol) == symbol.upper(),
+                CoingeckoTickers.converted_last_usd.isnot(None),
+                CoingeckoTickers.converted_volume_usd > 0  # 거래량이 있는 것만
             )
-        ).order_by(desc(CoingeckoTickers.converted_volume_usd)).first()
+        ).all()
         
-        # 글로벌 거래소 평균 가격 조회
-        global_tickers = self.db.query(
-            func.avg(CoingeckoTickers.converted_last_usd).label('avg_price'),
-            func.sum(CoingeckoTickers.converted_volume_usd).label('total_volume'),
-            func.count().label('exchange_count'),
-            func.avg(CoingeckoTickers.bid_ask_spread_percentage).label('avg_spread')
+        if not all_tickers:
+            return KimchiPremiumData()
+        
+        # 국내/해외 거래소 분리
+        korean_tickers = [t for t in all_tickers if t.exchange_id in ['bithumb', 'upbit']]
+        global_tickers = [t for t in all_tickers if t.exchange_id not in ['bithumb', 'upbit']]
+        
+        if not korean_tickers or not global_tickers:
+            return KimchiPremiumData()
+        
+        # 국내 거래소 중 거래량 가장 큰 거래소 선택
+        korean_main = max(korean_tickers, key=lambda x: x.converted_volume_usd)
+        korean_price = float(korean_main.converted_last_usd)
+        korean_volume = korean_main.converted_volume_usd
+        
+        # 해외 거래소 단순 평균 (거래량 가중평균 아님)
+        global_prices = [float(t.converted_last_usd) for t in global_tickers]
+        global_volumes = [t.converted_volume_usd for t in global_tickers]
+        global_avg_price = sum(global_prices) / len(global_prices)
+        total_global_volume = sum(global_volumes)
+        
+        # 김치 프리미엄 계산 (수치만)
+        premium_percent = ((korean_price - global_avg_price) / global_avg_price) * 100
+        price_diff = korean_price - global_avg_price
+        
+        # 스프레드 계산
+        korean_spread = korean_main.bid_ask_spread_percentage
+        global_spreads = [t.bid_ask_spread_percentage for t in global_tickers if t.bid_ask_spread_percentage is not None]
+        avg_global_spread = sum(global_spreads) / len(global_spreads) if global_spreads else None
+        
+        return KimchiPremiumData(
+            korean_price_usd=Decimal(str(round(korean_price, 2))),
+            global_avg_price_usd=Decimal(str(round(global_avg_price, 2))),
+            kimchi_premium_percent=Decimal(str(round(premium_percent, 3))),
+            price_diff_usd=Decimal(str(round(price_diff, 2))),
+            korean_volume_usd=korean_volume,
+            total_global_volume_usd=total_global_volume,
+            korean_exchange=korean_main.exchange_id,
+            global_exchange_count=len(global_tickers),
+            korean_spread=korean_spread,
+            avg_global_spread=avg_global_spread,
+            arbitrage_opportunity=None,  # 판단 제거
+            net_profit_per_unit=None,    # 판단 제거
+            transaction_cost_estimate=None  # 판단 제거
+        )
+    
+
+    async def get_kimchi_premium_with_details(self, symbol: str) -> Optional[Dict]:
+        """김치 프리미엄 + 거래소별 상세 정보 조회"""
+        
+        # 1. 기본 김치 프리미엄 계산
+        kimchi_data = await self._analyze_kimchi_premium(symbol)
+        if not kimchi_data.korean_price_usd:
+            return None
+        
+        # 2. 거래소별 상세 정보 조회
+        exchange_details = await self._get_all_exchange_details(symbol)
+        if not exchange_details:
+            return None
+        
+        # 3. 국내/해외 거래소 분리
+        korean_exchanges = []
+        global_exchanges = []
+        
+        for exchange in exchange_details:
+            exchange_info = {
+                "exchange_id": exchange.exchange_id,
+                "price_usd": float(exchange.converted_last_usd),
+                "volume_24h_usd": exchange.converted_volume_usd,
+                "spread_percentage": exchange.bid_ask_spread_percentage
+            }
+            
+            if exchange.exchange_id in ['bithumb', 'upbit']:
+                korean_exchanges.append(exchange_info)
+            else:
+                global_exchanges.append(exchange_info)
+        
+        return {
+            "symbol": symbol.upper(),
+            "kimchi_premium": kimchi_data,
+            "korean_exchanges": korean_exchanges,
+            "global_exchanges": global_exchanges,
+            "exchange_count": {
+                "korean": len(korean_exchanges),
+                "global": len(global_exchanges)
+            },
+            "last_updated": datetime.utcnow().isoformat()
+        }
+
+    async def _get_all_exchange_details(self, symbol: str):
+        """모든 거래소 상세 정보 조회 (내부 메서드)"""
+        
+        # 최신 배치 ID 조회
+        latest_batch = self.db.query(CoingeckoTickers.batch_id).order_by(
+            desc(CoingeckoTickers.collected_at)
+        ).first()
+        
+        if not latest_batch:
+            return None
+        
+        # 모든 거래소 데이터 조회
+        exchange_details = self.db.query(
+            CoingeckoTickers.exchange_id,
+            CoingeckoTickers.converted_last_usd,
+            CoingeckoTickers.converted_volume_usd,
+            CoingeckoTickers.bid_ask_spread_percentage
         ).filter(
             and_(
                 CoingeckoTickers.batch_id == latest_batch.batch_id,
-                func.upper(CoingeckoTickers.coin_symbol) == symbol.upper(),
-                CoingeckoTickers.is_korean_exchange == False,
-                CoingeckoTickers.market_identifier.in_(['binance', 'coinbase-exchange', 'kraken']),
-                CoingeckoTickers.converted_last_usd.isnot(None),
-                CoingeckoTickers.trust_score == 'green'
+                func.upper(CoingeckoTickers.symbol) == symbol.upper(),
+                CoingeckoTickers.converted_last_usd.isnot(None)
             )
-        ).first()
+        ).all()
         
-        if not korean_ticker or not global_tickers.avg_price:
-            return KimchiPremiumData()
-        
-        # 김치 프리미엄 계산
-        korean_price = float(korean_ticker.converted_last_usd)
-        global_price = float(global_tickers.avg_price)
-        premium_percent = ((korean_price - global_price) / global_price) * 100
-        
-        # 차익거래 기회 평가
-        arbitrage_opportunity = "LOW"
-        if abs(premium_percent) > 3 and korean_ticker.converted_volume_usd > 100000:
-            arbitrage_opportunity = "HIGH"
-        elif abs(premium_percent) > 1.5 and korean_ticker.converted_volume_usd > 50000:
-            arbitrage_opportunity = "MEDIUM"
-        
-        # 거래비용 추정 (0.5%)
-        transaction_cost = 0.5
-        net_profit = (korean_price - global_price) - (korean_price * transaction_cost / 100)
-        
-        return KimchiPremiumData(
-            korean_price_usd=Decimal(str(korean_price)),
-            global_avg_price_usd=Decimal(str(global_price)),
-            kimchi_premium_percent=Decimal(str(round(premium_percent, 2))),
-            price_diff_usd=Decimal(str(korean_price - global_price)),
-            korean_volume_usd=korean_ticker.converted_volume_usd,
-            total_global_volume_usd=global_tickers.total_volume,
-            korean_exchange=korean_ticker.market_name,
-            global_exchange_count=global_tickers.exchange_count,
-            korean_spread=korean_ticker.bid_ask_spread_percentage,
-            avg_global_spread=global_tickers.avg_spread,
-            arbitrage_opportunity=arbitrage_opportunity,
-            net_profit_per_unit=Decimal(str(round(net_profit, 2))),
-            transaction_cost_estimate=Decimal(str(transaction_cost))
-        )
+        return exchange_details
+
+    async def get_derivatives_analysis(self, symbol: str) -> Optional[DerivativesData]:
+        """파생상품 분석 데이터만 조회 (public 메서드)"""
+        return await self._analyze_derivatives(symbol)
     
     async def _analyze_derivatives(self, symbol: str) -> DerivativesData:
         """파생상품 시장 분석"""
@@ -215,13 +418,7 @@ class CryptoInvestmentService:
             func.avg(CoingeckoDerivatives.funding_rate).label('avg_funding_rate'),
             func.sum(CoingeckoDerivatives.open_interest_usd).label('total_open_interest'),
             func.sum(CoingeckoDerivatives.volume_24h_usd).label('total_volume'),
-            func.count().label('total_markets'),
-            func.sum(
-                func.case([(CoingeckoDerivatives.funding_rate > 0, 1)], else_=0)
-            ).label('positive_funding_count'),
-            func.sum(
-                func.case([(CoingeckoDerivatives.funding_rate < 0, 1)], else_=0)
-            ).label('negative_funding_count')
+            func.count().label('total_markets')
         ).filter(
             and_(
                 CoingeckoDerivatives.batch_id == latest_batch.batch_id,
@@ -229,6 +426,27 @@ class CryptoInvestmentService:
                 CoingeckoDerivatives.funding_rate.isnot(None)
             )
         ).first()
+        
+        # 펀딩비 방향성 별도 계산
+        positive_funding_count = self.db.query(
+            func.count()
+        ).filter(
+            and_(
+                CoingeckoDerivatives.batch_id == latest_batch.batch_id,
+                func.upper(CoingeckoDerivatives.index_id) == symbol.upper(),
+                CoingeckoDerivatives.funding_rate > 0
+            )
+        ).scalar() or 0
+        
+        negative_funding_count = self.db.query(
+            func.count()
+        ).filter(
+            and_(
+                CoingeckoDerivatives.batch_id == latest_batch.batch_id,
+                func.upper(CoingeckoDerivatives.index_id) == symbol.upper(),
+                CoingeckoDerivatives.funding_rate < 0
+            )
+        ).scalar() or 0
         
         if not derivatives_stats.avg_funding_rate:
             return DerivativesData()
@@ -261,8 +479,8 @@ class CryptoInvestmentService:
         
         return DerivativesData(
             avg_funding_rate=Decimal(str(funding_rate)),
-            positive_funding_count=derivatives_stats.positive_funding_count,
-            negative_funding_count=derivatives_stats.negative_funding_count,
+            positive_funding_count=positive_funding_count,
+            negative_funding_count=negative_funding_count,
             funding_rate_interpretation=interpretation,
             market_sentiment=sentiment,
             total_open_interest=derivatives_stats.total_open_interest,

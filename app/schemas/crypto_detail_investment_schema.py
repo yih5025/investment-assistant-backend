@@ -1,7 +1,7 @@
 # app/schemas/crypto_detail_investment_schema.py
 
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Optional, List, Dict
 from decimal import Decimal
 from datetime import datetime
 
@@ -195,4 +195,41 @@ class CryptoInvestmentAnalysisResponse(BaseModel):
                     "arbitrage_opportunity": "MEDIUM"
                 }
             }
+        }
+
+class ExchangeComparisonData(BaseModel):
+    """거래소별 비교 데이터"""
+    korean_exchange: str = Field(description="국내 거래소명")
+    korean_price_usd: Decimal = Field(description="국내 거래소 가격 (USD)")
+    korean_volume_usd: float = Field(description="국내 거래소 거래량 (USD)")
+    korean_spread: Optional[float] = Field(description="국내 거래소 스프레드 (%)")
+    
+    global_exchange: str = Field(description="해외 거래소명")
+    global_price_usd: Decimal = Field(description="해외 거래소 가격 (USD)")
+    global_volume_usd: float = Field(description="해외 거래소 거래량 (USD)")
+    global_spread: Optional[float] = Field(description="해외 거래소 스프레드 (%)")
+    
+    premium_percentage: Decimal = Field(description="김치 프리미엄 (%)")
+    price_diff_usd: Decimal = Field(description="절대 가격 차이 (USD)")
+    volume_ratio: Decimal = Field(description="거래량 비율 (국내/해외)")
+
+
+class DetailedKimchiPremiumResponse(BaseModel):
+    """거래소별 상세 김치 프리미엄 응답"""
+    symbol: str = Field(description="암호화폐 심볼")
+    timestamp: datetime = Field(description="분석 시점")
+    
+    # 요약 정보 (기존)
+    summary: KimchiPremiumData = Field(description="요약 김치 프리미엄 정보")
+    
+    # 상세 비교 정보 (신규)
+    exchange_comparisons: List[ExchangeComparisonData] = Field(description="거래소별 상세 비교")
+    
+    # 통계 정보
+    statistics: dict = Field(description="전체 통계 정보")
+    
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat(),
+            Decimal: lambda v: float(v)
         }

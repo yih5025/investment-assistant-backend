@@ -6,7 +6,7 @@ from typing import Optional
 
 from ...dependencies import get_db
 from ...services.crypto_detail_investment_service import CryptoInvestmentService
-from ...schemas.crypto_detail_investment_schema import CryptoInvestmentAnalysisResponse
+from ...schemas.crypto_detail_investment_schema import CryptoInvestmentAnalysisResponse, DetailedKimchiPremiumResponse
 from ...schemas.common import ErrorResponse
 
 router = APIRouter()
@@ -72,6 +72,7 @@ async def get_crypto_investment_analysis(
             detail=f"Failed to analyze investment data: {str(e)}"
         )
 
+# app/api/endpoints/crypto_detail_investment_endpoint.py 의 수정된 엔드포인트
 
 @router.get(
     "/kimchi-premium/{symbol}",
@@ -86,19 +87,17 @@ async def get_kimchi_premium(
     """김치 프리미엄 분석 단독 조회"""
     try:
         service = CryptoInvestmentService(db)
-        kimchi_data = await service._analyze_kimchi_premium(symbol)
         
-        if not kimchi_data.korean_price_usd:
+        # 모든 로직을 서비스에 위임
+        result = await service.get_kimchi_premium_with_details(symbol)
+        
+        if not result:
             raise HTTPException(
                 status_code=404,
                 detail=f"Kimchi premium data for '{symbol}' not found"
             )
         
-        return {
-            "symbol": symbol.upper(),
-            "kimchi_premium": kimchi_data,
-            "last_updated": kimchi_data.last_updated if hasattr(kimchi_data, 'last_updated') else None
-        }
+        return result
         
     except HTTPException:
         raise
@@ -108,6 +107,41 @@ async def get_kimchi_premium(
             detail=f"Failed to get kimchi premium data: {str(e)}"
         )
 
+
+@router.get(
+    "/kimchi-premium/{symbol}/detailed",
+    summary="Kimchi Premium Detailed Analysis", 
+    description="거래소별 상세 김치 프리미엄 분석 데이터를 조회합니다.",
+    tags=["Crypto Detail - Investment"]
+)
+async def get_detailed_kimchi_premium(
+    symbol: str,
+    sort_by: str = Query("premium_desc", description="정렬 기준"),
+    min_volume: float = Query(0, description="최소 거래량 필터"),
+    db: Session = Depends(get_db)
+):
+    """거래소별 상세 김치 프리미엄 분석"""
+    try:
+        service = CryptoInvestmentService(db)
+        
+        # 모든 로직을 서비스에 위임
+        result = await service.get_detailed_kimchi_premium(symbol, sort_by, min_volume)
+        
+        if not result:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Detailed kimchi premium data for '{symbol}' not found"
+            )
+        
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to get detailed kimchi premium data: {str(e)}"
+        )
 
 @router.get(
     "/derivatives/{symbol}",
@@ -122,9 +156,9 @@ async def get_derivatives_analysis(
     """파생상품 시장 분석 단독 조회"""
     try:
         service = CryptoInvestmentService(db)
-        derivatives_data = await service._analyze_derivatives(symbol)
+        derivatives_data = await service.get_derivatives_analysis(symbol)
         
-        if not derivatives_data.total_open_interest:
+        if not derivatives_data or not derivatives_data.total_open_interest:
             raise HTTPException(
                 status_code=404,
                 detail=f"Derivatives data for '{symbol}' not found"
