@@ -353,13 +353,13 @@ class CryptoInvestmentService:
         return {
             "symbol": symbol.upper(),
             "kimchi_premium": kimchi_data,
-            "korean_exchanges": korean_exchanges,
-            "global_exchanges": global_exchanges,
-            "exchange_count": {
-                "korean": len(korean_exchanges),
-                "global": len(global_exchanges)
-            },
-            "last_updated": datetime.utcnow().isoformat()
+            # "korean_exchanges": korean_exchanges,
+            # "global_exchanges": global_exchanges,
+            # "exchange_count": {
+            #     "korean": len(korean_exchanges),
+            #     "global": len(global_exchanges)
+            # },
+            # "last_updated": datetime.utcnow().isoformat()
         }
 
     async def _get_all_exchange_details(self, symbol: str):
@@ -383,6 +383,75 @@ class CryptoInvestmentService:
         ).order_by(desc(CoingeckoTickers.created_at)).all()
         
         return exchange_details
+
+    async def get_kimchi_premium_chart_data(self, symbol: str) -> Optional[Dict]:
+        """김치 프리미엄 차트용 집계 데이터 조회"""
+        from datetime import datetime, timedelta
+        three_days_ago = datetime.now() - timedelta(days=3)
+        
+        # 모든 거래소 데이터 조회
+        all_tickers = self.db.query(CoingeckoTickers).filter(
+            and_(
+                CoingeckoTickers.created_at >= three_days_ago,
+                func.upper(CoingeckoTickers.symbol) == symbol.upper(),
+                CoingeckoTickers.converted_last_usd.isnot(None),
+                CoingeckoTickers.converted_volume_usd > 0
+            )
+        ).order_by(desc(CoingeckoTickers.created_at)).all()
+        
+        if not all_tickers:
+            return None
+        
+        # 국내/해외 거래소 분리
+        korean_tickers = [t for t in all_tickers if t.exchange_id in ['bithumb', 'upbit']]
+        global_tickers = [t for t in all_tickers if t.exchange_id not in ['bithumb', 'upbit']]
+        
+        if not korean_tickers or not global_tickers:
+            return None
+        
+        # 한국 거래소 집계 (거래량 가중평균)
+        korean_total_volume = sum(t.converted_volume_usd for t in korean_tickers)
+        korean_weighted_price = sum(
+            float(t.converted_last_usd) * t.converted_volume_usd 
+            for t in korean_tickers
+        ) / korean_total_volume if korean_total_volume > 0 else 0
+        
+        # 글로벌 거래소 집계 (거래량 가중평균)
+        global_total_volume = sum(t.converted_volume_usd for t in global_tickers)
+        global_weighted_price = sum(
+            float(t.converted_last_usd) * t.converted_volume_usd 
+            for t in global_tickers
+        ) / global_total_volume if global_total_volume > 0 else 0
+        
+        # 김치 프리미엄 계산
+        premium_percent = ((korean_weighted_price - global_weighted_price) / global_weighted_price) * 100 if global_weighted_price > 0 else 0
+        
+        return {
+            "symbol": symbol.upper(),
+            "timestamp": datetime.utcnow().isoformat(),
+            "korean_data": {
+                "average_price_usd": round(korean_weighted_price, 2),
+                "total_volume_usd": korean_total_volume,
+                "exchange_count": len(set(t.exchange_id for t in korean_tickers)),
+                "exchanges": list(set(t.exchange_id for t in korean_tickers))
+            },
+            "global_data": {
+                "average_price_usd": round(global_weighted_price, 2),
+                "total_volume_usd": global_total_volume,
+                "exchange_count": len(set(t.exchange_id for t in global_tickers)),
+                "top_exchanges": list(set(t.exchange_id for t in global_tickers))[:10]  # 상위 10개만
+            },
+            "kimchi_premium": {
+                "premium_percentage": round(premium_percent, 3),
+                "price_difference_usd": round(korean_weighted_price - global_weighted_price, 2),
+                "status": "positive" if premium_percent > 0 else "negative"
+            },
+            "market_summary": {
+                "total_exchanges": len(set(t.exchange_id for t in all_tickers)),
+                "total_volume_usd": korean_total_volume + global_total_volume,
+                "data_freshness": "last_3_days"
+            }
+        }
 
     async def get_derivatives_analysis(self, symbol: str) -> Optional[DerivativesData]:
         """파생상품 분석 데이터만 조회 (public 메서드)"""

@@ -176,3 +176,35 @@ async def get_derivatives_analysis(
             status_code=500,
             detail=f"Failed to get derivatives data: {str(e)}"
         )
+
+
+@router.get(
+    "/kimchi-premium/{symbol}/chart",
+    summary="Kimchi Premium Chart Data", 
+    description="김치 프리미엄 차트용 집계 데이터를 조회합니다.",
+    tags=["Crypto Detail - Investment"]
+)
+async def get_kimchi_premium_chart_data(
+    symbol: str,
+    db: Session = Depends(get_db)
+):
+    """김치 프리미엄 차트용 데이터 (한국 vs 글로벌 평균)"""
+    try:
+        service = CryptoInvestmentService(db)
+        chart_data = await service.get_kimchi_premium_chart_data(symbol)
+        
+        if not chart_data:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Chart data for '{symbol}' not found"
+            )
+        
+        return chart_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to get chart data: {str(e)}"
+        )
