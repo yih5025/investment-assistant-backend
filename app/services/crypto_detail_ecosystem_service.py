@@ -3,7 +3,7 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime
 import json
 
-class CryptoInformationOrganizerService:
+class CryptoEcosystemService:
     """
     AI는 판단하지 않고, 정보만 깔끔하게 정리해서 제공
     모든 판단은 사용자가 직접 수행
