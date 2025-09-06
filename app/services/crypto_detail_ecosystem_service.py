@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 import json
+from ..models.crypto_coin_details import CryptoDetailsCoin
 
 class CryptoEcosystemService:
     """
@@ -336,3 +337,156 @@ class CryptoEcosystemService:
             suggestions.append("커뮤니티 규모 불명 - 실제 사용자 활동 별도 확인")
         
         return suggestions if suggestions else ["현재 가용한 데이터로 기본 분석 가능"]
+    
+    # ==============================================
+    # 누락된 Helper Methods 구현
+    # ==============================================
+    
+    async def _get_coin_details(self, symbol: str) -> Optional[CryptoDetailsCoin]:
+        """코인 상세 정보 조회"""
+        try:
+            coin = self.db.query(CryptoDetailsCoin).filter(
+                CryptoDetailsCoin.symbol.ilike(f"%{symbol}%")
+            ).first()
+            return coin
+        except Exception as e:
+            print(f"Error getting coin details: {e}")
+            return None
+    
+    async def _parse_categories(self, categories_str: Optional[str]) -> List[str]:
+        """카테고리 문자열 파싱"""
+        if not categories_str:
+            return []
+        
+        try:
+            if isinstance(categories_str, str):
+                # JSON 문자열인 경우
+                if categories_str.startswith('['):
+                    return json.loads(categories_str)
+                # 콤마로 구분된 문자열인 경우
+                else:
+                    return [cat.strip() for cat in categories_str.split(',') if cat.strip()]
+            elif isinstance(categories_str, list):
+                return categories_str
+            else:
+                return []
+        except Exception:
+            return []
+    
+    async def _calculate_age_in_days(self, genesis_date: Optional[str]) -> Optional[int]:
+        """프로젝트 연령 계산 (일 단위)"""
+        if not genesis_date:
+            return None
+        
+        try:
+            from datetime import datetime
+            if isinstance(genesis_date, str):
+                # 다양한 날짜 형식 지원
+                formats = ['%Y-%m-%d', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%dT%H:%M:%S.%fZ']
+                genesis_dt = None
+                
+                for fmt in formats:
+                    try:
+                        genesis_dt = datetime.strptime(genesis_date[:len(fmt)], fmt)
+                        break
+                    except ValueError:
+                        continue
+                
+                if genesis_dt:
+                    return (datetime.now() - genesis_dt).days
+            return None
+        except Exception:
+            return None
+    
+    async def _extract_github_url(self, coin) -> Optional[str]:
+        """GitHub URL 추출"""
+        # 여러 필드에서 GitHub URL 찾기
+        potential_fields = [
+            getattr(coin, 'github_url', None),
+            getattr(coin, 'source_code_url', None),
+            getattr(coin, 'homepage_url', None)
+        ]
+        
+        for field in potential_fields:
+            if field and 'github.com' in str(field):
+                return str(field)
+        
+        return None
+    
+    async def _get_total_crypto_count(self) -> Optional[int]:
+        """전체 암호화폐 개수 조회"""
+        try:
+            count = self.db.query(CryptoDetailsCoin).count()
+            return count if count > 0 else None
+        except Exception:
+            return None
+    
+    async def _get_category_context(self, coin) -> Dict[str, Any]:
+        """카테고리 맥락 정보"""
+        categories = await self._parse_categories(getattr(coin, 'categories', None))
+        
+        if not categories:
+            return {"message": "카테고리 정보 없음"}
+        
+        context = {
+            "primary_category": categories[0] if categories else None,
+            "all_categories": categories,
+            "category_count": len(categories)
+        }
+        
+        return context
+    
+    async def _find_similar_category_projects(self, coin) -> List[Dict[str, Any]]:
+        """같은 카테고리의 유사 프로젝트 찾기"""
+        categories = await self._parse_categories(getattr(coin, 'categories', None))
+        
+        if not categories:
+            return []
+        
+        try:
+            # 같은 카테고리의 다른 프로젝트들 찾기 (최대 5개)
+            similar_coins = self.db.query(CryptoDetailsCoin).filter(
+                CryptoDetailsCoin.id != coin.id,
+                CryptoDetailsCoin.categories.ilike(f"%{categories[0]}%")
+            ).limit(5).all()
+            
+            return [
+                {
+                    "name": similar_coin.name,
+                    "symbol": similar_coin.symbol,
+                    "market_cap_rank": similar_coin.market_cap_rank,
+                    "category_match": categories[0]
+                }
+                for similar_coin in similar_coins
+            ]
+        except Exception:
+            return []
+    
+    async def _find_similar_rank_projects(self, coin) -> List[Dict[str, Any]]:
+        """비슷한 순위대의 프로젝트 찾기"""
+        if not coin.market_cap_rank:
+            return []
+        
+        try:
+            # 순위 ±10 범위의 프로젝트들
+            rank_range = 10
+            lower_bound = max(1, coin.market_cap_rank - rank_range)
+            upper_bound = coin.market_cap_rank + rank_range
+            
+            similar_rank_coins = self.db.query(CryptoDetailsCoin).filter(
+                CryptoDetailsCoin.id != coin.id,
+                CryptoDetailsCoin.market_cap_rank >= lower_bound,
+                CryptoDetailsCoin.market_cap_rank <= upper_bound
+            ).limit(5).all()
+            
+            return [
+                {
+                    "name": similar_coin.name,
+                    "symbol": similar_coin.symbol,
+                    "market_cap_rank": similar_coin.market_cap_rank,
+                    "rank_difference": abs(similar_coin.market_cap_rank - coin.market_cap_rank)
+                }
+                for similar_coin in similar_rank_coins
+            ]
+        except Exception:
+            return []
