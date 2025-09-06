@@ -240,12 +240,12 @@ class CryptoEcosystemService:
                 "very_high": "> 50 commits/week",
                 "high": "20-50 commits/week", 
                 "moderate": "5-20 commits/week",
-                "low": "< 5 commits/week",
-                "examples": {
-                    "ethereum": "~300 commits/week (대형 프로젝트)",
-                    "bitcoin": "~50 commits/week (성숙한 프로젝트)",
-                    "typical_defi": "~20 commits/week (활발한 DeFi)"
-                }
+                "low": "< 5 commits/week"
+            },
+            "examples": {
+                "ethereum": "~300 commits/week (대형 프로젝트)",
+                "bitcoin": "~50 commits/week (성숙한 프로젝트)",
+                "typical_defi": "~20 commits/week (활발한 DeFi)"
             },
             "community_metrics": {
                 "stars": {
