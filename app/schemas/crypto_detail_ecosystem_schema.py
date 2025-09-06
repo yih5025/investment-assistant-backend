@@ -25,7 +25,6 @@ class GitHubMetrics(BaseModel):
     commit_count_4_weeks: Optional[int] = None
     stars: Optional[int] = None
     forks: Optional[int] = None
-    watchers: Optional[int] = None
     total_issues: Optional[int] = None
     closed_issues: Optional[int] = None
     issues_resolved_rate_percent: Optional[float] = Field(

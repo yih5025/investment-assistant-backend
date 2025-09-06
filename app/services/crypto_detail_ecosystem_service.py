@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 import json
-from ..models.crypto_coin_details import CryptoDetailsCoin
+from ..models.coingecko_coin_details_model import CoingeckoCoinDetails
 
 class CryptoEcosystemService:
     """
@@ -39,9 +39,9 @@ class CryptoEcosystemService:
             "name": coin.name,
             "symbol": coin.symbol,
             "description": coin.description_en,
-            "categories": await self._parse_categories(coin.categories),
-            "genesis_date": coin.genesis_date,
-            "project_age_days": await self._calculate_age_in_days(coin.genesis_date),
+            "categories": await self._parse_categories(getattr(coin, 'categories', None)),
+            "genesis_date": str(coin.genesis_date) if coin.genesis_date else None,
+            "project_age_days": await self._calculate_age_in_days(str(coin.genesis_date) if coin.genesis_date else None),
             "official_links": {
                 "homepage": coin.homepage_url,
                 "twitter": coin.twitter_screen_name,
@@ -63,7 +63,6 @@ class CryptoEcosystemService:
                 "commit_count_4_weeks": coin.commit_count_4_weeks,
                 "stars": coin.stars,
                 "forks": coin.forks,
-                "watchers": coin.watchers,
                 "total_issues": coin.total_issues,
                 "closed_issues": coin.closed_issues,
                 "issues_resolved_rate_percent": issues_resolved_rate
@@ -342,32 +341,37 @@ class CryptoEcosystemService:
     # 누락된 Helper Methods 구현
     # ==============================================
     
-    async def _get_coin_details(self, symbol: str) -> Optional[CryptoDetailsCoin]:
+    async def _get_coin_details(self, symbol: str) -> Optional[CoingeckoCoinDetails]:   
         """코인 상세 정보 조회"""
         try:
-            coin = self.db.query(CryptoDetailsCoin).filter(
-                CryptoDetailsCoin.symbol.ilike(f"%{symbol}%")
+            coin = self.db.query(CoingeckoCoinDetails).filter(
+                CoingeckoCoinDetails.symbol.ilike(f"%{symbol}%")
             ).first()
             return coin
         except Exception as e:
             print(f"Error getting coin details: {e}")
             return None
     
-    async def _parse_categories(self, categories_str: Optional[str]) -> List[str]:
-        """카테고리 문자열 파싱"""
-        if not categories_str:
+    async def _parse_categories(self, categories_data) -> List[str]:
+        """카테고리 데이터 파싱 (JSONB 필드 지원)"""
+        if not categories_data:
             return []
         
         try:
-            if isinstance(categories_str, str):
+            # 이미 리스트인 경우 (JSONB에서 자동으로 파싱된 경우)
+            if isinstance(categories_data, list):
+                return [str(cat) for cat in categories_data if cat]
+            
+            # 문자열인 경우
+            elif isinstance(categories_data, str):
                 # JSON 문자열인 경우
-                if categories_str.startswith('['):
-                    return json.loads(categories_str)
+                if categories_data.startswith('['):
+                    return json.loads(categories_data)
                 # 콤마로 구분된 문자열인 경우
                 else:
-                    return [cat.strip() for cat in categories_str.split(',') if cat.strip()]
-            elif isinstance(categories_str, list):
-                return categories_str
+                    return [cat.strip() for cat in categories_data.split(',') if cat.strip()]
+            
+            # 딕셔너리나 기타 타입인 경우
             else:
                 return []
         except Exception:
@@ -400,23 +404,26 @@ class CryptoEcosystemService:
     
     async def _extract_github_url(self, coin) -> Optional[str]:
         """GitHub URL 추출"""
-        # 여러 필드에서 GitHub URL 찾기
-        potential_fields = [
-            getattr(coin, 'github_url', None),
-            getattr(coin, 'source_code_url', None),
-            getattr(coin, 'homepage_url', None)
-        ]
+        # CoingeckoCoinDetails 모델의 github_repos 필드에서 추출
+        if hasattr(coin, 'github_repos') and coin.github_repos:
+            try:
+                if isinstance(coin.github_repos, list) and len(coin.github_repos) > 0:
+                    return coin.github_repos[0]
+                elif isinstance(coin.github_repos, str):
+                    return coin.github_repos
+            except Exception:
+                pass
         
-        for field in potential_fields:
-            if field and 'github.com' in str(field):
-                return str(field)
+        # homepage_url에서 GitHub 링크 찾기
+        if hasattr(coin, 'homepage_url') and coin.homepage_url and 'github.com' in str(coin.homepage_url):
+            return str(coin.homepage_url)
         
         return None
     
     async def _get_total_crypto_count(self) -> Optional[int]:
         """전체 암호화폐 개수 조회"""
         try:
-            count = self.db.query(CryptoDetailsCoin).count()
+            count = self.db.query(CoingeckoCoinDetails).count()
             return count if count > 0 else None
         except Exception:
             return None
@@ -445,9 +452,10 @@ class CryptoEcosystemService:
         
         try:
             # 같은 카테고리의 다른 프로젝트들 찾기 (최대 5개)
-            similar_coins = self.db.query(CryptoDetailsCoin).filter(
-                CryptoDetailsCoin.id != coin.id,
-                CryptoDetailsCoin.categories.ilike(f"%{categories[0]}%")
+            # JSONB 필드에서 카테고리 검색 (PostgreSQL JSONB 연산자 사용)
+            similar_coins = self.db.query(CoingeckoCoinDetails).filter(
+                CoingeckoCoinDetails.coingecko_id != coin.coingecko_id,
+                CoingeckoCoinDetails.categories.op('?')(categories[0])  # JSONB ? 연산자
             ).limit(5).all()
             
             return [
@@ -473,10 +481,10 @@ class CryptoEcosystemService:
             lower_bound = max(1, coin.market_cap_rank - rank_range)
             upper_bound = coin.market_cap_rank + rank_range
             
-            similar_rank_coins = self.db.query(CryptoDetailsCoin).filter(
-                CryptoDetailsCoin.id != coin.id,
-                CryptoDetailsCoin.market_cap_rank >= lower_bound,
-                CryptoDetailsCoin.market_cap_rank <= upper_bound
+            similar_rank_coins = self.db.query(CoingeckoCoinDetails).filter(
+                CoingeckoCoinDetails.coingecko_id != coin.coingecko_id,
+                CoingeckoCoinDetails.market_cap_rank >= lower_bound,
+                CoingeckoCoinDetails.market_cap_rank <= upper_bound
             ).limit(5).all()
             
             return [
