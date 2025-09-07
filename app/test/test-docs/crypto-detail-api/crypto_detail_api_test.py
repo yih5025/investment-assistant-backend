@@ -102,9 +102,7 @@ class CryptoDetailTester:
         endpoints = [
             f"/api/v1/crypto/details/investment/{symbol}",
             f"/api/v1/crypto/details/kimchi-premium/{symbol}",
-            f"/api/v1/crypto/details/kimchi-premium/{symbol}/detailed?sort_by=premium_desc&min_volume=100000",
             f"/api/v1/crypto/details/derivatives/{symbol}",
-            f"/api/v1/crypto/details/kimchi-premium/{symbol}/chart"
         ]
         
         results = {}

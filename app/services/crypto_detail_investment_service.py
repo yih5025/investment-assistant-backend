@@ -166,20 +166,30 @@ class CryptoInvestmentService:
         }
 
     async def _get_all_tickers_for_symbol(self, symbol: str):
-        """특정 심볼의 모든 거래소 티커 데이터 조회"""
+        """특정 심볼의 모든 거래소 티커 데이터 조회 - 각 거래소별 가장 최신 데이터만"""
         
-        # 최신 데이터 조회 (최근 3일 내 데이터)
-        from datetime import datetime, timedelta
-        three_days_ago = datetime.now() - timedelta(days=3)
-        
-        all_tickers = self.db.query(CoingeckoTickers).filter(
+        # 각 거래소별 가장 최신 데이터만 조회하는 서브쿼리
+        latest_per_exchange = self.db.query(
+            CoingeckoTickers.exchange_id,
+            func.max(CoingeckoTickers.created_at).label('max_created_at')
+        ).filter(
             and_(
-                CoingeckoTickers.created_at >= three_days_ago,
                 func.upper(CoingeckoTickers.symbol) == symbol.upper(),
                 CoingeckoTickers.converted_last_usd.isnot(None),
                 CoingeckoTickers.converted_volume_usd > 0
             )
-        ).order_by(desc(CoingeckoTickers.created_at), desc(CoingeckoTickers.converted_volume_usd)).all()
+        ).group_by(CoingeckoTickers.exchange_id).subquery()
+        
+        # 각 거래소별 최신 데이터 조회
+        all_tickers = self.db.query(CoingeckoTickers).join(
+            latest_per_exchange,
+            and_(
+                CoingeckoTickers.exchange_id == latest_per_exchange.c.exchange_id,
+                CoingeckoTickers.created_at == latest_per_exchange.c.max_created_at
+            )
+        ).filter(
+            func.upper(CoingeckoTickers.symbol) == symbol.upper()
+        ).order_by(desc(CoingeckoTickers.converted_volume_usd)).all()
         
         return all_tickers
     
@@ -260,18 +270,28 @@ class CryptoInvestmentService:
     async def _analyze_kimchi_premium(self, symbol: str) -> KimchiPremiumData:
         """김치 프리미엄 분석 - 수치 그대로 반환"""
         
-        # 전체 거래소 데이터 조회 (최근 3일 내 데이터)
-        from datetime import datetime, timedelta
-        three_days_ago = datetime.now() - timedelta(days=3)
-        
-        all_tickers = self.db.query(CoingeckoTickers).filter(
+        # 각 거래소별 가장 최신 데이터만 조회하는 서브쿼리
+        latest_per_exchange = self.db.query(
+            CoingeckoTickers.exchange_id,
+            func.max(CoingeckoTickers.created_at).label('max_created_at')
+        ).filter(
             and_(
-                CoingeckoTickers.created_at >= three_days_ago,
                 func.upper(CoingeckoTickers.symbol) == symbol.upper(),
                 CoingeckoTickers.converted_last_usd.isnot(None),
                 CoingeckoTickers.converted_volume_usd > 0  # 거래량이 있는 것만
             )
-        ).order_by(desc(CoingeckoTickers.created_at)).all()
+        ).group_by(CoingeckoTickers.exchange_id).subquery()
+        
+        # 각 거래소별 최신 데이터 조회
+        all_tickers = self.db.query(CoingeckoTickers).join(
+            latest_per_exchange,
+            and_(
+                CoingeckoTickers.exchange_id == latest_per_exchange.c.exchange_id,
+                CoingeckoTickers.created_at == latest_per_exchange.c.max_created_at
+            )
+        ).filter(
+            func.upper(CoingeckoTickers.symbol) == symbol.upper()
+        ).order_by(desc(CoingeckoTickers.converted_volume_usd)).all()
         
         if not all_tickers:
             return KimchiPremiumData()
@@ -365,39 +385,60 @@ class CryptoInvestmentService:
     async def _get_all_exchange_details(self, symbol: str):
         """모든 거래소 상세 정보 조회 (내부 메서드)"""
         
-        # 모든 거래소 데이터 조회 (최근 3일 내 데이터)
-        from datetime import datetime, timedelta
-        three_days_ago = datetime.now() - timedelta(days=3)
+        # 각 거래소별 가장 최신 데이터만 조회하는 서브쿼리
+        latest_per_exchange = self.db.query(
+            CoingeckoTickers.exchange_id,
+            func.max(CoingeckoTickers.created_at).label('max_created_at')
+        ).filter(
+            and_(
+                func.upper(CoingeckoTickers.symbol) == symbol.upper(),
+                CoingeckoTickers.converted_last_usd.isnot(None)
+            )
+        ).group_by(CoingeckoTickers.exchange_id).subquery()
         
+        # 각 거래소별 최신 데이터 조회
         exchange_details = self.db.query(
             CoingeckoTickers.exchange_id,
             CoingeckoTickers.converted_last_usd,
             CoingeckoTickers.converted_volume_usd,
             CoingeckoTickers.bid_ask_spread_percentage
-        ).filter(
+        ).join(
+            latest_per_exchange,
             and_(
-                CoingeckoTickers.created_at >= three_days_ago,
-                func.upper(CoingeckoTickers.symbol) == symbol.upper(),
-                CoingeckoTickers.converted_last_usd.isnot(None)
+                CoingeckoTickers.exchange_id == latest_per_exchange.c.exchange_id,
+                CoingeckoTickers.created_at == latest_per_exchange.c.max_created_at
             )
-        ).order_by(desc(CoingeckoTickers.created_at)).all()
+        ).filter(
+            func.upper(CoingeckoTickers.symbol) == symbol.upper()
+        ).order_by(desc(CoingeckoTickers.converted_volume_usd)).all()
         
         return exchange_details
 
     async def get_kimchi_premium_chart_data(self, symbol: str) -> Optional[Dict]:
         """김치 프리미엄 차트용 집계 데이터 조회"""
-        from datetime import datetime, timedelta
-        three_days_ago = datetime.now() - timedelta(days=3)
         
-        # 모든 거래소 데이터 조회
-        all_tickers = self.db.query(CoingeckoTickers).filter(
+        # 각 거래소별 가장 최신 데이터만 조회하는 서브쿼리
+        latest_per_exchange = self.db.query(
+            CoingeckoTickers.exchange_id,
+            func.max(CoingeckoTickers.created_at).label('max_created_at')
+        ).filter(
             and_(
-                CoingeckoTickers.created_at >= three_days_ago,
                 func.upper(CoingeckoTickers.symbol) == symbol.upper(),
                 CoingeckoTickers.converted_last_usd.isnot(None),
                 CoingeckoTickers.converted_volume_usd > 0
             )
-        ).order_by(desc(CoingeckoTickers.created_at)).all()
+        ).group_by(CoingeckoTickers.exchange_id).subquery()
+        
+        # 각 거래소별 최신 데이터 조회
+        all_tickers = self.db.query(CoingeckoTickers).join(
+            latest_per_exchange,
+            and_(
+                CoingeckoTickers.exchange_id == latest_per_exchange.c.exchange_id,
+                CoingeckoTickers.created_at == latest_per_exchange.c.max_created_at
+            )
+        ).filter(
+            func.upper(CoingeckoTickers.symbol) == symbol.upper()
+        ).order_by(desc(CoingeckoTickers.converted_volume_usd)).all()
         
         if not all_tickers:
             return None

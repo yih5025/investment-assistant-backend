@@ -1,0 +1,182 @@
+{
+  "test_metadata": {
+    "symbol": "BTC",
+    "category": "investment",
+    "test_timestamp": "2025-09-08T00:04:27.301002",
+    "base_url": "https://api.investment-assistant.site"
+  },
+  "data": {
+    "main": {
+      "success": true,
+      "status_code": 200,
+      "data": {
+        "basic_info": {
+          "coingecko_id": "bitcoin",
+          "symbol": "BTC",
+          "name": "Bitcoin",
+          "image_large": "https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400",
+          "market_cap_rank": 1,
+          "categories": [
+            "Smart Contract Platform",
+            "Layer 1 (L1)",
+            "FTX Holdings",
+            "Proof of Work (PoW)",
+            "Bitcoin Ecosystem"
+          ]
+        },
+        "market_data": {
+          "current_price_usd": "110925.00000000",
+          "current_price_krw": "154727307.00",
+          "market_cap_usd": 2208287902108,
+          "total_volume_usd": 50650757255,
+          "price_change_percentage_24h": "1.9329",
+          "price_change_percentage_7d": "1.1058",
+          "price_change_percentage_30d": "-2.5119",
+          "ath_usd": "124128.00000000",
+          "ath_change_percentage": "-10.7234",
+          "ath_date": "2025-08-14T00:37:02.582000",
+          "atl_usd": "67.81000000",
+          "atl_change_percentage": "163325.6232",
+          "atl_date": "2013-07-06T00:00:00"
+        },
+        "supply_data": {
+          "total_supply": "19915262.00",
+          "circulating_supply": "19915262.00",
+          "max_supply": "21000000.00",
+          "circulating_supply_percentage": "94.83458095238095",
+          "scarcity_score": "높음"
+        },
+        "kimchi_premium": {
+          "korean_price_usd": "111690.0",
+          "global_avg_price_usd": "110721.52",
+          "kimchi_premium_percent": "0.875",
+          "price_diff_usd": "968.48",
+          "korean_volume_usd": "183410681",
+          "total_global_volume_usd": "26716351131",
+          "korean_exchange": "upbit",
+          "global_exchange_count": 25,
+          "korean_spread": "0.0106",
+          "avg_global_spread": "0.012716",
+          "arbitrage_opportunity": null,
+          "net_profit_per_unit": null,
+          "transaction_cost_estimate": null
+        },
+        "derivatives": {
+          "avg_funding_rate": "0.08772763309352517",
+          "positive_funding_count": 111,
+          "negative_funding_count": 15,
+          "funding_rate_interpretation": "기관들이 강한 Long 우세",
+          "market_sentiment": "강세",
+          "total_open_interest": "95097541499.51",
+          "open_interest_rank": null,
+          "volume_24h_usd": "83643687665.82",
+          "institutional_interest": "매우 높음",
+          "market_maturity": "성숙"
+        },
+        "global_context": {
+          "total_market_cap_usd": "3924741410464.26",
+          "market_cap_change_24h": "0.562446",
+          "btc_dominance": "56.4708",
+          "eth_dominance": "13.2540",
+          "market_share_percentage": "56.27",
+          "dominance_change_7d": null,
+          "vs_market_performance": null,
+          "market_status": "neutral",
+          "active_cryptocurrencies": 18621,
+          "markets": 1362
+        },
+        "risk_analysis": {
+          "volatility_24h": "1.9329",
+          "volatility_7d": "1.1058",
+          "volatility_30d": "2.5119",
+          "volatility_risk": "낮음",
+          "liquidity_risk": "낮음",
+          "bid_ask_spread": null,
+          "volume_stability": "높음",
+          "market_position_risk": "낮음",
+          "rank_stability": "안정",
+          "overall_risk_score": "낮음"
+        },
+        "investment_opportunity": {
+          "institutional_adoption": "활발함",
+          "etf_status": "승인 가능성 높음",
+          "supply_constraint": "높음",
+          "inflation_hedge": "매우 적합",
+          "arbitrage_potential": "low",
+          "investment_environment": "매우 긍정적",
+          "key_drivers": [
+            "기관 관심 증가",
+            "공급량 제한",
+            "파생상품 강세 신호"
+          ]
+        },
+        "portfolio_guidance": {
+          "conservative_allocation": "10-15%",
+          "moderate_allocation": "15-25%",
+          "aggressive_allocation": "25-40%",
+          "investment_strategies": [
+            "정기 적립 투자 (DCA)",
+            "장기 보유 전략"
+          ],
+          "time_horizon": "3-5년 이상"
+        },
+        "last_updated": "2025-09-07T15:04:26.676051",
+        "data_sources": [
+          "CoinGecko",
+          "Derivatives",
+          "Tickers",
+          "Global"
+        ]
+      },
+      "url": "https://api.investment-assistant.site/api/v1/crypto/details/investment/BTC"
+    },
+    "kimchi_premium": {
+      "success": true,
+      "status_code": 200,
+      "data": {
+        "symbol": "BTC",
+        "kimchi_premium": {
+          "korean_price_usd": "111690.0",
+          "global_avg_price_usd": "110721.52",
+          "kimchi_premium_percent": "0.875",
+          "price_diff_usd": "968.48",
+          "korean_volume_usd": "183410681",
+          "total_global_volume_usd": "26716351131",
+          "korean_exchange": "upbit",
+          "global_exchange_count": 25,
+          "korean_spread": "0.0106",
+          "avg_global_spread": "0.012716",
+          "arbitrage_opportunity": null,
+          "net_profit_per_unit": null,
+          "transaction_cost_estimate": null
+        }
+      },
+      "url": "https://api.investment-assistant.site/api/v1/crypto/details/kimchi-premium/BTC"
+    },
+    "derivatives": {
+      "success": true,
+      "status_code": 200,
+      "data": {
+        "symbol": "BTC",
+        "derivatives": {
+          "avg_funding_rate": "0.08772763309352517",
+          "positive_funding_count": 111,
+          "negative_funding_count": 15,
+          "funding_rate_interpretation": "기관들이 강한 Long 우세",
+          "market_sentiment": "강세",
+          "total_open_interest": "95097541499.51",
+          "open_interest_rank": null,
+          "volume_24h_usd": "83643687665.82",
+          "institutional_interest": "매우 높음",
+          "market_maturity": "성숙"
+        }
+      },
+      "url": "https://api.investment-assistant.site/api/v1/crypto/details/derivatives/BTC"
+    }
+  },
+  "summary": {
+    "total_endpoints": 3,
+    "successful_endpoints": 3,
+    "failed_endpoints": 0
+  }
+}

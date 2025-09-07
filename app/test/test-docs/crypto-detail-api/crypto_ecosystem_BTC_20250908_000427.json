@@ -1,0 +1,433 @@
+{
+  "test_metadata": {
+    "symbol": "BTC",
+    "category": "ecosystem",
+    "test_timestamp": "2025-09-08T00:04:27.301002",
+    "base_url": "https://api.investment-assistant.site"
+  },
+  "data": {
+    "main": {
+      "success": true,
+      "status_code": 200,
+      "data": {
+        "basic_info": {
+          "name": "Bitcoin",
+          "symbol": "BTC",
+          "description": "Bitcoin is the first successful internet money based on peer-to-peer technology; whereby no central bank or authority is involved in the transaction and production of the Bitcoin currency. It was created by an anonymous individual/group under the name, Satoshi Nakamoto. The source code is available publicly as an open source project, anybody can look at it and be part of the developmental process.\r\n\r\nBitcoin is changing the way we see money as we speak. The idea was to produce a means of exchange, independent of any central authority, that could be transferred electronically in a secure, verifiable and immutable way. It is a decentralized peer-to-peer internet currency making mobile payment easy, very low transaction fees, protects your identity, and it works anywhere all the time with no central authority and banks.\r\n\r\nBitcoin is designed to have only 21 million BTC ever created, thus making it a deflationary currency. Bitcoin uses the SHA-256 hashing algorithm with an average transaction confirmation time of 10 minutes. Miners today are mining Bitcoin using ASIC chip dedicated to only mining Bitcoin, and the hash rate has shot up to peta hashes.\r\n\r\nBeing the first successful online cryptography currency, Bitcoin has inspired other alternative currencies such as Litecoin, Peercoin, Primecoin, and so on.\r\n\r\nThe cryptocurrency then took off with the innovation of the turing-complete smart contract by Ethereum which led to the development of other amazing projects such as EOS, Tron, and even crypto-collectibles such as CryptoKitties.",
+          "categories": [
+            "Smart Contract Platform",
+            "Layer 1 (L1)",
+            "FTX Holdings",
+            "Proof of Work (PoW)",
+            "Bitcoin Ecosystem",
+            "GMCI 30 Index",
+            "GMCI Index",
+            "Coinbase 50 Index"
+          ],
+          "genesis_date": "2009-01-03",
+          "project_age_days": null,
+          "official_links": {
+            "homepage": "http://www.bitcoin.org",
+            "twitter": "bitcoin",
+            "github": null
+          },
+          "market_cap_rank": 1
+        },
+        "development_activity": {
+          "github_metrics": {
+            "commit_count_4_weeks": 108,
+            "stars": 73168,
+            "forks": 36426,
+            "total_issues": 7743,
+            "closed_issues": 7380,
+            "issues_resolved_rate_percent": 95.3
+          },
+          "activity_indicators": {
+            "commits_per_week": 27.0,
+            "last_updated": "2025-09-07T15:04:25.546077"
+          },
+          "comparison_benchmarks": {
+            "weekly_commits": {
+              "very_high": "> 50 commits/week",
+              "high": "20-50 commits/week",
+              "moderate": "5-20 commits/week",
+              "low": "< 5 commits/week"
+            },
+            "examples": {
+              "ethereum": "~300 commits/week (대형 프로젝트)",
+              "bitcoin": "~50 commits/week (성숙한 프로젝트)",
+              "typical_defi": "~20 commits/week (활발한 DeFi)"
+            },
+            "community_metrics": {
+              "stars": {
+                "major_project": "> 10,000 stars",
+                "popular": "1,000-10,000 stars",
+                "emerging": "100-1,000 stars",
+                "new": "< 100 stars"
+              }
+            }
+          },
+          "interpretation_guide": {
+            "commits_4w": {
+              "high_activity": "> 200 commits",
+              "moderate_activity": "50-200 commits",
+              "low_activity": "< 50 commits",
+              "note": "더 많은 커밋이 반드시 더 좋은 프로젝트를 의미하지는 않습니다."
+            },
+            "issues_resolution": {
+              "excellent": "> 90% 해결률",
+              "good": "70-90% 해결률",
+              "concerning": "< 70% 해결률",
+              "note": "해결률이 높을수록 개발팀이 활발히 문제를 처리하고 있음을 의미합니다."
+            }
+          }
+        },
+        "community_metrics": {
+          "social_metrics": {
+            "telegram_users": null,
+            "reddit_subscribers": 0,
+            "twitter_followers": null
+          },
+          "platform_presence": {
+            "has_telegram": false,
+            "has_reddit": true,
+            "has_twitter": false,
+            "total_platforms": 1
+          },
+          "size_references": {
+            "telegram": {
+              "small": "< 1,000 사용자",
+              "medium": "1,000 - 50,000 사용자",
+              "large": "> 50,000 사용자",
+              "note": "텔레그램은 암호화폐 커뮤니티에서 가장 활발한 플랫폼입니다."
+            },
+            "reddit": {
+              "small": "< 5,000 구독자",
+              "medium": "5,000 - 50,000 구독자",
+              "large": "> 50,000 구독자",
+              "note": "Reddit은 기술적 토론이 많이 이루어지는 플랫폼입니다."
+            }
+          }
+        },
+        "market_position": {
+          "ranking_info": {
+            "current_rank": 1,
+            "total_cryptocurrencies": 985,
+            "rank_category": "최상위 (Top 10)",
+            "top_percentile": 99.9
+          },
+          "category_context": {
+            "primary_category": "Smart Contract Platform",
+            "all_categories": [
+              "Smart Contract Platform",
+              "Layer 1 (L1)",
+              "FTX Holdings",
+              "Proof of Work (PoW)",
+              "Bitcoin Ecosystem",
+              "GMCI 30 Index",
+              "GMCI Index",
+              "Coinbase 50 Index"
+            ],
+            "category_count": 8
+          },
+          "ranking_interpretation": {
+            "top_10": "글로벌 주류 암호화폐",
+            "top_50": "안정적으로 인정받는 프로젝트",
+            "top_200": "상당한 관심을 받는 프로젝트",
+            "top_1000": "틈새 시장 또는 신생 프로젝트",
+            "note": "순위는 시가총액 기준이며, 프로젝트의 기술적 우수성과는 다를 수 있습니다."
+          }
+        },
+        "comparative_context": {
+          "category_peers": [
+            {
+              "name": "Ethereum",
+              "symbol": "ETH",
+              "market_cap_rank": 2,
+              "category_match": "Smart Contract Platform"
+            },
+            {
+              "name": "Solana",
+              "symbol": "SOL",
+              "market_cap_rank": 6,
+              "category_match": "Smart Contract Platform"
+            },
+            {
+              "name": "TRON",
+              "symbol": "TRX",
+              "market_cap_rank": 9,
+              "category_match": "Smart Contract Platform"
+            },
+            {
+              "name": "Dogecoin",
+              "symbol": "DOGE",
+              "market_cap_rank": 10,
+              "category_match": "Smart Contract Platform"
+            },
+            {
+              "name": "Cardano",
+              "symbol": "ADA",
+              "market_cap_rank": 11,
+              "category_match": "Smart Contract Platform"
+            }
+          ],
+          "rank_peers": [
+            {
+              "name": "Ethereum",
+              "symbol": "ETH",
+              "market_cap_rank": 2,
+              "rank_difference": 1
+            },
+            {
+              "name": "Tether",
+              "symbol": "USDT",
+              "market_cap_rank": 3,
+              "rank_difference": 2
+            },
+            {
+              "name": "XRP",
+              "symbol": "XRP",
+              "market_cap_rank": 4,
+              "rank_difference": 3
+            },
+            {
+              "name": "Solana",
+              "symbol": "SOL",
+              "market_cap_rank": 6,
+              "rank_difference": 5
+            },
+            {
+              "name": "USDC",
+              "symbol": "USDC",
+              "market_cap_rank": 7,
+              "rank_difference": 6
+            }
+          ],
+          "comparison_metrics": {
+            "how_to_compare": [
+              "GitHub 활동도를 비교해보세요",
+              "커뮤니티 크기를 비교해보세요",
+              "프로젝트 연령을 고려해보세요",
+              "카테고리 내 특색을 파악해보세요"
+            ],
+            "what_numbers_mean": {
+              "github_commits": "개발 활발함의 지표 (단, 팀 크기에 따라 다름)",
+              "community_size": "관심도의 지표 (단, 활성도와는 다를 수 있음)",
+              "market_cap_rank": "시장 인지도 (단, 투기적 요소 포함 가능)"
+            }
+          }
+        },
+        "data_transparency": {
+          "data_availability": {
+            "available": [
+              "GitHub 커밋",
+              "GitHub 스타",
+              "Reddit",
+              "프로젝트 설명",
+              "창립일"
+            ],
+            "missing": [
+              "텔레그램",
+              "Twitter"
+            ],
+            "completeness_percent": 71.4
+          },
+          "data_sources": [
+            "CoinGecko API",
+            "GitHub API (일부)",
+            "소셜 미디어 API (일부)"
+          ],
+          "limitations": [
+            "모든 프로젝트가 GitHub을 공개하지 않음",
+            "소셜 미디어 팔로워는 실제 활성 사용자와 다를 수 있음",
+            "시가총액 순위는 시장 변동에 따라 수시로 변함",
+            "개발 활동도가 높다고 반드시 좋은 프로젝트는 아님"
+          ],
+          "how_to_use": [
+            "여러 지표를 종합적으로 고려하세요",
+            "절대적 숫자보다는 상대적 비교에 활용하세요",
+            "누락된 데이터가 있음을 감안하여 판단하세요",
+            "최신 정보를 별도로 확인해보세요"
+          ]
+        },
+        "analysis_timestamp": "2025-09-07T15:04:25.563978",
+        "schema_version": "2.0"
+      },
+      "url": "https://api.investment-assistant.site/api/v1/crypto/details/ecosystem/BTC"
+    },
+    "development": {
+      "success": true,
+      "status_code": 200,
+      "data": {
+        "symbol": "BTC",
+        "development_activity": {
+          "github_metrics": {
+            "commit_count_4_weeks": 108,
+            "stars": 73168,
+            "forks": 36426,
+            "total_issues": 7743,
+            "closed_issues": 7380,
+            "issues_resolved_rate_percent": 95.3
+          },
+          "activity_indicators": {
+            "commits_per_week": 27.0,
+            "last_updated": "2025-09-07T15:04:25.763097"
+          },
+          "comparison_benchmarks": {
+            "weekly_commits": {
+              "very_high": "> 50 commits/week",
+              "high": "20-50 commits/week",
+              "moderate": "5-20 commits/week",
+              "low": "< 5 commits/week"
+            },
+            "examples": {
+              "ethereum": "~300 commits/week (대형 프로젝트)",
+              "bitcoin": "~50 commits/week (성숙한 프로젝트)",
+              "typical_defi": "~20 commits/week (활발한 DeFi)"
+            },
+            "community_metrics": {
+              "stars": {
+                "major_project": "> 10,000 stars",
+                "popular": "1,000-10,000 stars",
+                "emerging": "100-1,000 stars",
+                "new": "< 100 stars"
+              }
+            }
+          },
+          "interpretation_guide": {
+            "commits_4w": {
+              "high_activity": "> 200 commits",
+              "moderate_activity": "50-200 commits",
+              "low_activity": "< 50 commits",
+              "note": "더 많은 커밋이 반드시 더 좋은 프로젝트를 의미하지는 않습니다."
+            },
+            "issues_resolution": {
+              "excellent": "> 90% 해결률",
+              "good": "70-90% 해결률",
+              "concerning": "< 70% 해결률",
+              "note": "해결률이 높을수록 개발팀이 활발히 문제를 처리하고 있음을 의미합니다."
+            }
+          }
+        }
+      },
+      "url": "https://api.investment-assistant.site/api/v1/crypto/details/ecosystem/BTC/development"
+    },
+    "community": {
+      "success": true,
+      "status_code": 200,
+      "data": {
+        "symbol": "BTC",
+        "community_health": {
+          "social_metrics": {
+            "telegram_users": null,
+            "reddit_subscribers": 0,
+            "twitter_followers": null
+          },
+          "platform_presence": {
+            "has_telegram": false,
+            "has_reddit": true,
+            "has_twitter": false,
+            "total_platforms": 1
+          },
+          "size_references": {
+            "telegram": {
+              "small": "< 1,000 사용자",
+              "medium": "1,000 - 50,000 사용자",
+              "large": "> 50,000 사용자",
+              "note": "텔레그램은 암호화폐 커뮤니티에서 가장 활발한 플랫폼입니다."
+            },
+            "reddit": {
+              "small": "< 5,000 구독자",
+              "medium": "5,000 - 50,000 구독자",
+              "large": "> 50,000 구독자",
+              "note": "Reddit은 기술적 토론이 많이 이루어지는 플랫폼입니다."
+            }
+          }
+        }
+      },
+      "url": "https://api.investment-assistant.site/api/v1/crypto/details/ecosystem/BTC/community"
+    },
+    "market": {
+      "success": true,
+      "status_code": 200,
+      "data": {
+        "symbol": "BTC",
+        "market_position": {
+          "ranking_info": {
+            "current_rank": 1,
+            "total_cryptocurrencies": 985,
+            "rank_category": "최상위 (Top 10)",
+            "top_percentile": 99.9
+          },
+          "category_context": {
+            "primary_category": "Smart Contract Platform",
+            "all_categories": [
+              "Smart Contract Platform",
+              "Layer 1 (L1)",
+              "FTX Holdings",
+              "Proof of Work (PoW)",
+              "Bitcoin Ecosystem",
+              "GMCI 30 Index",
+              "GMCI Index",
+              "Coinbase 50 Index"
+            ],
+            "category_count": 8
+          },
+          "ranking_interpretation": {
+            "top_10": "글로벌 주류 암호화폐",
+            "top_50": "안정적으로 인정받는 프로젝트",
+            "top_200": "상당한 관심을 받는 프로젝트",
+            "top_1000": "틈새 시장 또는 신생 프로젝트",
+            "note": "순위는 시가총액 기준이며, 프로젝트의 기술적 우수성과는 다를 수 있습니다."
+          }
+        }
+      },
+      "url": "https://api.investment-assistant.site/api/v1/crypto/details/ecosystem/BTC/market"
+    },
+    "summary": {
+      "success": true,
+      "status_code": 200,
+      "data": {
+        "summary": {
+          "project_overview": "Bitcoin는 최상위 (Top 10) 암호화폐입니다.",
+          "key_numbers": {
+            "시가총액_순위": 1,
+            "GitHub_주간_커밋": 108,
+            "텔레그램_사용자": null,
+            "프로젝트_연령": "알 수 없음"
+          },
+          "what_stands_out": [
+            "상위 10위 내 주류 암호화폐",
+            "GitHub 1만+ 스타 확보"
+          ],
+          "areas_to_investigate": [
+            "커뮤니티 규모 불명 - 실제 사용자 활동 별도 확인"
+          ]
+        },
+        "next_steps": {
+          "for_beginners": [
+            "'Bitcoin' 공식 홈페이지에서 프로젝트 목적 확인",
+            "백서(Whitepaper) 읽어보기",
+            "커뮤니티 참여해서 실제 활동 확인"
+          ],
+          "for_analysts": [
+            "GitHub 저장소에서 최근 개발 내용 확인",
+            "경쟁 프로젝트와 기술적 차별점 비교",
+            "토큰 이코노믹스 분석"
+          ],
+          "for_investors": [
+            "시장 순위 변화 추이 확인",
+            "실제 사용 사례 및 파트너십 조사",
+            "규제 위험 요소 검토"
+          ]
+        }
+      },
+      "url": "https://api.investment-assistant.site/api/v1/crypto/details/ecosystem/BTC/summary"
+    }
+  },
+  "summary": {
+    "total_endpoints": 5,
+    "successful_endpoints": 5,
+    "failed_endpoints": 0
+  }
+}
