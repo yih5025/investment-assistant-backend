@@ -1,0 +1,171 @@
+{
+  "test_metadata": {
+    "symbol": "BTC",
+    "category": "concept",
+    "test_timestamp": "2025-09-07T04:33:27.299966",
+    "base_url": "https://api.investment-assistant.site"
+  },
+  "data": {
+    "main": {
+      "success": true,
+      "status_code": 200,
+      "data": {
+        "basic_info": {
+          "coingecko_id": "bitcoin",
+          "symbol": "BTC",
+          "name": "Bitcoin",
+          "web_slug": "bitcoin",
+          "market_cap_rank": 1,
+          "image_thumb": "https://coin-images.coingecko.com/coins/images/1/thumb/bitcoin.png?1696501400",
+          "image_small": "https://coin-images.coingecko.com/coins/images/1/small/bitcoin.png?1696501400",
+          "image_large": "https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400"
+        },
+        "concept_description": {
+          "description_original": "Bitcoin is the first successful internet money based on peer-to-peer technology; whereby no central bank or authority is involved in the transaction and production of the Bitcoin currency. It was created by an anonymous individual/group under the name, Satoshi Nakamoto. The source code is available publicly as an open source project, anybody can look at it and be part of the developmental process.\r\n\r\nBitcoin is changing the way we see money as we speak. The idea was to produce a means of exchange, independent of any central authority, that could be transferred electronically in a secure, verifiable and immutable way. It is a decentralized peer-to-peer internet currency making mobile payment easy, very low transaction fees, protects your identity, and it works anywhere all the time with no central authority and banks.\r\n\r\nBitcoin is designed to have only 21 million BTC ever created, thus making it a deflationary currency. Bitcoin uses the SHA-256 hashing algorithm with an average transaction confirmation time of 10 minutes. Miners today are mining Bitcoin using ASIC chip dedicated to only mining Bitcoin, and the hash rate has shot up to peta hashes.\r\n\r\nBeing the first successful online cryptography currency, Bitcoin has inspired other alternative currencies such as Litecoin, Peercoin, Primecoin, and so on.\r\n\r\nThe cryptocurrency then took off with the innovation of the turing-complete smart contract by Ethereum which led to the development of other amazing projects such as EOS, Tron, and even crypto-collectibles such as CryptoKitties.",
+          "description_summary": null,
+          "genesis_date": "2009-01-03",
+          "project_age_years": 16,
+          "country_origin": ""
+        },
+        "category_info": {
+          "categories_original": [
+            "Smart Contract Platform",
+            "Layer 1 (L1)",
+            "FTX Holdings",
+            "Proof of Work (PoW)",
+            "Bitcoin Ecosystem"
+          ],
+          "categories_korean": [
+            "스마트계약플랫폼",
+            "레이어1블록체인",
+            "FTX Holdings",
+            "작업증명",
+            "비트코인생태계"
+          ],
+          "primary_category": "스마트계약플랫폼",
+          "category_description": "프로그래밍이 가능한 계약을 자동으로 실행하는 블록체인 플랫폼"
+        },
+        "project_links": {
+          "homepage_url": "http://www.bitcoin.org",
+          "blockchain_site": "https://mempool.space/",
+          "twitter_screen_name": "bitcoin",
+          "facebook_username": "bitcoins",
+          "telegram_channel_identifier": "",
+          "subreddit_url": "https://www.reddit.com/r/Bitcoin/",
+          "github_repos": [
+            "https://github.com/bitcoin/bitcoin",
+            "https://github.com/bitcoin/bips"
+          ],
+          "main_github_url": "https://github.com/bitcoin/bitcoin"
+        },
+        "key_features": {
+          "consensus_algorithm": "작업증명 (PoW)",
+          "blockchain_type": "레이어1 메인넷",
+          "use_cases": [
+            "스마트 계약 실행"
+          ],
+          "unique_features": [
+            "세계 최초 암호화폐",
+            "가장 높은 보안성",
+            "디지털 금 역할",
+            "2100만 개 공급 한정"
+          ]
+        },
+        "market_position": {
+          "market_cap_rank": 1,
+          "rank_description": "압도적 1위",
+          "category_rank": null,
+          "market_presence": "지배적"
+        },
+        "educational_content": {
+          "what_is_it": "세계 최초의 탈중앙화 디지털 화폐로, '디지털 금'이라 불립니다.",
+          "how_it_works": "블록체인 기술로 중앙기관 없이 거래가 기록되고 검증됩니다.",
+          "why_created": "2008년 금융위기 이후 중앙은행에 의존하지 않는 화폐 시스템을 만들기 위해",
+          "real_world_usage": [
+            "온라인 결제",
+            "가치 저장",
+            "송금",
+            "투자 자산"
+          ],
+          "beginner_summary": "인터넷에서 사용하는 디지털 돈",
+          "difficulty_level": "보통"
+        },
+        "faqs": [
+          {
+            "question": "BTC는 어떻게 구매하나요?",
+            "answer": "국내 암호화폐 거래소(업비트, 빗썸 등)에서 구매할 수 있습니다.",
+            "category": "구매"
+          },
+          {
+            "question": "스마트 계약이란 무엇인가요?",
+            "answer": "조건이 충족되면 자동으로 실행되는 디지털 계약입니다.",
+            "category": "기술"
+          },
+          {
+            "question": "비트코인은 왜 2100만 개로 제한되나요?",
+            "answer": "희소성을 만들어 인플레이션을 방지하고 가치를 보존하기 위해서입니다.",
+            "category": "경제"
+          }
+        ],
+        "last_updated": "2025-09-06T19:33:21.132068",
+        "data_completeness": "높음"
+      },
+      "url": "https://api.investment-assistant.site/api/v1/crypto/details/concept/BTC"
+    },
+    "basic-info": {
+      "success": true,
+      "status_code": 200,
+      "data": {
+        "symbol": "BTC",
+        "basic_info": {
+          "coingecko_id": "bitcoin",
+          "symbol": "BTC",
+          "name": "Bitcoin",
+          "web_slug": "bitcoin",
+          "market_cap_rank": 1,
+          "image_thumb": "https://coin-images.coingecko.com/coins/images/1/thumb/bitcoin.png?1696501400",
+          "image_small": "https://coin-images.coingecko.com/coins/images/1/small/bitcoin.png?1696501400",
+          "image_large": "https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400"
+        },
+        "market_position": {
+          "market_cap_rank": 1,
+          "rank_description": "압도적 1위",
+          "category_rank": null,
+          "market_presence": "지배적"
+        }
+      },
+      "url": "https://api.investment-assistant.site/api/v1/crypto/details/concept/BTC/basic-info"
+    },
+    "categories": {
+      "success": true,
+      "status_code": 200,
+      "data": {
+        "symbol": "BTC",
+        "category_info": {
+          "categories_original": [
+            "Smart Contract Platform",
+            "Layer 1 (L1)",
+            "FTX Holdings",
+            "Proof of Work (PoW)",
+            "Bitcoin Ecosystem"
+          ],
+          "categories_korean": [
+            "스마트계약플랫폼",
+            "레이어1블록체인",
+            "FTX Holdings",
+            "작업증명",
+            "비트코인생태계"
+          ],
+          "primary_category": "스마트계약플랫폼",
+          "category_description": "프로그래밍이 가능한 계약을 자동으로 실행하는 블록체인 플랫폼"
+        }
+      },
+      "url": "https://api.investment-assistant.site/api/v1/crypto/details/concept/BTC/categories"
+    }
+  },
+  "summary": {
+    "total_endpoints": 3,
+    "successful_endpoints": 3,
+    "failed_endpoints": 0
+  }
+}

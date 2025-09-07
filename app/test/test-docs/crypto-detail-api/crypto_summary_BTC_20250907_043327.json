@@ -1,0 +1,87 @@
+{
+  "test_metadata": {
+    "symbol": "BTC",
+    "test_timestamp": "2025-09-07T04:33:27.299966",
+    "base_url": "https://api.investment-assistant.site",
+    "total_endpoints_tested": 13
+  },
+  "test_summary": {
+    "total_endpoints": 13,
+    "successful_endpoints": 13,
+    "failed_endpoints": 0,
+    "success_rate": "100.0%"
+  },
+  "endpoint_status": {
+    "concept": {
+      "main": {
+        "success": true,
+        "status_code": 200,
+        "url": "https://api.investment-assistant.site/api/v1/crypto/details/concept/BTC"
+      },
+      "basic-info": {
+        "success": true,
+        "status_code": 200,
+        "url": "https://api.investment-assistant.site/api/v1/crypto/details/concept/BTC/basic-info"
+      },
+      "categories": {
+        "success": true,
+        "status_code": 200,
+        "url": "https://api.investment-assistant.site/api/v1/crypto/details/concept/BTC/categories"
+      }
+    },
+    "ecosystem": {
+      "main": {
+        "success": true,
+        "status_code": 200,
+        "url": "https://api.investment-assistant.site/api/v1/crypto/details/ecosystem/BTC"
+      },
+      "development": {
+        "success": true,
+        "status_code": 200,
+        "url": "https://api.investment-assistant.site/api/v1/crypto/details/ecosystem/BTC/development"
+      },
+      "community": {
+        "success": true,
+        "status_code": 200,
+        "url": "https://api.investment-assistant.site/api/v1/crypto/details/ecosystem/BTC/community"
+      },
+      "market": {
+        "success": true,
+        "status_code": 200,
+        "url": "https://api.investment-assistant.site/api/v1/crypto/details/ecosystem/BTC/market"
+      },
+      "summary": {
+        "success": true,
+        "status_code": 200,
+        "url": "https://api.investment-assistant.site/api/v1/crypto/details/ecosystem/BTC/summary"
+      }
+    },
+    "investment": {
+      "main": {
+        "success": true,
+        "status_code": 200,
+        "url": "https://api.investment-assistant.site/api/v1/crypto/details/investment/BTC"
+      },
+      "kimchi_premium": {
+        "success": true,
+        "status_code": 200,
+        "url": "https://api.investment-assistant.site/api/v1/crypto/details/kimchi-premium/BTC"
+      },
+      "kimchi_premium_detailed": {
+        "success": true,
+        "status_code": 200,
+        "url": "https://api.investment-assistant.site/api/v1/crypto/details/kimchi-premium/BTC/detailed?sort_by=premium_desc&min_volume=100000"
+      },
+      "derivatives": {
+        "success": true,
+        "status_code": 200,
+        "url": "https://api.investment-assistant.site/api/v1/crypto/details/derivatives/BTC"
+      },
+      "kimchi_premium_chart": {
+        "success": true,
+        "status_code": 200,
+        "url": "https://api.investment-assistant.site/api/v1/crypto/details/kimchi-premium/BTC/chart"
+      }
+    }
+  }
+}

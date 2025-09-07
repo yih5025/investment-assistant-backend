@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Crypto Detail 통합 테스트 스크립트
-모든 crypto detail 엔드포인트를 호출하여 통합 JSON 파일 생성
+Crypto Detail 통합 테스트 스크립트 - 분리 저장 버전
+모든 crypto detail 엔드포인트를 호출하여 카테고리별 JSON 파일 생성
 """
 
 import asyncio
@@ -169,19 +169,69 @@ class CryptoDetailTester:
         
         return integrated_result
     
-    def save_result_to_file(self, result: Dict[str, Any], filename: str = None):
-        """결과를 JSON 파일로 저장"""
-        if filename is None:
-            symbol = result.get('test_metadata', {}).get('symbol', 'UNKNOWN')
-            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            filename = f"crypto_detail_test_{symbol}_{timestamp}.json"
+    def save_results_separately(self, result: Dict[str, Any]):
+        """결과를 카테고리별 3개 파일로 분리 저장"""
+        symbol = result.get('test_metadata', {}).get('symbol', 'UNKNOWN')
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        
+        # 각 카테고리별로 분리 저장
+        categories = ['concept', 'ecosystem', 'investment']
+        
+        for category in categories:
+            if category in result:
+                category_data = {
+                    "test_metadata": {
+                        "symbol": symbol,
+                        "category": category,
+                        "test_timestamp": result['test_metadata']['test_timestamp'],
+                        "base_url": result['test_metadata']['base_url']
+                    },
+                    "data": result[category],
+                    "summary": {
+                        "total_endpoints": len(result[category]),
+                        "successful_endpoints": sum(1 for r in result[category].values() if r.get('success', False)),
+                        "failed_endpoints": sum(1 for r in result[category].values() if not r.get('success', False))
+                    }
+                }
+                
+                filename = f"crypto_{category}_{symbol}_{timestamp}.json"
+                
+                try:
+                    with open(filename, 'w', encoding='utf-8') as f:
+                        json.dump(category_data, f, indent=2, ensure_ascii=False)
+                    print(f"📁 {category.capitalize()} results saved to: {filename}")
+                except Exception as e:
+                    print(f"❌ Failed to save {category} file: {e}")
+    
+    def save_summary_only(self, result: Dict[str, Any]):
+        """요약 정보만 별도 저장"""
+        symbol = result.get('test_metadata', {}).get('symbol', 'UNKNOWN')
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"crypto_summary_{symbol}_{timestamp}.json"
+        
+        summary_data = {
+            "test_metadata": result.get('test_metadata', {}),
+            "test_summary": result.get('test_summary', {}),
+            "endpoint_status": {}
+        }
+        
+        # 각 카테고리별 엔드포인트 상태만 추출
+        for category in ['concept', 'ecosystem', 'investment']:
+            if category in result:
+                summary_data["endpoint_status"][category] = {}
+                for endpoint, endpoint_result in result[category].items():
+                    summary_data["endpoint_status"][category][endpoint] = {
+                        "success": endpoint_result.get('success', False),
+                        "status_code": endpoint_result.get('status_code', 0),
+                        "url": endpoint_result.get('url', '')
+                    }
         
         try:
             with open(filename, 'w', encoding='utf-8') as f:
-                json.dump(result, f, indent=2, ensure_ascii=False)
-            print(f"📁 Results saved to: {filename}")
+                json.dump(summary_data, f, indent=2, ensure_ascii=False)
+            print(f"📁 Summary saved to: {filename}")
         except Exception as e:
-            print(f"❌ Failed to save file: {e}")
+            print(f"❌ Failed to save summary file: {e}")
     
     def print_summary(self, result: Dict[str, Any]):
         """테스트 결과 요약 출력"""
@@ -231,14 +281,17 @@ async def main():
         # 결과 요약 출력
         tester.print_summary(result)
         
-        # 결과 파일 저장
-        tester.save_result_to_file(result)
+        # 카테고리별 분리 저장 (기본)
+        tester.save_results_separately(result)
+        
+        # 요약 정보만 별도 저장
+        tester.save_summary_only(result)
         
         return result
 
 
 if __name__ == "__main__":
-    print("🚀 Crypto Detail API Comprehensive Tester")
+    print("🚀 Crypto Detail API Comprehensive Tester - Separate Files Version")
     print("Usage: python crypto_detail_test.py [SYMBOL]")
     print("Example: python crypto_detail_test.py BTC")
     print()
@@ -246,6 +299,11 @@ if __name__ == "__main__":
     try:
         result = asyncio.run(main())
         print("\n🎉 Test completed successfully!")
+        print("📁 Generated files:")
+        print("  - crypto_concept_[SYMBOL]_[TIMESTAMP].json")
+        print("  - crypto_ecosystem_[SYMBOL]_[TIMESTAMP].json") 
+        print("  - crypto_investment_[SYMBOL]_[TIMESTAMP].json")
+        print("  - crypto_summary_[SYMBOL]_[TIMESTAMP].json")
     except KeyboardInterrupt:
         print("\n⚠️ Test interrupted by user")
     except Exception as e:
