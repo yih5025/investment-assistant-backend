@@ -271,11 +271,19 @@ async def _start_crypto_streaming(websocket: WebSocket, client_id: int):
     last_data_hash = None
     error_count = 0
     max_errors = 5
+    redis_init_attempts = 0
+    max_redis_init_attempts = 3
     
     logger.info(f"Crypto 전체 스트리밍 시작: {client_id}")
     
     while True:
         try:
+            # Redis 연결 상태 확인 및 재초기화
+            if not crypto_service.redis_client and redis_init_attempts < max_redis_init_attempts:
+                logger.info(f"🔄 Crypto Redis 재연결 시도 {redis_init_attempts + 1}/{max_redis_init_attempts}")
+                await crypto_service.init_redis()
+                redis_init_attempts += 1
+            
             # CryptoService를 통한 데이터 조회 (한국명, 영어명 포함)
             data = await crypto_service.get_realtime_crypto_data(limit=415)
             

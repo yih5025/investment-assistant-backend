@@ -38,23 +38,47 @@ class CryptoService:
         logger.info("✅ CryptoService 초기화 완료")
     
     async def init_redis(self) -> bool:
-        """Redis 연결 초기화"""
+        """Redis 연결 초기화 (연결 풀 및 재시도 로직 개선)"""
         try:
             import redis.asyncio as redis
             
+            # 기존 연결이 있으면 정리
+            if self.redis_client:
+                try:
+                    await self.redis_client.aclose()
+                except:
+                    pass
+            
+            # 연결 풀 설정으로 안정성 향상
             self.redis_client = redis.Redis(
                 host=settings.redis_host,
                 port=settings.redis_port,
                 db=settings.redis_db,
                 password=settings.redis_password,
                 decode_responses=True,
-                socket_connect_timeout=5,
-                socket_timeout=5
+                socket_connect_timeout=10,  # 연결 timeout 증가
+                socket_timeout=10,          # 읽기 timeout 증가
+                socket_keepalive=True,      # keepalive 활성화
+                socket_keepalive_options={},
+                health_check_interval=30,   # 30초마다 연결 상태 확인
+                max_connections=20,         # 연결 풀 크기 증가
+                retry_on_timeout=True,      # timeout 시 재시도
+                retry_on_error=[ConnectionError, TimeoutError]  # 특정 에러 시 재시도
             )
             
-            await self.redis_client.ping()
-            logger.info("✅ Crypto Redis 연결 성공")
-            return True
+            # 연결 테스트 (재시도 로직)
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    await asyncio.wait_for(self.redis_client.ping(), timeout=5.0)
+                    logger.info(f"✅ Crypto Redis 연결 성공 (시도 {attempt + 1}/{max_retries})")
+                    return True
+                except Exception as e:
+                    if attempt < max_retries - 1:
+                        logger.warning(f"⚠️ Crypto Redis 연결 재시도 {attempt + 1}/{max_retries}: {e}")
+                        await asyncio.sleep(1)
+                    else:
+                        raise e
             
         except Exception as e:
             logger.warning(f"⚠️ Crypto Redis 연결 실패: {e}")
@@ -75,7 +99,9 @@ class CryptoService:
         Returns:
             List[CryptoData]: 암호화폐 데이터 리스트
         """
+        # Redis 클라이언트가 없으면 DB로 fallback
         if not self.redis_client:
+            logger.debug("📊 Redis 클라이언트 없음, DB fallback")
             return await self.get_crypto_from_db(limit)
         
         try:
@@ -83,18 +109,18 @@ class CryptoService:
             
             # Redis 키 패턴: latest:crypto:{market}
             pattern = "latest:crypto:*"
-            keys = await self.redis_client.keys(pattern)
+            keys = await asyncio.wait_for(self.redis_client.keys(pattern), timeout=8.0)
             
             if not keys:
                 logger.debug("📊 Redis 암호화폐 데이터 없음, DB fallback")
                 return await self.get_crypto_from_db(limit)
             
-            # 모든 키의 데이터 가져오기
+            # 모든 키의 데이터 가져오기 (timeout 추가)
             pipeline = self.redis_client.pipeline()
             for key in keys:
                 pipeline.get(key)
             
-            results = await pipeline.execute()
+            results = await asyncio.wait_for(pipeline.execute(), timeout=8.0)
             
             # JSON 파싱
             data = []
@@ -143,8 +169,22 @@ class CryptoService:
             logger.debug(f"📊 Redis 암호화폐 데이터 조회 완료: {len(data)}개")
             return data
             
-        except Exception as e:
+        except (asyncio.TimeoutError, ConnectionError, TimeoutError) as e:
             logger.error(f"❌ Redis 암호화폐 조회 실패: {e}, DB fallback")
+            self.stats["errors"] += 1
+            
+            # Redis 연결 문제 시 재연결 시도
+            if "timeout" in str(e).lower() or "connection" in str(e).lower():
+                logger.info("🔄 Redis 재연결 시도...")
+                try:
+                    await self.init_redis()
+                except:
+                    pass
+            
+            return await self.get_crypto_from_db(limit)
+        
+        except Exception as e:
+            logger.error(f"❌ Redis 암호화폐 조회 실패 (기타): {e}, DB fallback")
             self.stats["errors"] += 1
             return await self.get_crypto_from_db(limit)
     
