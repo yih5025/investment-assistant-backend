@@ -315,25 +315,45 @@ class SP500Service:
                     'message': 'No stock data available'
                 }
             
-            # 각 주식의 변동 정보 계산 (기존 로직 유지)
+            # 🚀 배치 쿼리로 성능 최적화 (497개 개별 쿼리 → 1개 배치 쿼리)
+            symbols = [stock_data['symbol'] for stock_data in stock_data_with_company]
+            batch_change_info = SP500WebsocketTrades.get_batch_price_changes(db, symbols)
+            
+            logger.info(f"🔄 SP500 배치 처리 완료: {len(batch_change_info)}/{len(symbols)}개 심볼")
+            
+            # 각 주식의 변동 정보 조합
             stock_list = []
             for stock_data in stock_data_with_company:
-                # 가격 변동 정보 조회
-                change_info = SP500WebsocketTrades.get_price_change_info(db, stock_data['symbol'])
+                symbol = stock_data['symbol']
+                change_info = batch_change_info.get(symbol)
                 
-                # 프론트엔드 형태로 데이터 구성
-                stock_item = {
-                    'symbol': stock_data['symbol'],
-                    'company_name': stock_data['company_name'],  # JOIN에서 가져온 회사명 직접 사용
-                    'current_price': change_info['current_price'],
-                    'change_amount': change_info['change_amount'],
-                    'change_percentage': change_info['change_percentage'],
-                    'volume': change_info['volume'],
-                    'last_updated': change_info['last_updated'],
-                    'is_positive': change_info['change_amount'] > 0 if change_info['change_amount'] else None
-                }
-                
-                stock_list.append(stock_item)
+                if change_info:
+                    # 프론트엔드 형태로 데이터 구성
+                    stock_item = {
+                        'symbol': symbol,
+                        'company_name': stock_data['company_name'],  # JOIN에서 가져온 회사명 직접 사용
+                        'current_price': change_info['current_price'],
+                        'change_amount': change_info['change_amount'],
+                        'change_percentage': change_info['change_percentage'],
+                        'volume': change_info['volume'],
+                        'last_updated': change_info['last_updated'],
+                        'is_positive': change_info['change_amount'] > 0 if change_info['change_amount'] else None
+                    }
+                    stock_list.append(stock_item)
+                else:
+                    # 배치에서 누락된 경우 기본값으로 처리
+                    logger.warning(f"⚠️ {symbol} 배치 처리에서 누락됨")
+                    stock_item = {
+                        'symbol': symbol,
+                        'company_name': stock_data['company_name'],
+                        'current_price': 0,
+                        'change_amount': 0,
+                        'change_percentage': 0,
+                        'volume': 0,
+                        'last_updated': None,
+                        'is_positive': None
+                    }
+                    stock_list.append(stock_item)
             
             # 변동률 기준 정렬
             stock_list.sort(key=lambda x: x['change_percentage'] or 0, reverse=True)

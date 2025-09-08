@@ -1,5 +1,5 @@
 # app/models/sp500_model.py
-from sqlalchemy import Column, Integer, String, Numeric, BigInteger, DateTime, Text, ARRAY, Index
+from sqlalchemy import Column, Integer, String, Numeric, BigInteger, DateTime, Text, ARRAY, Index, text
 from sqlalchemy.sql import func
 from sqlalchemy.orm import Session
 from typing import List, Optional, Dict, Any, Tuple
@@ -170,10 +170,10 @@ class SP500WebsocketTrades(BaseModel):
                 ).order_by(cls.created_at.desc()).first()
                 
                 if extended_prev_trade and extended_prev_trade.price:
-                    logger.debug(f"✅ {symbol} SP500 확장 검색으로 전일 종가 발견: ${extended_prev_trade.price} (시간: {extended_prev_trade.created_at})")
+                    # logger.debug(f"✅ {symbol} SP500 확장 검색으로 전일 종가 발견: ${extended_prev_trade.price} (시간: {extended_prev_trade.created_at})")
                     return float(extended_prev_trade.price)
                 else:
-                    logger.warning(f"❌ {symbol} SP500 전일 종가 데이터 없음")
+                    # logger.warning(f"❌ {symbol} SP500 전일 종가 데이터 없음")
                     return None
             
         except Exception as e:
@@ -573,3 +573,177 @@ class SP500WebsocketTrades(BaseModel):
         except Exception as e:
             logger.error(f"JOIN을 통한 현재가+회사정보 조회 실패: {e}")
             return []
+    
+    @classmethod
+    def get_batch_price_changes(cls, db_session, symbols: List[str]) -> Dict[str, Dict[str, Any]]:
+        """
+        여러 심볼의 가격 변동 정보를 배치로 조회 (성능 최적화)
+        
+        Args:
+            db_session: 데이터베이스 세션
+            symbols: 조회할 심볼 리스트
+            
+        Returns:
+            Dict[str, Dict]: {symbol: price_change_info}
+        """
+        try:
+            if not symbols:
+                return {}
+            
+            logger.info(f"🔄 SP500 배치 가격 변동 정보 조회 시작: {len(symbols)}개 심볼")
+            
+            # 1. 모든 심볼의 현재가 조회 (최신 데이터)
+            current_prices_query = text("""
+                SELECT DISTINCT ON (symbol) 
+                    symbol, price, volume, created_at
+                FROM sp500_websocket_trades 
+                WHERE symbol = ANY(:symbols)
+                    AND price IS NOT NULL 
+                    AND price > 0
+                ORDER BY symbol, created_at DESC
+            """)
+            
+            current_results = db_session.execute(
+                current_prices_query, 
+                {"symbols": [s.upper() for s in symbols]}
+            ).fetchall()
+            
+            # 2. 모든 심볼의 전일 종가 배치 조회
+            previous_close_prices = cls.get_batch_previous_close_prices(db_session, symbols)
+            
+            # 3. 결과 조합
+            batch_results = {}
+            
+            for row in current_results:
+                symbol = row.symbol
+                current_price = float(row.price)
+                volume = row.volume or 0
+                last_updated = row.created_at
+                
+                # 전일 종가 가져오기
+                previous_close = previous_close_prices.get(symbol)
+                
+                if previous_close and previous_close > 0:
+                    change_amount = current_price - previous_close
+                    change_percentage = (change_amount / previous_close) * 100
+                else:
+                    change_amount = 0
+                    change_percentage = 0
+                    # logger.warning(f"❌ {symbol} SP500 전일 종가 데이터 없음 (배치 조회)")
+                
+                batch_results[symbol] = {
+                    'current_price': current_price,
+                    'change_amount': change_amount,
+                    'change_percentage': change_percentage,
+                    'volume': volume,
+                    'last_updated': last_updated,
+                    'previous_close': previous_close
+                }
+            
+            logger.info(f"✅ SP500 배치 가격 변동 정보 조회 완료: {len(batch_results)}개 결과")
+            return batch_results
+            
+        except Exception as e:
+            logger.error(f"❌ SP500 배치 가격 변동 정보 조회 실패: {e}")
+            return {}
+    
+    @classmethod
+    def get_batch_previous_close_prices(cls, db_session, symbols: List[str]) -> Dict[str, float]:
+        """
+        여러 심볼의 전일 종가를 배치로 조회 (성능 최적화)
+        
+        Args:
+            db_session: 데이터베이스 세션
+            symbols: 조회할 심볼 리스트
+            
+        Returns:
+            Dict[str, float]: {symbol: previous_close_price}
+        """
+        try:
+            if not symbols:
+                return {}
+            
+            # 미국 동부 시간 기준 계산
+            us_eastern = pytz.timezone('US/Eastern')
+            now_us = datetime.now(us_eastern)
+            
+            # 마지막 거래일 찾기
+            last_trading_day = cls._find_last_trading_day(now_us)
+            
+            # 검색 범위 설정 (마지막 거래일 종료 시점까지)
+            search_end = last_trading_day.replace(hour=20, minute=0, second=0, microsecond=0)  # 오후 8시 (시간 외 거래 포함)
+            search_start = search_end - timedelta(days=5)  # 5일 전부터 검색
+            
+            # 배치 쿼리 실행
+            batch_query = text("""
+                WITH ranked_prices AS (
+                    SELECT 
+                        symbol,
+                        price,
+                        created_at,
+                        ROW_NUMBER() OVER (PARTITION BY symbol ORDER BY created_at DESC) as rn
+                    FROM sp500_websocket_trades
+                    WHERE symbol = ANY(:symbols)
+                        AND price IS NOT NULL 
+                        AND price > 0
+                        AND created_at >= :search_start
+                        AND created_at <= :search_end
+                )
+                SELECT symbol, price
+                FROM ranked_prices
+                WHERE rn = 1
+            """)
+            
+            results = db_session.execute(batch_query, {
+                "symbols": [s.upper() for s in symbols],
+                "search_start": search_start.replace(tzinfo=None),
+                "search_end": search_end.replace(tzinfo=None)
+            }).fetchall()
+            
+            # 결과 딕셔너리로 변환
+            previous_prices = {}
+            for row in results:
+                previous_prices[row.symbol] = float(row.price)
+            
+            # 데이터가 없는 심볼들에 대해 확장 검색
+            missing_symbols = [s for s in symbols if s.upper() not in previous_prices]
+            if missing_symbols:
+                logger.info(f"🔍 {len(missing_symbols)}개 심볼 확장 검색 시작")
+                
+                # 확장 검색 (12시간 더 뒤로)
+                extended_search_start = search_start - timedelta(hours=12)
+                
+                extended_query = text("""
+                    WITH ranked_prices AS (
+                        SELECT 
+                            symbol,
+                            price,
+                            created_at,
+                            ROW_NUMBER() OVER (PARTITION BY symbol ORDER BY created_at DESC) as rn
+                        FROM sp500_websocket_trades
+                        WHERE symbol = ANY(:missing_symbols)
+                            AND price IS NOT NULL 
+                            AND price > 0
+                            AND created_at >= :extended_search_start
+                            AND created_at <= :search_end
+                    )
+                    SELECT symbol, price
+                    FROM ranked_prices
+                    WHERE rn = 1
+                """)
+                
+                extended_results = db_session.execute(extended_query, {
+                    "missing_symbols": [s.upper() for s in missing_symbols],
+                    "extended_search_start": extended_search_start.replace(tzinfo=None),
+                    "search_end": search_end.replace(tzinfo=None)
+                }).fetchall()
+                
+                for row in extended_results:
+                    previous_prices[row.symbol] = float(row.price)
+            
+            logger.info(f"✅ SP500 배치 전일 종가 조회 완료: {len(previous_prices)}/{len(symbols)}개")
+            return previous_prices
+            
+        except Exception as e:
+            logger.error(f"❌ SP500 배치 전일 종가 조회 실패: {e}")
+            return {}
