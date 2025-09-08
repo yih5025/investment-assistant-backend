@@ -232,31 +232,12 @@ logger.info(f"🔧 환경변수 ENVIRONMENT: {os.getenv('ENVIRONMENT', 'not_set'
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins,
-    # 🔧 보안 강화된 정규식 패턴 (알려진 도메인만 허용)
-    allow_origin_regex=r"^(https?://.*\.vercel\.app|https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|100\.\d+\.\d+\.\d+|172\.1[6-9]\.\d+\.\d+|172\.2[0-9]\.\d+\.\d+|172\.3[0-1]\.\d+\.\d+)(:\d+)?|https?://.*\.investment-assistant\.site)$",
-    
-    allow_credentials=False,  # 보안: 쿠키/인증 정보 차단
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    # 🔒 보안 강화: 필요한 헤더만 허용
-    allow_headers=[
-        "accept",
-        "accept-encoding", 
-        "authorization",
-        "content-type",
-        "dnt",
-        "origin",
-        "user-agent",
-        "x-csrftoken",
-        "x-requested-with"
-    ],
-    # 🔒 보안 강화: 필요한 헤더만 노출
-    expose_headers=[
-        "content-type",
-        "content-length"
-    ]
+    allow_origins=["*"],  # 🔥 임시로 모든 도메인 허용
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"]
 )
-
 # 루트 엔드포인트
 @app.get("/", tags=["Root"])
 async def root():
