@@ -7,7 +7,7 @@ from .config import settings
 
 def get_db() -> Generator[Session, None, None]:
     """
-    데이터베이스 세션을 생성하고 반환하는 의존성 함수
+    데이터베이스 세션을 생성하고 반환하는 의존성 함수 ㅇ
     
     FastAPI의 Depends()와 함께 사용됩니다.
     
