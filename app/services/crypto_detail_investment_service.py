@@ -61,7 +61,9 @@ class CryptoInvestmentService:
         
         # 1. 기본 요약 정보 조회
         summary_data = await self._analyze_kimchi_premium(symbol)
+        print(f"🔍 DEBUG: {symbol} - summary_data.korean_price_usd: {summary_data.korean_price_usd}")
         if not summary_data.korean_price_usd:
+            print(f"❌ DEBUG: {symbol} - summary_data.korean_price_usd is None")
             return None
         
         # 2. 모든 거래소 데이터 조회
@@ -317,13 +319,23 @@ class CryptoInvestmentService:
             return KimchiPremiumData()
         
         # 김치 프리미엄 계산 (수치만)
-        premium_percent = ((korean_price - global_avg_price) / global_avg_price) * 100
-        price_diff = korean_price - global_avg_price
+        try:
+            premium_percent = ((korean_price - global_avg_price) / global_avg_price) * 100
+            price_diff = korean_price - global_avg_price
+            print(f"✅ DEBUG: {symbol} - premium_percent: {premium_percent}")
+        except Exception as e:
+            print(f"❌ DEBUG: {symbol} - Premium calculation error: {e}")
+            return KimchiPremiumData()
         
         # 스프레드 계산
-        korean_spread = korean_main.bid_ask_spread_percentage
-        global_spreads = [t.bid_ask_spread_percentage for t in global_tickers if t.bid_ask_spread_percentage is not None]
-        avg_global_spread = sum(global_spreads) / len(global_spreads) if global_spreads else None
+        try:
+            korean_spread = korean_main.bid_ask_spread_percentage
+            global_spreads = [t.bid_ask_spread_percentage for t in global_tickers if t.bid_ask_spread_percentage is not None]
+            avg_global_spread = sum(global_spreads) / len(global_spreads) if global_spreads else None
+            print(f"✅ DEBUG: {symbol} - Spread calculation success")
+        except Exception as e:
+            print(f"❌ DEBUG: {symbol} - Spread calculation error: {e}")
+            return KimchiPremiumData()
         
         return KimchiPremiumData(
             korean_price_usd=Decimal(str(round(korean_price, 2))),
