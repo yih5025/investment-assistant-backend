@@ -237,14 +237,9 @@ class CryptoInvestmentService:
     
     async def _build_market_data(self, coin: CoingeckoCoinDetails) -> MarketData:
         """시장 데이터 구성"""
-        # ATL/ATH 값들을 과학적 표기법 없이 포맷팅
-        atl_usd = None
-        if coin.atl_usd is not None:
-            atl_usd = Decimal(f"{float(coin.atl_usd):.10f}")  # 매우 작은 값을 위해 소수점 10자리
-            
-        ath_usd = None
-        if coin.ath_usd is not None:
-            ath_usd = Decimal(f"{float(coin.ath_usd):.8f}")
+        # ATL/ATH 값들을 Decimal로 처리 (스키마에서 JSON 인코딩 처리)
+        atl_usd = coin.atl_usd
+        ath_usd = coin.ath_usd
             
         current_price_usd = None
         if coin.current_price_usd is not None:

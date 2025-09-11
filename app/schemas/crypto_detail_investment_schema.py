@@ -4,6 +4,14 @@ from pydantic import BaseModel, Field
 from typing import Optional, List, Dict
 from decimal import Decimal
 from datetime import datetime
+import json
+
+
+def decimal_encoder(obj):
+    """Decimal 객체를 과학적 표기법 없이 문자열로 변환"""
+    if isinstance(obj, Decimal):
+        return format(obj, 'f')  # 과학적 표기법 없이 고정 소수점 표기
+    raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
 
 
 class BasicCoinInfo(BaseModel):
@@ -35,6 +43,11 @@ class MarketData(BaseModel):
     atl_usd: Optional[Decimal] = None
     atl_change_percentage: Optional[Decimal] = None
     atl_date: Optional[datetime] = None
+    
+    class Config:
+        json_encoders = {
+            Decimal: lambda v: format(v, 'f') if v is not None else None
+        }
 
 
 class SupplyData(BaseModel):
@@ -69,6 +82,11 @@ class KimchiPremiumData(BaseModel):
     arbitrage_opportunity: Optional[str] = Field(None, description="차익거래 기회 (HIGH/MEDIUM/LOW)")
     net_profit_per_unit: Optional[Decimal] = Field(None, description="단위당 순수익")
     transaction_cost_estimate: Optional[Decimal] = Field(None, description="거래비용 추정 (%)")
+    
+    class Config:
+        json_encoders = {
+            Decimal: lambda v: format(v, 'f') if v is not None else None
+        }
 
 
 class DerivativesData(BaseModel):
