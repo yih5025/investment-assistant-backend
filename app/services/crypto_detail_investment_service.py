@@ -59,9 +59,13 @@ class CryptoInvestmentService:
     async def get_detailed_kimchi_premium(self, symbol: str, sort_by: str = "premium_desc", min_volume: float = 0) -> Optional[Dict]:
         """거래소별 상세 김치 프리미엄 분석 (정렬, 필터링 포함)"""
         
+        print(f"🚀 DEBUG: {symbol} - get_detailed_kimchi_premium 시작")
+        
         # 1. 모든 거래소 데이터 조회 (summary 체크 제거)
         all_tickers = await self._get_all_tickers_for_symbol(symbol)
+        print(f"🔍 DEBUG: {symbol} - get_detailed all_tickers: {len(all_tickers) if all_tickers else 0}")
         if not all_tickers:
+            print(f"❌ DEBUG: {symbol} - get_detailed all_tickers is empty")
             return None
         
         # 3. 국내/해외 거래소 분리
