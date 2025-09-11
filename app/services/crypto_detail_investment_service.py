@@ -296,15 +296,25 @@ class CryptoInvestmentService:
             return KimchiPremiumData()
         
         # 국내 거래소 중 거래량 가장 큰 거래소 선택
-        korean_main = max(korean_tickers, key=lambda x: x.converted_volume_usd)
-        korean_price = float(korean_main.converted_last_usd)
-        korean_volume = korean_main.converted_volume_usd
+        try:
+            korean_main = max(korean_tickers, key=lambda x: x.converted_volume_usd)
+            korean_price = float(korean_main.converted_last_usd)
+            korean_volume = korean_main.converted_volume_usd
+            print(f"✅ DEBUG: {symbol} - korean_main: {korean_main.exchange_id}, price: {korean_price}")
+        except Exception as e:
+            print(f"❌ DEBUG: {symbol} - Korean ticker error: {e}")
+            return KimchiPremiumData()
         
         # 해외 거래소 단순 평균 (거래량 가중평균 아님)
-        global_prices = [float(t.converted_last_usd) for t in global_tickers]
-        global_volumes = [t.converted_volume_usd for t in global_tickers]
-        global_avg_price = sum(global_prices) / len(global_prices)
-        total_global_volume = sum(global_volumes)
+        try:
+            global_prices = [float(t.converted_last_usd) for t in global_tickers]
+            global_volumes = [t.converted_volume_usd for t in global_tickers]
+            global_avg_price = sum(global_prices) / len(global_prices)
+            total_global_volume = sum(global_volumes)
+            print(f"✅ DEBUG: {symbol} - global_avg_price: {global_avg_price}")
+        except Exception as e:
+            print(f"❌ DEBUG: {symbol} - Global ticker error: {e}")
+            return KimchiPremiumData()
         
         # 김치 프리미엄 계산 (수치만)
         premium_percent = ((korean_price - global_avg_price) / global_avg_price) * 100
