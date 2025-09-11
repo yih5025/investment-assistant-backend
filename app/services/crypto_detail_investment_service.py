@@ -347,10 +347,10 @@ class CryptoInvestmentService:
             return KimchiPremiumData()
         
         return KimchiPremiumData(
-            korean_price_usd=Decimal(str(round(korean_price, 2))),
-            global_avg_price_usd=Decimal(str(round(global_avg_price, 2))),
+            korean_price_usd=Decimal(str(round(korean_price, 8))),  # 소수점 8자리로 수정 (저가 코인 지원)
+            global_avg_price_usd=Decimal(str(round(global_avg_price, 8))),  # 소수점 8자리로 수정
             kimchi_premium_percent=Decimal(str(round(premium_percent, 3))),
-            price_diff_usd=Decimal(str(round(price_diff, 2))),
+            price_diff_usd=Decimal(str(round(price_diff, 8))),  # 소수점 8자리로 수정
             korean_volume_usd=korean_volume,
             total_global_volume_usd=total_global_volume,
             korean_exchange=korean_main.exchange_id,
