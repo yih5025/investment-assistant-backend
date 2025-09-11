@@ -265,14 +265,20 @@ class CryptoInvestmentService:
         # 거래소별 최신 데이터 조회 (윈도우 함수 사용)
         all_tickers = await self._get_all_tickers_for_symbol(symbol)
         
+        print(f"🔍 DEBUG: {symbol} - all_tickers count: {len(all_tickers) if all_tickers else 0}")
+        
         if not all_tickers:
+            print(f"❌ DEBUG: {symbol} - No tickers found")
             return KimchiPremiumData()
         
         # 국내/해외 거래소 분리
         korean_tickers = [t for t in all_tickers if t.exchange_id in ['bithumb', 'upbit']]
         global_tickers = [t for t in all_tickers if t.exchange_id not in ['bithumb', 'upbit']]
         
+        print(f"🔍 DEBUG: {symbol} - korean_tickers: {len(korean_tickers)}, global_tickers: {len(global_tickers)}")
+        
         if not korean_tickers or not global_tickers:
+            print(f"❌ DEBUG: {symbol} - Missing korean or global tickers")
             return KimchiPremiumData()
         
         # 국내 거래소 중 거래량 가장 큰 거래소 선택
