@@ -10,45 +10,45 @@ class CoingeckoTickers(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     
-    # 코인 기본 정보 (DAG와 일치)
-    market_code = Column(String(50))
-    coingecko_id = Column(String(100), nullable=False)
-    symbol = Column(String(20), nullable=False)  # coin_symbol -> symbol
-    coin_name = Column(String(200), nullable=False)
+    # 코인 기본 정보 (실제 DB 구조에 맞춤)
+    market_code = Column(String, nullable=False)  # text 타입
+    coingecko_id = Column(String, nullable=False)  # text 타입
+    symbol = Column(String, nullable=False)  # text 타입
+    coin_name = Column(String)  # text 타입, nullable
     
-    # 거래 쌍 정보 (DAG와 일치)
-    base = Column(String(20), nullable=False)  # base_symbol -> base
-    target = Column(String(20), nullable=False)  # target_symbol -> target
+    # 거래 쌍 정보 (실제 DB 구조에 맞춤)
+    base = Column(String, nullable=False)  # text 타입
+    target = Column(String, nullable=False)  # text 타입
     
-    # 거래소 정보 (DAG와 일치)
-    exchange_name = Column(String(100), nullable=False)  # market_name -> exchange_name
-    exchange_id = Column(String(50), nullable=False)  # market_identifier -> exchange_id
+    # 거래소 정보 (실제 DB 구조에 맞춤)
+    exchange_name = Column(String, nullable=False)  # text 타입
+    exchange_id = Column(String, nullable=False)  # text 타입
     
-    # 가격 및 거래량 (DAG와 일치)
-    last_price = Column(DECIMAL(32, 8))  # DAG와 정밀도 일치
-    volume_24h = Column(DECIMAL(32, 8))  # volume -> volume_24h (DAG와 일치)
+    # 가격 및 거래량 (실제 DB 구조에 맞춤)
+    last_price = Column(DECIMAL(32, 8))
+    volume_24h = Column(DECIMAL(32, 8))
     
-    # USD 변환 가격 (김치프리미엄 계산 핵심, DAG와 일치)
-    converted_last_usd = Column(DECIMAL(32, 8))  # 정밀도 증가
-    converted_volume_usd = Column(Integer)  # DAG와 일치: BIGINT
+    # USD 변환 가격 (김치프리미엄 계산 핵심)
+    converted_last_usd = Column(DECIMAL(32, 8))
+    converted_volume_usd = Column(Integer)  # bigint 타입
     
-    # 거래소 품질 지표 (DAG와 일치)
-    trust_score = Column(String(20))
-    bid_ask_spread_percentage = Column(DECIMAL(32, 4))  # 정밀도 증가
+    # 거래소 품질 지표 (실제 DB 구조에 맞춤)
+    trust_score = Column(String)  # text 타입
+    bid_ask_spread_percentage = Column(DECIMAL(24, 4))  # 실제 DB와 일치
     
-    # 데이터 품질 지표 (DAG와 일치)
+    # 데이터 품질 지표
     is_anomaly = Column(Boolean, default=False)
     is_stale = Column(Boolean, default=False)
     
-    # URL 정보 (DAG와 일치)
-    trade_url = Column(String(500))
+    # URL 정보
+    trade_url = Column(String)  # text 타입
     
-    # 코인 시장 정보 (DAG와 일치)
-    coin_mcap_usd = Column(Integer)  # DAG와 일치: BIGINT
-    match_method = Column(String(100))
+    # 코인 시장 정보
+    coin_mcap_usd = Column(Integer)  # bigint 타입
+    match_method = Column(String)  # text 타입
     market_cap_rank = Column(Integer)
     
-    # 시간 정보 (DAG와 일치)
+    # 시간 정보
     timestamp = Column(TIMESTAMP)
     last_traded_at = Column(TIMESTAMP)
     last_fetch_at = Column(TIMESTAMP)
