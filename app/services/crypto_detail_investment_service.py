@@ -59,14 +59,7 @@ class CryptoInvestmentService:
     async def get_detailed_kimchi_premium(self, symbol: str, sort_by: str = "premium_desc", min_volume: float = 0) -> Optional[Dict]:
         """거래소별 상세 김치 프리미엄 분석 (정렬, 필터링 포함)"""
         
-        # 1. 기본 요약 정보 조회
-        summary_data = await self._analyze_kimchi_premium(symbol)
-        print(f"🔍 DEBUG: {symbol} - summary_data.korean_price_usd: {summary_data.korean_price_usd}")
-        if not summary_data.korean_price_usd:
-            print(f"❌ DEBUG: {symbol} - summary_data.korean_price_usd is None")
-            return None
-        
-        # 2. 모든 거래소 데이터 조회
+        # 1. 모든 거래소 데이터 조회 (summary 체크 제거)
         all_tickers = await self._get_all_tickers_for_symbol(symbol)
         if not all_tickers:
             return None
@@ -162,7 +155,7 @@ class CryptoInvestmentService:
         return {
             "symbol": symbol.upper(),
             "timestamp": datetime.utcnow().isoformat(),
-            "summary": summary_data,
+            "summary": "Summary removed for debugging",  # 임시로 간단한 값
             "exchange_comparisons": exchange_comparisons,
             "statistics": statistics
         }
