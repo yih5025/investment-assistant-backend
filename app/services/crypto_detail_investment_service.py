@@ -368,7 +368,10 @@ class CryptoInvestmentService:
         
         # 1. 기본 김치 프리미엄 계산
         kimchi_data = await self._analyze_kimchi_premium(symbol)
+        print(f"🔍 DEBUG: {symbol} - kimchi_data.korean_price_usd: {kimchi_data.korean_price_usd}")
+        print(f"🔍 DEBUG: {symbol} - kimchi_data type: {type(kimchi_data.korean_price_usd)}")
         if not kimchi_data.korean_price_usd:
+            print(f"❌ DEBUG: {symbol} - korean_price_usd is falsy, returning None")
             return None
         
         # 2. 거래소별 상세 정보 조회
