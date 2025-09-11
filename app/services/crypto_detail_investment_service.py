@@ -168,38 +168,22 @@ class CryptoInvestmentService:
     async def _get_all_tickers_for_symbol(self, symbol: str):
         """특정 심볼의 모든 거래소 티커 데이터 조회 - 거래소별 최신 데이터 1개씩"""
         
-        from sqlalchemy import text
+        # 임시로 간단한 방법으로 변경 (디버깅용)
+        all_tickers = self.db.query(CoingeckoTickers).filter(
+            and_(
+                func.upper(CoingeckoTickers.symbol) == symbol.upper(),
+                CoingeckoTickers.converted_last_usd.isnot(None),
+                CoingeckoTickers.converted_volume_usd > 0
+            )
+        ).order_by(desc(CoingeckoTickers.created_at)).limit(50).all()  # 최근 50개만
         
-        # 윈도우 함수를 사용하여 거래소별 최신 데이터 1개씩 조회
-        query = text("""
-            SELECT * FROM (
-                SELECT *,
-                       ROW_NUMBER() OVER (
-                           PARTITION BY exchange_id 
-                           ORDER BY created_at DESC
-                       ) as rn
-                FROM coingecko_tickers_bithumb 
-                WHERE UPPER(symbol) = UPPER(:symbol)
-                  AND converted_last_usd IS NOT NULL 
-                  AND converted_volume_usd > 0
-            ) ranked
-            WHERE rn = 1
-            ORDER BY converted_volume_usd DESC
-        """)
+        # 거래소별로 가장 최신 것만 선택
+        exchange_latest = {}
+        for ticker in all_tickers:
+            if ticker.exchange_id not in exchange_latest:
+                exchange_latest[ticker.exchange_id] = ticker
         
-        result = self.db.execute(query, {"symbol": symbol})
-        rows = result.fetchall()
-        
-        # Row 객체를 CoingeckoTickers 객체로 변환
-        tickers = []
-        for row in rows:
-            ticker = CoingeckoTickers()
-            for column in row._mapping.keys():
-                if hasattr(ticker, column) and column != 'rn':
-                    setattr(ticker, column, row._mapping[column])
-            tickers.append(ticker)
-        
-        return tickers
+        return list(exchange_latest.values())
     
     async def _get_coin_details(self, symbol: str) -> Optional[CoingeckoCoinDetails]:
         """코인 기본 정보 조회"""
