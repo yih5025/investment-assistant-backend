@@ -572,10 +572,10 @@ class CryptoInvestmentService:
             
             premium_trend.append({
                 "date": trade_date.isoformat(),
-                "korean_price_usd": round(korean_weighted_price, 2),
-                "global_price_usd": round(global_weighted_price, 2),
+                "korean_price_usd": float(f"{korean_weighted_price:.8f}"),  # 과학적 표기법 방지
+                "global_price_usd": float(f"{global_weighted_price:.8f}"),  # 과학적 표기법 방지
                 "kimchi_premium_percent": round(premium_percent, 3),
-                "price_diff_usd": round(korean_weighted_price - global_weighted_price, 8)
+                "price_diff_usd": float(f"{korean_weighted_price - global_weighted_price:.8f}")  # 과학적 표기법 방지
             })
         
         return sorted(premium_trend, key=lambda x: x["date"])
