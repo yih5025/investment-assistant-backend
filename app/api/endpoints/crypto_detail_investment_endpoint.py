@@ -181,18 +181,18 @@ async def get_derivatives_analysis(
 @router.get(
     "/kimchi-premium/{symbol}/chart",
     summary="Kimchi Premium Chart Data", 
-    description="거래소별 김치 프리미엄 차트 데이터를 조회합니다. 시간별 가격 추이와 프리미엄 변화를 제공합니다.",
+    description="거래소별 김치 프리미엄 차트 데이터를 조회합니다. 일별 가격 추이와 프리미엄 변화를 제공합니다 (12시간마다 업데이트되는 데이터 기준).",
     tags=["Crypto Detail - Investment"]
 )
 async def get_kimchi_premium_chart_data(
     symbol: str,
-    hours: int = Query(24, description="조회할 시간 범위 (시간 단위)", ge=1, le=168),  # 최대 1주일
+    days: int = Query(7, description="조회할 일수 범위 (일 단위)", ge=1, le=30),  # 최대 30일
     db: Session = Depends(get_db)
 ):
-    """김치 프리미엄 차트용 데이터 - 거래소별 시간대별 가격 추이"""
+    """김치 프리미엄 차트용 데이터 - 거래소별 일별 가격 추이"""
     try:
         service = CryptoInvestmentService(db)
-        chart_data = await service.get_kimchi_premium_chart_data(symbol, hours)
+        chart_data = await service.get_kimchi_premium_chart_data(symbol, days)
         
         if not chart_data:
             raise HTTPException(

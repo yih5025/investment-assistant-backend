@@ -396,13 +396,13 @@ class CryptoInvestmentService:
         return {
             "symbol": symbol.upper(),
             "kimchi_premium": kimchi_data,
-            # "korean_exchanges": korean_exchanges,
-            # "global_exchanges": global_exchanges,
-            # "exchange_count": {
-            #     "korean": len(korean_exchanges),
-            #     "global": len(global_exchanges)
-            # },
-            # "last_updated": datetime.utcnow().isoformat()
+            "korean_exchanges": korean_exchanges,
+            "global_exchanges": global_exchanges,
+            "exchange_count": {
+                "korean": len(korean_exchanges),
+                "global": len(global_exchanges)
+            },
+            "last_updated": datetime.utcnow().isoformat()
         }
 
     async def _get_all_exchange_details(self, symbol: str):
@@ -428,45 +428,62 @@ class CryptoInvestmentService:
         
         return exchange_details
 
-    async def get_kimchi_premium_chart_data(self, symbol: str, hours: int = 24) -> Optional[Dict]:
-        """김치 프리미엄 차트용 데이터 - 거래소별 시간대별 데이터"""
+    async def get_kimchi_premium_chart_data(self, symbol: str, days: int = 7) -> Optional[Dict]:
+        """김치 프리미엄 차트용 데이터 - 거래소별 일별 데이터 (12시간마다 업데이트되는 데이터 기준)"""
         
         from sqlalchemy import text
         from datetime import datetime, timedelta
         
-        # 1. 현재 김치 프리미엄 분석 (거래소별 최신 데이터)
-        current_analysis = await self._analyze_kimchi_premium(symbol)
-        if not current_analysis.korean_price_usd:
-            return None
+        print(f"🚀 DEBUG: {symbol} - get_kimchi_premium_chart_data 시작, days: {days}")
         
-        # 2. 차트용 시간대별 데이터 조회
+        # 지난 N일간의 데이터 조회 - 거래소별 날짜별 최신 데이터
+        cutoff_time = datetime.utcnow() - timedelta(days=days)
+        
         query = text("""
+            WITH daily_latest AS (
+                SELECT exchange_id,
+                       DATE(created_at) as trade_date,
+                       converted_last_usd,
+                       converted_volume_usd,
+                       bid_ask_spread_percentage,
+                       created_at,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY exchange_id, DATE(created_at) 
+                           ORDER BY created_at DESC
+                       ) as rn
+                FROM coingecko_tickers_bithumb 
+                WHERE UPPER(symbol) = UPPER(:symbol)
+                  AND converted_last_usd IS NOT NULL 
+                  AND created_at >= :cutoff_time
+            )
             SELECT exchange_id,
-                   created_at,
+                   trade_date,
                    converted_last_usd,
                    converted_volume_usd,
-                   bid_ask_spread_percentage
-            FROM coingecko_tickers_bithumb 
-            WHERE UPPER(symbol) = UPPER(:symbol)
-              AND converted_last_usd IS NOT NULL 
-              AND created_at >= NOW() - INTERVAL ':hours hours'
-            ORDER BY exchange_id, created_at DESC
+                   bid_ask_spread_percentage,
+                   created_at
+            FROM daily_latest
+            WHERE rn = 1
+            ORDER BY exchange_id, trade_date DESC
         """)
         
-        result = self.db.execute(query, {"symbol": symbol, "hours": hours})
+        result = self.db.execute(query, {"symbol": symbol, "cutoff_time": cutoff_time})
         chart_rows = result.fetchall()
+        
+        print(f"🔍 DEBUG: {symbol} - chart_rows count: {len(chart_rows) if chart_rows else 0}")
         
         if not chart_rows:
             return None
         
-        # 3. 거래소별 데이터 그룹화
+        # 3. 거래소별 일별 데이터 그룹화
         korean_exchanges = {}
         global_exchanges = {}
         
         for row in chart_rows:
             exchange_id = row.exchange_id
             data_point = {
-                "timestamp": row.created_at.isoformat(),
+                "date": row.trade_date.isoformat(),  # 날짜로 변경
+                "timestamp": row.created_at.isoformat(),  # 실제 데이터 시간
                 "price_usd": float(row.converted_last_usd),
                 "volume_usd": row.converted_volume_usd,
                 "spread_percentage": float(row.bid_ask_spread_percentage) if row.bid_ask_spread_percentage else None
@@ -481,76 +498,76 @@ class CryptoInvestmentService:
                     global_exchanges[exchange_id] = []
                 global_exchanges[exchange_id].append(data_point)
         
-        # 4. 김치 프리미엄 추이 계산 (시간별)
-        premium_trend = self._calculate_premium_trend(chart_rows)
+        # 4. 김치 프리미엄 일별 추이 계산
+        premium_trend = self._calculate_daily_premium_trend(chart_rows)
         
         return {
             "symbol": symbol.upper(),
             "timestamp": datetime.utcnow().isoformat(),
-            "time_range_hours": hours,
-            "current_analysis": {
-                "korean_price_usd": float(current_analysis.korean_price_usd),
-                "global_avg_price_usd": float(current_analysis.global_avg_price_usd),
-                "kimchi_premium_percent": float(current_analysis.kimchi_premium_percent),
-                "price_diff_usd": float(current_analysis.price_diff_usd),
-                "korean_exchange": current_analysis.korean_exchange,
-                "global_exchange_count": current_analysis.global_exchange_count
-            },
+            "time_range_days": days,
             "chart_data": {
                 "korean_exchanges": korean_exchanges,
-                "global_exchanges": dict(list(global_exchanges.items())[:10]),  # 상위 10개 거래소만
+                "global_exchanges": dict(list(global_exchanges.items())),
                 "premium_trend": premium_trend
             },
             "statistics": {
                 "total_data_points": len(chart_rows),
                 "korean_exchanges_count": len(korean_exchanges),
                 "global_exchanges_count": len(global_exchanges),
-                "data_freshness": f"last_{hours}_hours"
+                "data_freshness": f"last_{days}_days"
             }
         }
 
-    def _calculate_premium_trend(self, chart_rows) -> List[Dict]:
-        """시간별 김치 프리미엄 추이 계산"""
+    def _calculate_daily_premium_trend(self, chart_rows) -> List[Dict]:
+        """일별 김치 프리미엄 추이 계산 (12시간마다 업데이트되는 데이터 기준)"""
         from collections import defaultdict
         
-        # 시간별로 데이터 그룹화
-        time_groups = defaultdict(lambda: {"korean": [], "global": []})
+        # 날짜별로 데이터 그룹화
+        date_groups = defaultdict(lambda: {"korean": [], "global": []})
         
         for row in chart_rows:
-            timestamp = row.created_at.replace(minute=0, second=0, microsecond=0)  # 시간 단위로 그룹화
+            trade_date = row.trade_date  # 날짜별로 그룹화
             price = float(row.converted_last_usd)
             volume = row.converted_volume_usd
             
             if row.exchange_id in ['upbit', 'bithumb']:
-                time_groups[timestamp]["korean"].append({"price": price, "volume": volume})
+                date_groups[trade_date]["korean"].append({"price": price, "volume": volume})
             else:
-                time_groups[timestamp]["global"].append({"price": price, "volume": volume})
+                date_groups[trade_date]["global"].append({"price": price, "volume": volume})
         
-        # 각 시간대별 김치 프리미엄 계산
+        # 각 날짜별 김치 프리미엄 계산
         premium_trend = []
-        for timestamp in sorted(time_groups.keys(), reverse=True)[:24]:  # 최근 24시간만
-            korean_data = time_groups[timestamp]["korean"]
-            global_data = time_groups[timestamp]["global"]
+        for trade_date in sorted(date_groups.keys(), reverse=True):  # 최신 날짜부터
+            korean_data = date_groups[trade_date]["korean"]
+            global_data = date_groups[trade_date]["global"]
             
             if not korean_data or not global_data:
                 continue
             
             # 거래량 가중평균으로 가격 계산
-            korean_weighted_price = sum(d["price"] * d["volume"] for d in korean_data) / sum(d["volume"] for d in korean_data)
-            global_weighted_price = sum(d["price"] * d["volume"] for d in global_data) / sum(d["volume"] for d in global_data)
+            korean_total_value = sum(d["price"] * d["volume"] for d in korean_data)
+            korean_total_volume = sum(d["volume"] for d in korean_data)
+            global_total_value = sum(d["price"] * d["volume"] for d in global_data)
+            global_total_volume = sum(d["volume"] for d in global_data)
+            
+            if korean_total_volume == 0 or global_total_volume == 0:
+                continue
+                
+            korean_weighted_price = korean_total_value / korean_total_volume
+            global_weighted_price = global_total_value / global_total_volume
             
             # 김치 프리미엄 계산
             premium_percent = ((korean_weighted_price - global_weighted_price) / global_weighted_price) * 100
             
             premium_trend.append({
-                "timestamp": timestamp.isoformat(),
-                "korean_price_usd": round(korean_weighted_price, 8),
-                "global_price_usd": round(global_weighted_price, 8),
-                "premium_percentage": round(premium_percent, 3),
+                "date": trade_date.isoformat(),
+                "korean_price_usd": round(korean_weighted_price, 2),
+                "global_price_usd": round(global_weighted_price, 2),
+                "kimchi_premium_percent": round(premium_percent, 3),
                 "price_diff_usd": round(korean_weighted_price - global_weighted_price, 8)
             })
         
-        return sorted(premium_trend, key=lambda x: x["timestamp"])
+        return sorted(premium_trend, key=lambda x: x["date"])
 
     async def get_derivatives_analysis(self, symbol: str) -> Optional[DerivativesData]:
         """파생상품 분석 데이터만 조회 (public 메서드)"""
