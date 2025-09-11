@@ -168,16 +168,30 @@ class CryptoInvestmentService:
     async def _get_all_tickers_for_symbol(self, symbol: str):
         """특정 심볼의 모든 거래소 티커 데이터 조회 - 거래소별 최신 데이터 1개씩"""
         
-        # 임시로 간단한 방법으로 변경 (디버깅용)
-        all_tickers = self.db.query(CoingeckoTickers).filter(
+        # 한국 거래소와 해외 거래소를 각각 따로 조회 (더 안전한 방법)
+        
+        # 1. 한국 거래소 최신 데이터 조회
+        korean_tickers = self.db.query(CoingeckoTickers).filter(
             and_(
                 func.upper(CoingeckoTickers.symbol) == symbol.upper(),
+                CoingeckoTickers.exchange_id.in_(['upbit', 'bithumb']),
                 CoingeckoTickers.converted_last_usd.isnot(None),
                 CoingeckoTickers.converted_volume_usd > 0
             )
-        ).order_by(desc(CoingeckoTickers.created_at)).limit(200).all()  # 최근 200개로 늘림
+        ).order_by(desc(CoingeckoTickers.created_at)).limit(50).all()
         
-        # 거래소별로 가장 최신 것만 선택
+        # 2. 해외 거래소 최신 데이터 조회  
+        global_tickers = self.db.query(CoingeckoTickers).filter(
+            and_(
+                func.upper(CoingeckoTickers.symbol) == symbol.upper(),
+                ~CoingeckoTickers.exchange_id.in_(['upbit', 'bithumb']),
+                CoingeckoTickers.converted_last_usd.isnot(None),
+                CoingeckoTickers.converted_volume_usd > 0
+            )
+        ).order_by(desc(CoingeckoTickers.created_at)).limit(100).all()
+        
+        # 3. 합치고 거래소별로 가장 최신 것만 선택
+        all_tickers = korean_tickers + global_tickers
         exchange_latest = {}
         for ticker in all_tickers:
             if ticker.exchange_id not in exchange_latest:
