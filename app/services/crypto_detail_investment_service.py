@@ -237,18 +237,31 @@ class CryptoInvestmentService:
     
     async def _build_market_data(self, coin: CoingeckoCoinDetails) -> MarketData:
         """시장 데이터 구성"""
+        # ATL/ATH 값들을 과학적 표기법 없이 포맷팅
+        atl_usd = None
+        if coin.atl_usd is not None:
+            atl_usd = Decimal(f"{float(coin.atl_usd):.10f}")  # 매우 작은 값을 위해 소수점 10자리
+            
+        ath_usd = None
+        if coin.ath_usd is not None:
+            ath_usd = Decimal(f"{float(coin.ath_usd):.8f}")
+            
+        current_price_usd = None
+        if coin.current_price_usd is not None:
+            current_price_usd = Decimal(f"{float(coin.current_price_usd):.8f}")
+            
         return MarketData(
-            current_price_usd=coin.current_price_usd,
+            current_price_usd=current_price_usd,
             current_price_krw=coin.current_price_krw,
             market_cap_usd=coin.market_cap_usd,
             total_volume_usd=coin.total_volume_usd,
             price_change_percentage_24h=coin.price_change_percentage_24h,
             price_change_percentage_7d=coin.price_change_percentage_7d,
             price_change_percentage_30d=coin.price_change_percentage_30d,
-            ath_usd=coin.ath_usd,
+            ath_usd=ath_usd,
             ath_change_percentage=coin.ath_change_percentage,
             ath_date=coin.ath_date,
-            atl_usd=coin.atl_usd,
+            atl_usd=atl_usd,
             atl_change_percentage=coin.atl_change_percentage,
             atl_date=coin.atl_date
         )
@@ -347,10 +360,10 @@ class CryptoInvestmentService:
             return KimchiPremiumData()
         
         return KimchiPremiumData(
-            korean_price_usd=Decimal(str(round(korean_price, 8))),  # 소수점 8자리로 수정 (저가 코인 지원)
-            global_avg_price_usd=Decimal(str(round(global_avg_price, 8))),  # 소수점 8자리로 수정
+            korean_price_usd=Decimal(f"{korean_price:.8f}"),  # 과학적 표기법 방지
+            global_avg_price_usd=Decimal(f"{global_avg_price:.8f}"),  # 과학적 표기법 방지
             kimchi_premium_percent=Decimal(str(round(premium_percent, 3))),
-            price_diff_usd=Decimal(str(round(price_diff, 8))),  # 소수점 8자리로 수정
+            price_diff_usd=Decimal(f"{price_diff:.8f}"),  # 과학적 표기법 방지
             korean_volume_usd=korean_volume,
             total_global_volume_usd=total_global_volume,
             korean_exchange=korean_main.exchange_id,
