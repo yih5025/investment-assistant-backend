@@ -175,7 +175,7 @@ class CryptoInvestmentService:
                 CoingeckoTickers.converted_last_usd.isnot(None),
                 CoingeckoTickers.converted_volume_usd > 0
             )
-        ).order_by(desc(CoingeckoTickers.created_at)).limit(50).all()  # 최근 50개만
+        ).order_by(desc(CoingeckoTickers.created_at)).limit(200).all()  # 최근 200개로 늘림
         
         # 거래소별로 가장 최신 것만 선택
         exchange_latest = {}
