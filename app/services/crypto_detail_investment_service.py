@@ -165,38 +165,50 @@ class CryptoInvestmentService:
         }
 
     async def _get_all_tickers_for_symbol(self, symbol: str):
-        """특정 심볼의 모든 거래소 티커 데이터 조회 - 거래소별 최신 데이터 1개씩"""
+        """특정 심볼의 모든 거래소 티커 데이터 조회 - 거래소별 최신 데이터 1개씩 (윈도우 함수 사용)"""
         
-        # 한국 거래소와 해외 거래소를 각각 따로 조회 (더 안전한 방법)
+        from sqlalchemy import text
         
-        # 1. 한국 거래소 최신 데이터 조회
-        korean_tickers = self.db.query(CoingeckoTickers).filter(
-            and_(
-                func.upper(CoingeckoTickers.symbol) == symbol.upper(),
-                CoingeckoTickers.exchange_id.in_(['upbit', 'bithumb']),
-                CoingeckoTickers.converted_last_usd.isnot(None),
-                CoingeckoTickers.converted_volume_usd > 0
-            )
-        ).order_by(desc(CoingeckoTickers.created_at)).limit(50).all()
+        # 윈도우 함수를 사용하여 거래소별 최신 데이터 1개씩 조회 (올바른 구현)
+        query = text("""
+            SELECT 
+                id, market_code, coingecko_id, symbol, coin_name, base, target,
+                exchange_name, exchange_id, last_price, volume_24h, 
+                converted_last_usd, converted_volume_usd, trust_score, 
+                bid_ask_spread_percentage, timestamp, last_traded_at, 
+                last_fetch_at, is_anomaly, is_stale, trade_url, 
+                coin_mcap_usd, match_method, market_cap_rank, 
+                created_at, updated_at
+            FROM (
+                SELECT *,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY exchange_id 
+                           ORDER BY created_at DESC
+                       ) as rn
+                FROM coingecko_tickers_bithumb 
+                WHERE UPPER(symbol) = UPPER(:symbol)
+                  AND converted_last_usd IS NOT NULL 
+                  AND converted_volume_usd > 0
+            ) ranked
+            WHERE rn = 1
+            ORDER BY converted_volume_usd DESC
+        """)
         
-        # 2. 해외 거래소 최신 데이터 조회  
-        global_tickers = self.db.query(CoingeckoTickers).filter(
-            and_(
-                func.upper(CoingeckoTickers.symbol) == symbol.upper(),
-                ~CoingeckoTickers.exchange_id.in_(['upbit', 'bithumb']),
-                CoingeckoTickers.converted_last_usd.isnot(None),
-                CoingeckoTickers.converted_volume_usd > 0
-            )
-        ).order_by(desc(CoingeckoTickers.created_at)).limit(100).all()
+        result = self.db.execute(query, {"symbol": symbol})
+        rows = result.fetchall()
         
-        # 3. 합치고 거래소별로 가장 최신 것만 선택
-        all_tickers = korean_tickers + global_tickers
-        exchange_latest = {}
-        for ticker in all_tickers:
-            if ticker.exchange_id not in exchange_latest:
-                exchange_latest[ticker.exchange_id] = ticker
+        # 결과를 CoingeckoTickers 객체 리스트로 변환
+        tickers = []
+        for row in rows:
+            ticker = CoingeckoTickers()
+            # 모든 컬럼을 매핑 (rn 제외)
+            for column in CoingeckoTickers.__table__.columns:
+                column_name = column.name
+                if hasattr(row, column_name):
+                    setattr(ticker, column_name, getattr(row, column_name))
+            tickers.append(ticker)
         
-        return list(exchange_latest.values())
+        return tickers
     
     async def _get_coin_details(self, symbol: str) -> Optional[CoingeckoCoinDetails]:
         """코인 기본 정보 조회"""
