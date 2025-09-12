@@ -23,10 +23,10 @@ class SP500EarningsNewsResponse(SP500EarningsNewsBase):
     created_at: Optional[datetime] = Field(None, description="생성 시간")
     
     # 추가 계산된 필드들
-    is_forecast_news: Optional[bool] = Field(None, description="예측 뉴스 여부")
-    is_reaction_news: Optional[bool] = Field(None, description="반응 뉴스 여부")
-    has_content: Optional[bool] = Field(None, description="본문 내용 존재 여부")
-    short_title: Optional[str] = Field(None, description="축약된 제목 (50자)")
+    is_forecast_news: Optional[bool] = Field(default=None, description="예측 뉴스 여부")
+    is_reaction_news: Optional[bool] = Field(default=None, description="반응 뉴스 여부")
+    has_content: Optional[bool] = Field(default=None, description="본문 내용 존재 여부")
+    short_title: Optional[str] = Field(default=None, description="축약된 제목 (50자)")
     
     model_config = {
         "from_attributes": True,
