@@ -10,6 +10,7 @@ from app.schemas.sp500_earnings_calendar_schema import (
     SP500EarningsCalendarWeeklyResponse,
     SP500EarningsCalendarBySymbolResponse,
     SP500EarningsCalendarQueryParams,
+    SP500EarningsCalendarStats
 )
 from app.services.sp500_earnings_calendar_service import SP500EarningsCalendarService
 from app.dependencies import get_db
@@ -228,6 +229,44 @@ async def get_sp500_earnings_by_symbol(
             detail=f"심볼별 실적 일정 조회 중 오류가 발생했습니다: {str(e)}"
         )
 
+@router.get(
+    "/statistics",
+    response_model=SP500EarningsCalendarStats,
+    summary="S&P 500 실적 캘린더 통계",
+    description="S&P 500 실적 캘린더의 전체 통계 정보를 제공합니다."
+)
+async def get_sp500_earnings_statistics(db: Session = Depends(get_db)):
+    """
+    **S&P 500 실적 캘린더 통계 정보**
+    
+    대시보드에 표시할 실적 캘린더 관련 통계 정보를 제공합니다.
+    
+    **통계 항목:**
+    - 📊 총 회사 수, 총 이벤트 수
+    - 💰 예상 수익이 있는 이벤트 수
+    - 📰 뉴스가 있는 이벤트 수  
+    - ⏰ 향후 예정된 이벤트 수
+    - 🏭 포함된 섹터 목록
+    - 🕐 마지막 업데이트 시간
+    
+    **사용 예시:**
+    ```
+    GET /api/v1/sp500-earnings-calendar/statistics
+    ```
+    """
+    try:
+        # 서비스 클래스를 통해 통계 정보 조회
+        service = SP500EarningsCalendarService(db)
+        stats = service.get_calendar_statistics()
+        
+        # Pydantic 응답 모델로 변환
+        return SP500EarningsCalendarStats(**stats)
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"실적 캘린더 통계 조회 중 오류가 발생했습니다: {str(e)}"
+        )
 
 @router.get(
     "/upcoming",
@@ -265,4 +304,51 @@ async def get_upcoming_sp500_earnings(
         raise HTTPException(
             status_code=500,
             detail=f"향후 실적 일정 조회 중 오류가 발생했습니다: {str(e)}"
+        )
+
+@router.get(
+    "/search",
+    response_model=List[SP500EarningsCalendarResponse],
+    summary="S&P 500 실적 이벤트 검색",
+    description="키워드로 S&P 500 실적 이벤트를 검색합니다."
+)
+async def search_sp500_earnings(
+    q: str = Query(..., description="검색어 (심볼, 회사명, 이벤트 제목)", example="Apple"),
+    limit: int = Query(20, ge=1, le=100, description="최대 조회 개수", example=20),
+    db: Session = Depends(get_db)
+):
+    """
+    **S&P 500 실적 이벤트 검색**
+    
+    심볼, 회사명, 이벤트 제목을 대상으로 검색합니다.
+    
+    **사용 예시:**
+    ```
+    GET /api/v1/sp500-earnings-calendar/search?q=Apple
+    GET /api/v1/sp500-earnings-calendar/search?q=AAPL&limit=5
+    ```
+    """
+    try:
+        if len(q.strip()) < 2:
+            raise HTTPException(
+                status_code=422,
+                detail="검색어는 최소 2글자 이상이어야 합니다."
+            )
+        
+        # 서비스 클래스를 통해 검색
+        service = SP500EarningsCalendarService(db)
+        search_result_dicts = service.search_events(q.strip(), limit)
+        
+        # 딕셔너리를 Pydantic 응답 모델로 변환
+        return [
+            SP500EarningsCalendarResponse.model_validate(result_dict) 
+            for result_dict in search_result_dicts
+        ]
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"실적 이벤트 검색 중 오류가 발생했습니다: {str(e)}"
         )

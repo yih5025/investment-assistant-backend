@@ -147,11 +147,99 @@ class SP500EarningsCalendarService:
         
         results = query.all()
         
-        # 계산된 속성들 설정
-        for result in results:
-            result.has_estimate = result.estimate is not None
-            result.is_future_date = result.report_date >= date.today() if result.report_date else False
-            result.has_news = result.total_news_count and result.total_news_count > 0
-        
         return results
     
+    def get_calendar_statistics(self) -> Dict[str, Any]:
+        """
+        실적 캘린더 통계 정보 조회
+        """
+        # 기본 통계
+        total_events = self.db.query(SP500EarningsCalendar).count()
+        total_companies = self.db.query(func.count(func.distinct(SP500EarningsCalendar.symbol))).scalar()
+        
+        # 예상 수익이 있는 이벤트
+        events_with_estimates = self.db.query(SP500EarningsCalendar).filter(
+            SP500EarningsCalendar.estimate.isnot(None)
+        ).count()
+        
+        # 뉴스가 있는 이벤트
+        events_with_news = self.db.query(SP500EarningsCalendar).filter(
+            SP500EarningsCalendar.total_news_count > 0
+        ).count()
+        
+        # 향후 예정된 이벤트
+        upcoming_events = self.db.query(SP500EarningsCalendar).filter(
+            SP500EarningsCalendar.report_date >= date.today()
+        ).count()
+        
+        # 포함된 섹터 목록
+        sectors = self.db.query(func.distinct(SP500EarningsCalendar.gics_sector)).filter(
+            SP500EarningsCalendar.gics_sector.isnot(None)
+        ).all()
+        sectors_list = [sector[0] for sector in sectors if sector[0]]
+        
+        # 마지막 업데이트 시간
+        last_updated = self.db.query(func.max(SP500EarningsCalendar.updated_at)).scalar()
+        
+        return {
+            "total_companies": total_companies,
+            "total_events": total_events,
+            "events_with_estimates": events_with_estimates,
+            "events_with_news": events_with_news,
+            "upcoming_events": upcoming_events,
+            "sectors_covered": sectors_list,
+            "last_updated": last_updated
+        }
+    
+    def search_events(self, keyword: str, limit: int = 50) -> List[dict]:
+        """
+        키워드로 실적 이벤트 검색 (심볼, 회사명, 이벤트 제목 대상)
+        """
+        search_term = f"%{keyword}%"
+        
+        query = self.db.query(SP500EarningsCalendar).filter(
+            or_(
+                SP500EarningsCalendar.symbol.ilike(search_term),
+                SP500EarningsCalendar.company_name.ilike(search_term),
+                SP500EarningsCalendar.event_title.ilike(search_term)
+            )
+        ).order_by(desc(SP500EarningsCalendar.report_date))
+        
+        if limit:
+            query = query.limit(limit)
+        
+        results = query.all()
+        
+        # SQLAlchemy 객체를 딕셔너리로 변환 + 계산된 필드 추가
+        result_dicts = []
+        for result in results:
+            result_dict = result.to_dict()
+            # 계산된 필드들 추가
+            result_dict['has_estimate'] = result.estimate is not None
+            result_dict['is_future_date'] = result.report_date >= date.today() if result.report_date else False
+            result_dict['has_news'] = result.total_news_count and result.total_news_count > 0
+            result_dicts.append(result_dict)
+        
+        return result_dicts
+    
+    def get_events_by_date(self, target_date: date) -> List[dict]:
+        """
+        특정 날짜의 실적 발표 일정 조회
+        """
+        query = self.db.query(SP500EarningsCalendar).filter(
+            SP500EarningsCalendar.report_date == target_date
+        ).order_by(asc(SP500EarningsCalendar.symbol))
+        
+        results = query.all()
+        
+        # SQLAlchemy 객체를 딕셔너리로 변환 + 계산된 필드 추가
+        result_dicts = []
+        for result in results:
+            result_dict = result.to_dict()
+            # 계산된 필드들 추가
+            result_dict['has_estimate'] = result.estimate is not None
+            result_dict['is_future_date'] = result.report_date >= date.today() if result.report_date else False
+            result_dict['has_news'] = result.total_news_count and result.total_news_count > 0
+            result_dicts.append(result_dict)
+        
+        return result_dicts
