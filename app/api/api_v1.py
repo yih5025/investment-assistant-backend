@@ -26,7 +26,11 @@ from .endpoints import (
     # 암호화폐 투자 분석 엔드포인트 추가
     crypto_detail_investment_endpoint,
     crypto_detail_concept_endpoint,
-    crypto_detail_ecosystem_endpoint
+    crypto_detail_ecosystem_endpoint,
+
+
+    sp500_earnings_calendar_endpoint,
+    sp500_earnings_news_endpoint,
 
 )
 
@@ -96,7 +100,20 @@ ROUTER_CONFIGS = [
         "category": "실적정보",
         "description": "실적 캘린더 뉴스 API"
     },
-
+    {
+        "router": sp500_earnings_calendar_endpoint.router,
+        "prefix": "/sp500-earnings-calendar",
+        "tag": "SP500 Earnings Calendar",
+        "category": "실적정보",
+        "description": "S&P 500 실적 캘린더 API"
+    },
+    {
+        "router": sp500_earnings_news_endpoint.router,
+        "prefix": "/sp500-earnings-news",
+        "tag": "SP500 Earnings News",
+        "category": "실적정보",
+        "description": "S&P 500 실적 뉴스 API"
+    },
     # 경제 지표 API
     {
         "router": inflation_endpoint.router,
