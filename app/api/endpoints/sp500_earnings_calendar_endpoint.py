@@ -81,10 +81,16 @@ async def get_sp500_earnings_calendar(
         earnings_list, total_count = service.get_all_calendar_events(params)
         
         # SQLAlchemy 객체를 Pydantic 응답 모델로 변환
-        items = [
-            SP500EarningsCalendarResponse.model_validate(earnings) 
-            for earnings in earnings_list
-        ]
+        items = []
+        for earnings in earnings_list:
+            # SQLAlchemy 객체를 딕셔너리로 변환 후 계산된 필드 추가
+            earnings_dict = earnings.to_dict()
+            earnings_dict.update({
+                'has_estimate': earnings.has_estimate,
+                'is_future_date': earnings.is_future_date,
+                'has_news': earnings.has_news
+            })
+            items.append(SP500EarningsCalendarResponse.model_validate(earnings_dict))
         
         # 최종 응답 구성
         return SP500EarningsCalendarListResponse(
@@ -133,10 +139,16 @@ async def get_weekly_sp500_earnings(db: Session = Depends(get_db)):
         weekly_events, week_start, week_end = service.get_weekly_events()
         
         # SQLAlchemy 객체를 Pydantic 응답 모델로 변환
-        events = [
-            SP500EarningsCalendarResponse.model_validate(event) 
-            for event in weekly_events
-        ]
+        events = []
+        for event in weekly_events:
+            # SQLAlchemy 객체를 딕셔너리로 변환 후 계산된 필드 추가
+            event_dict = event.to_dict()
+            event_dict.update({
+                'has_estimate': event.has_estimate,
+                'is_future_date': event.is_future_date,
+                'has_news': event.has_news
+            })
+            events.append(SP500EarningsCalendarResponse.model_validate(event_dict))
         
         # 최종 응답 구성
         return SP500EarningsCalendarWeeklyResponse(
@@ -200,10 +212,16 @@ async def get_sp500_earnings_by_symbol(
             )
         
         # SQLAlchemy 객체를 Pydantic 응답 모델로 변환
-        earnings = [
-            SP500EarningsCalendarResponse.model_validate(earning) 
-            for earning in earnings_list
-        ]
+        earnings = []
+        for earning in earnings_list:
+            # SQLAlchemy 객체를 딕셔너리로 변환 후 계산된 필드 추가
+            earning_dict = earning.to_dict()
+            earning_dict.update({
+                'has_estimate': earning.has_estimate,
+                'is_future_date': earning.is_future_date,
+                'has_news': earning.has_news
+            })
+            earnings.append(SP500EarningsCalendarResponse.model_validate(earning_dict))
         
         # 회사명 추출 (첫 번째 레코드에서)
         company_name = earnings_list[0].company_name if earnings_list else None
@@ -295,10 +313,18 @@ async def get_upcoming_sp500_earnings(
         upcoming_events = service.get_upcoming_events(days)
         
         # SQLAlchemy 객체를 Pydantic 응답 모델로 변환
-        return [
-            SP500EarningsCalendarResponse.model_validate(event) 
-            for event in upcoming_events
-        ]
+        events = []
+        for event in upcoming_events:
+            # SQLAlchemy 객체를 딕셔너리로 변환 후 계산된 필드 추가
+            event_dict = event.to_dict()
+            event_dict.update({
+                'has_estimate': event.has_estimate,
+                'is_future_date': event.is_future_date,
+                'has_news': event.has_news
+            })
+            events.append(SP500EarningsCalendarResponse.model_validate(event_dict))
+        
+        return events
         
     except Exception as e:
         raise HTTPException(
@@ -339,7 +365,7 @@ async def search_sp500_earnings(
         service = SP500EarningsCalendarService(db)
         search_result_dicts = service.search_events(q.strip(), limit)
         
-        # 딕셔너리를 Pydantic 응답 모델로 변환
+        # 딕셔너리를 Pydantic 응답 모델로 변환 (이미 딕셔너리이므로 직접 변환)
         return [
             SP500EarningsCalendarResponse.model_validate(result_dict) 
             for result_dict in search_result_dicts

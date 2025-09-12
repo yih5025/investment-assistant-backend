@@ -74,15 +74,29 @@ async def get_earnings_news_by_calendar_id(
             )
         
         # SQLAlchemy 객체를 Pydantic 응답 모델로 변환
-        forecast_news = [
-            SP500EarningsNewsResponse.model_validate(news) 
-            for news in news_data["forecast_news"]
-        ]
+        forecast_news = []
+        for news in news_data["forecast_news"]:
+            # SQLAlchemy 객체를 딕셔너리로 변환 후 계산된 필드 추가
+            news_dict = news.to_dict()
+            news_dict.update({
+                'is_forecast_news': news.is_forecast_news,
+                'is_reaction_news': news.is_reaction_news,
+                'has_content': news.has_content,
+                'short_title': news.short_title
+            })
+            forecast_news.append(SP500EarningsNewsResponse.model_validate(news_dict))
         
-        reaction_news = [
-            SP500EarningsNewsResponse.model_validate(news) 
-            for news in news_data["reaction_news"]
-        ]
+        reaction_news = []
+        for news in news_data["reaction_news"]:
+            # SQLAlchemy 객체를 딕셔너리로 변환 후 계산된 필드 추가
+            news_dict = news.to_dict()
+            news_dict.update({
+                'is_forecast_news': news.is_forecast_news,
+                'is_reaction_news': news.is_reaction_news,
+                'has_content': news.has_content,
+                'short_title': news.short_title
+            })
+            reaction_news.append(SP500EarningsNewsResponse.model_validate(news_dict))
         
         # 최종 응답 구성
         return SP500EarningsNewsWithCalendarResponse(
@@ -137,10 +151,19 @@ async def get_forecast_news_by_calendar_id(
             )
         
         # SQLAlchemy 객체를 Pydantic 응답 모델로 변환
-        return [
-            SP500EarningsNewsResponse.model_validate(news) 
-            for news in forecast_news
-        ]
+        news_responses = []
+        for news in forecast_news:
+            # SQLAlchemy 객체를 딕셔너리로 변환 후 계산된 필드 추가
+            news_dict = news.to_dict()
+            news_dict.update({
+                'is_forecast_news': news.is_forecast_news,
+                'is_reaction_news': news.is_reaction_news,
+                'has_content': news.has_content,
+                'short_title': news.short_title
+            })
+            news_responses.append(SP500EarningsNewsResponse.model_validate(news_dict))
+        
+        return news_responses
         
     except HTTPException:
         raise
@@ -184,10 +207,19 @@ async def get_reaction_news_by_calendar_id(
             )
         
         # SQLAlchemy 객체를 Pydantic 응답 모델로 변환
-        return [
-            SP500EarningsNewsResponse.model_validate(news) 
-            for news in reaction_news
-        ]
+        news_responses = []
+        for news in reaction_news:
+            # SQLAlchemy 객체를 딕셔너리로 변환 후 계산된 필드 추가
+            news_dict = news.to_dict()
+            news_dict.update({
+                'is_forecast_news': news.is_forecast_news,
+                'is_reaction_news': news.is_reaction_news,
+                'has_content': news.has_content,
+                'short_title': news.short_title
+            })
+            news_responses.append(SP500EarningsNewsResponse.model_validate(news_dict))
+        
+        return news_responses
         
     except HTTPException:
         raise
@@ -245,10 +277,17 @@ async def get_all_news_by_calendar_id(
             )
         
         # SQLAlchemy 객체를 Pydantic 응답 모델로 변환
-        items = [
-            SP500EarningsNewsResponse.model_validate(news) 
-            for news in news_list
-        ]
+        items = []
+        for news in news_list:
+            # SQLAlchemy 객체를 딕셔너리로 변환 후 계산된 필드 추가
+            news_dict = news.to_dict()
+            news_dict.update({
+                'is_forecast_news': news.is_forecast_news,
+                'is_reaction_news': news.is_reaction_news,
+                'has_content': news.has_content,
+                'short_title': news.short_title
+            })
+            items.append(SP500EarningsNewsResponse.model_validate(news_dict))
         
         # 섹션별 개수 계산
         forecast_count = len([item for item in items if item.news_section == "forecast"])
