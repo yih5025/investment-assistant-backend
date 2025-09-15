@@ -33,10 +33,8 @@ class SP500EarningsCalendarResponse(SP500EarningsCalendarBase):
     created_at: Optional[datetime] = Field(None, description="생성 시간")
     updated_at: Optional[datetime] = Field(None, description="수정 시간")
     
-    # 서버에서 계산된 필드들 (프론트엔드에서 바로 사용 가능)
-    has_estimate: bool = Field(default=False, description="예상 수익 존재 여부", example=True)
-    is_future_date: bool = Field(default=False, description="미래 일정 여부", example=False)
-    has_news: bool = Field(default=False, description="관련 뉴스 존재 여부", example=True)
+    # 계산된 필드들은 모델의 @property에서 자동으로 제공됨
+    # (API 응답에는 포함되지 않음)
     
     model_config = {
         "from_attributes": True,

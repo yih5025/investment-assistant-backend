@@ -191,7 +191,7 @@ class SP500EarningsCalendarService:
             "last_updated": last_updated
         }
     
-    def search_events(self, keyword: str, limit: int = 50) -> List[dict]:
+    def search_events(self, keyword: str, limit: int = 50) -> List[SP500EarningsCalendar]:
         """
         키워드로 실적 이벤트 검색 (심볼, 회사명, 이벤트 제목 대상)
         """
@@ -210,19 +210,10 @@ class SP500EarningsCalendarService:
         
         results = query.all()
         
-        # SQLAlchemy 객체를 딕셔너리로 변환 + 계산된 필드 추가
-        result_dicts = []
-        for result in results:
-            result_dict = result.to_dict()
-            # 계산된 필드들 추가
-            result_dict['has_estimate'] = result.estimate is not None
-            result_dict['is_future_date'] = result.report_date >= date.today() if result.report_date else False
-            result_dict['has_news'] = result.total_news_count and result.total_news_count > 0
-            result_dicts.append(result_dict)
-        
-        return result_dicts
+        # 계산된 속성은 @property로 자동 제공됨 (별도 할당 불필요)
+        return results
     
-    def get_events_by_date(self, target_date: date) -> List[dict]:
+    def get_events_by_date(self, target_date: date) -> List[SP500EarningsCalendar]:
         """
         특정 날짜의 실적 발표 일정 조회
         """
@@ -232,14 +223,5 @@ class SP500EarningsCalendarService:
         
         results = query.all()
         
-        # SQLAlchemy 객체를 딕셔너리로 변환 + 계산된 필드 추가
-        result_dicts = []
-        for result in results:
-            result_dict = result.to_dict()
-            # 계산된 필드들 추가
-            result_dict['has_estimate'] = result.estimate is not None
-            result_dict['is_future_date'] = result.report_date >= date.today() if result.report_date else False
-            result_dict['has_news'] = result.total_news_count and result.total_news_count > 0
-            result_dicts.append(result_dict)
-        
-        return result_dicts
+        # 계산된 속성은 @property로 자동 제공됨 (별도 할당 불필요)
+        return results
