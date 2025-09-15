@@ -69,12 +69,7 @@ class SP500EarningsNewsService:
         
         results = query.all()
         
-        # 계산된 속성들 설정
-        for result in results:
-            result.is_forecast_news = result.news_section == "forecast"
-            result.is_reaction_news = result.news_section == "reaction"
-            result.has_content = result.content is not None and len(result.content.strip()) > 0 if result.content else False
-            result.short_title = self._get_short_title(result.title)
+        # 계산된 속성들은 @property로 정의되어 있어서 별도 설정 불필요
         
         return results, total_count
     
@@ -106,13 +101,8 @@ class SP500EarningsNewsService:
             )
         ).order_by(desc(SP500EarningsNews.published_at)).all()
         
-        # 계산된 속성들 설정
+        # 계산된 속성들은 @property로 정의되어 있어서 별도 설정 불필요
         all_news = forecast_news + reaction_news
-        for result in all_news:
-            result.is_forecast_news = result.news_section == "forecast"
-            result.is_reaction_news = result.news_section == "reaction"
-            result.has_content = result.content is not None and len(result.content.strip()) > 0 if result.content else False
-            result.short_title = self._get_short_title(result.title)
         
         return {
             "calendar_info": {
@@ -147,12 +137,7 @@ class SP500EarningsNewsService:
         
         results = query.all()
         
-        # 계산된 속성들 설정
-        for result in results:
-            result.is_forecast_news = True
-            result.is_reaction_news = False
-            result.has_content = result.content is not None and len(result.content.strip()) > 0 if result.content else False
-            result.short_title = self._get_short_title(result.title)
+        # 계산된 속성들은 @property로 정의되어 있어서 별도 설정 불필요
         
         return results
     
@@ -172,12 +157,7 @@ class SP500EarningsNewsService:
         
         results = query.all()
         
-        # 계산된 속성들 설정
-        for result in results:
-            result.is_forecast_news = False
-            result.is_reaction_news = True
-            result.has_content = result.content is not None and len(result.content.strip()) > 0 if result.content else False
-            result.short_title = self._get_short_title(result.title)
+        # 계산된 속성들은 @property로 정의되어 있어서 별도 설정 불필요
         
         return results
     
