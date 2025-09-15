@@ -60,11 +60,7 @@ class SP500EarningsCalendarService:
         
         results = query.all()
         
-        # 계산된 속성들 설정
-        for result in results:
-            result.has_estimate = result.estimate is not None
-            result.is_future_date = result.report_date >= date.today() if result.report_date else False
-            result.has_news = result.total_news_count and result.total_news_count > 0
+        # 계산된 속성들은 @property로 자동 제공됨 (별도 할당 불필요)
         
         return results, total_count
     
@@ -87,11 +83,7 @@ class SP500EarningsCalendarService:
         
         results = query.all()
         
-        # 계산된 속성들 설정
-        for result in results:
-            result.has_estimate = result.estimate is not None
-            result.is_future_date = result.report_date >= date.today() if result.report_date else False
-            result.has_news = result.total_news_count and result.total_news_count > 0
+        # 계산된 속성들은 @property로 자동 제공됨 (별도 할당 불필요)
         
         return results, week_start, week_end
     
@@ -108,11 +100,7 @@ class SP500EarningsCalendarService:
         
         results = query.all()
         
-        # 계산된 속성들 설정
-        for result in results:
-            result.has_estimate = result.estimate is not None
-            result.is_future_date = result.report_date >= date.today() if result.report_date else False
-            result.has_news = result.total_news_count and result.total_news_count > 0
+        # 계산된 속성들은 @property로 자동 제공됨 (별도 할당 불필요)
         
         return results
     
@@ -124,10 +112,7 @@ class SP500EarningsCalendarService:
             SP500EarningsCalendar.id == calendar_id
         ).first()
         
-        if result:
-            result.has_estimate = result.estimate is not None
-            result.is_future_date = result.report_date >= date.today() if result.report_date else False
-            result.has_news = result.total_news_count and result.total_news_count > 0
+        # 계산된 속성들은 @property로 자동 제공됨 (별도 할당 불필요)
         
         return result
     
