@@ -15,7 +15,6 @@ from app.dependencies import get_db
 
 # S&P 500 실적 뉴스 라우터 생성
 router = APIRouter(
-    prefix="/sp500-earnings-news",
     tags=["SP500 Earnings News"],
     responses={
         404: {"description": "요청한 뉴스 데이터를 찾을 수 없습니다"},
