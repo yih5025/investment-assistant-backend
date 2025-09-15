@@ -71,7 +71,7 @@ class SP500EarningsCalendarQueryParams(BaseModel):
     symbol: Optional[str] = Field(None, description="특정 주식 심볼", example="AAPL")
     sector: Optional[str] = Field(None, description="특정 섹터", example="Information Technology")
     has_estimate: Optional[bool] = Field(None, description="예상 수익 존재하는 것만", example=True)
-    limit: int = Field(100, ge=1, le=1000, description="최대 조회 개수", example=50)
+    limit: int = Field(100, ge=1, le=10000, description="최대 조회 개수", example=50)
     offset: int = Field(0, ge=0, description="건너뛸 개수", example=0)
 
 # 심볼별 실적 일정 응답용 (옵션)

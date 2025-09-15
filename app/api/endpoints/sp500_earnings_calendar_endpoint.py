@@ -36,9 +36,7 @@ async def get_sp500_earnings_calendar(
     end_date: Optional[date] = Query(None, description="조회 종료일 (옵션)", example="2025-12-31"),
     symbol: Optional[str] = Query(None, description="주식 심볼 필터 (옵션)", example="AAPL"),
     sector: Optional[str] = Query(None, description="GICS 섹터 필터 (옵션)", example="Information Technology"),
-    has_estimate: Optional[bool] = Query(None, description="예상 수익 존재하는 것만 (옵션)", example=True),
-    limit: int = Query(100, ge=1, le=1000, description="최대 조회 개수", example=100),
-    offset: int = Query(0, ge=0, description="건너뛸 개수 (페이징)", example=0),
+    limit: int = Query(100, ge=1, le=10000, description="최대 조회 개수", example=100),
     db: Session = Depends(get_db)
 ):
     """
@@ -48,15 +46,15 @@ async def get_sp500_earnings_calendar(
     
     **주요 기능:**
     - 📅 전체 실적 일정 조회 (날짜 제한 없음)
-    - 🔍 다양한 필터링 옵션 (날짜, 심볼, 섹터, 예상수익 등)
-    - 📊 페이징 지원
+    - 🔍 다양한 필터링 옵션 (날짜, 심볼, 섹터)
+    - 📊 기본 100개 조회 (limit으로 조절 가능)
     - 🏢 회사 정보 및 GICS 분류 포함
     
     **사용 예시:**
     ```
     GET /api/v1/sp500-earnings-calendar/
-    GET /api/v1/sp500-earnings-calendar/?sector=Technology&has_estimate=true
-    GET /api/v1/sp500-earnings-calendar/?start_date=2025-08-01&end_date=2025-08-31
+    GET /api/v1/sp500-earnings-calendar/?sector=Information Technology
+    GET /api/v1/sp500-earnings-calendar/?start_date=2025-08-01&end_date=2025-08-31&limit=50
     ```
     
     **응답 데이터:**
@@ -64,15 +62,15 @@ async def get_sp500_earnings_calendar(
     - 각 이벤트의 상세 정보
     """
     try:
-        # 쿼리 파라미터 객체 생성 및 검증
+        # 쿼리 파라미터 객체 생성 및 검증 (has_estimate=None, offset=0 기본값 사용)
         params = SP500EarningsCalendarQueryParams(
             start_date=start_date,
             end_date=end_date,
             symbol=symbol,
             sector=sector,
-            has_estimate=has_estimate,
+            has_estimate=None,  # 기본값: 필터링 안함
             limit=limit,
-            offset=offset
+            offset=0  # 기본값: 첫 페이지부터
         )
         
         # 서비스 클래스를 통해 비즈니스 로직 처리
