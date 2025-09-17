@@ -219,6 +219,8 @@ class SP500EarningsNewsService:
                 "forecast_news": [
                     {
                         **news.to_dict(),
+                        'is_forecast_news': news.is_forecast_news,
+                        'is_reaction_news': news.is_reaction_news,
                         'has_content': news.has_content,
                         'short_title': news.short_title
                     } for news in forecast_news
@@ -226,6 +228,8 @@ class SP500EarningsNewsService:
                 "reaction_news": [
                     {
                         **news.to_dict(),
+                        'is_forecast_news': news.is_forecast_news,
+                        'is_reaction_news': news.is_reaction_news,
                         'has_content': news.has_content,
                         'short_title': news.short_title
                     } for news in reaction_news
@@ -247,7 +251,9 @@ class SP500EarningsNewsService:
             "week_end": week_end.isoformat(),
             "earnings_with_news": earnings_with_news,
             "total_earnings_count": len(weekly_calendar_events),
-            "total_news_count": total_news_count
+            "total_news_count": total_news_count,
+            "forecast_news_count": total_forecast_count,
+            "reaction_news_count": total_reaction_count
         }
     
     def _get_short_title(self, title: str) -> str:

@@ -162,6 +162,8 @@ async def get_weekly_earnings_news(db: Session = Depends(get_db)):
             earnings_with_news=weekly_data["earnings_with_news"],
             total_earnings_count=weekly_data["total_earnings_count"],
             total_news_count=weekly_data["total_news_count"],
+            forecast_news_count=weekly_data["forecast_news_count"],
+            reaction_news_count=weekly_data["reaction_news_count"],
             message=f"이번 주({weekly_data['week_start']} ~ {weekly_data['week_end']}) 실적 {weekly_data['total_earnings_count']}개, 관련 뉴스 {weekly_data['total_news_count']}개를 조회했습니다."
         )
         
