@@ -161,6 +161,95 @@ class SP500EarningsNewsService:
         
         return results
     
+    def get_weekly_news(self) -> Dict[str, Any]:
+        """
+        이번 주 실적 이벤트별 뉴스 목록 조회
+        earnings_calendar의 weekly 데이터와 연계하여 뉴스까지 함께 제공
+        """
+        from datetime import date, timedelta
+        
+        # 이번 주 범위 계산
+        today = date.today()
+        week_start = today - timedelta(days=today.weekday())  # 월요일
+        week_end = week_start + timedelta(days=6)  # 일요일
+        
+        # 이번 주 실적 캘린더 조회
+        weekly_calendar_events = self.db.query(SP500EarningsCalendar).filter(
+            and_(
+                SP500EarningsCalendar.report_date >= week_start,
+                SP500EarningsCalendar.report_date <= week_end
+            )
+        ).order_by(SP500EarningsCalendar.report_date).all()
+        
+        earnings_with_news = []
+        total_news_count = 0
+        total_forecast_count = 0
+        total_reaction_count = 0
+        
+        for calendar_event in weekly_calendar_events:
+            # 각 실적 이벤트의 뉴스 조회
+            forecast_news = self.db.query(SP500EarningsNews).filter(
+                and_(
+                    SP500EarningsNews.calendar_id == calendar_event.id,
+                    SP500EarningsNews.news_section == "forecast"
+                )
+            ).order_by(desc(SP500EarningsNews.published_at)).all()
+            
+            reaction_news = self.db.query(SP500EarningsNews).filter(
+                and_(
+                    SP500EarningsNews.calendar_id == calendar_event.id,
+                    SP500EarningsNews.news_section == "reaction"
+                )
+            ).order_by(desc(SP500EarningsNews.published_at)).all()
+            
+            # 뉴스가 있는 이벤트만 포함하거나, 모든 이벤트를 포함할지 결정
+            all_news = forecast_news + reaction_news
+            
+            # 실적 이벤트 정보와 뉴스를 함께 구성
+            earnings_data = {
+                "calendar_info": {
+                    "id": calendar_event.id,
+                    "symbol": calendar_event.symbol,
+                    "company_name": calendar_event.company_name,
+                    "report_date": calendar_event.report_date.isoformat(),
+                    "estimate": str(calendar_event.estimate) if calendar_event.estimate else None,
+                    "event_title": calendar_event.event_title,
+                    "gics_sector": calendar_event.gics_sector
+                },
+                "forecast_news": [
+                    {
+                        **news.to_dict(),
+                        'has_content': news.has_content,
+                        'short_title': news.short_title
+                    } for news in forecast_news
+                ],
+                "reaction_news": [
+                    {
+                        **news.to_dict(),
+                        'has_content': news.has_content,
+                        'short_title': news.short_title
+                    } for news in reaction_news
+                ],
+                "news_count": len(all_news),
+                "forecast_news_count": len(forecast_news),
+                "reaction_news_count": len(reaction_news)
+            }
+            
+            earnings_with_news.append(earnings_data)
+            
+            # 전체 통계 업데이트
+            total_news_count += len(all_news)
+            total_forecast_count += len(forecast_news)
+            total_reaction_count += len(reaction_news)
+        
+        return {
+            "week_start": week_start.isoformat(),
+            "week_end": week_end.isoformat(),
+            "earnings_with_news": earnings_with_news,
+            "total_earnings_count": len(weekly_calendar_events),
+            "total_news_count": total_news_count
+        }
+    
     def _get_short_title(self, title: str) -> str:
         """제목 축약 (100자)"""
         if not title:

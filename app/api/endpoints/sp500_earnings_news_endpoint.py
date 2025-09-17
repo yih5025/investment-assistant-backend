@@ -8,6 +8,7 @@ from app.schemas.sp500_earnings_news_schema import (
     SP500EarningsNewsResponse,
     SP500EarningsNewsListResponse,
     SP500EarningsNewsWithCalendarResponse,
+    SP500EarningsNewsWeeklyResponse,
     SP500EarningsNewsQueryParams,
 )
 from app.services.sp500_earnings_news_service import SP500EarningsNewsService
@@ -114,6 +115,60 @@ async def get_earnings_news_by_calendar_id(
         raise HTTPException(
             status_code=500,
             detail=f"실적 관련 뉴스 조회 중 오류가 발생했습니다: {str(e)}"
+        )
+
+@router.get(
+    "/weekly",
+    response_model=SP500EarningsNewsWeeklyResponse,
+    summary="이번 주 실적 관련 뉴스 전체 조회",
+    description="이번 주 실적 발표 일정과 관련된 모든 뉴스를 한 번에 조회합니다. earnings_calendar의 weekly API와 연계된 통합 API입니다."
+)
+async def get_weekly_earnings_news(db: Session = Depends(get_db)):
+    """
+    **이번 주 실적 관련 뉴스 전체 조회 (통합 API)**
+    
+    earnings_calendar의 weekly API와 연계하여 이번 주 실적 발표 일정과
+    관련된 모든 뉴스를 한 번의 API 호출로 제공합니다.
+    
+    **주요 기능:**
+    - 📅 이번 주(월~일) 실적 발표 일정 조회
+    - 📰 각 실적 이벤트별 관련 뉴스 목록 제공
+    - 📊 전체 통계 정보 (실적 수, 뉴스 수)
+    
+    **프론트엔드 활용:**
+    - 캘린더 페이지의 "이번 주 주요 실적" 섹션
+    - 대시보드의 주간 요약 정보
+    - API 요청 횟수 최적화 (1회로 모든 정보 획득)
+    
+    **사용 예시:**
+    ```
+    GET /api/v1/sp500-earnings-news/weekly
+    ```
+    
+    **응답 데이터:**
+    - 주간 범위 정보 (시작일, 종료일)
+    - 실적 이벤트별 뉴스 목록
+    - 전체 통계 (실적 수, 뉴스 수)
+    """
+    try:
+        # 서비스 클래스를 통해 이번 주 뉴스 조회
+        service = SP500EarningsNewsService(db)
+        weekly_data = service.get_weekly_news()
+        
+        # 최종 응답 구성
+        return SP500EarningsNewsWeeklyResponse(
+            week_start=weekly_data["week_start"],
+            week_end=weekly_data["week_end"],
+            earnings_with_news=weekly_data["earnings_with_news"],
+            total_earnings_count=weekly_data["total_earnings_count"],
+            total_news_count=weekly_data["total_news_count"],
+            message=f"이번 주({weekly_data['week_start']} ~ {weekly_data['week_end']}) 실적 {weekly_data['total_earnings_count']}개, 관련 뉴스 {weekly_data['total_news_count']}개를 조회했습니다."
+        )
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"이번 주 실적 뉴스 조회 중 오류가 발생했습니다: {str(e)}"
         )
 
 @router.get(

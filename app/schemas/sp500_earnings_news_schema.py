@@ -94,6 +94,23 @@ class SP500EarningsNewsStats(BaseModel):
     latest_news: Optional[datetime] = Field(None, description="가장 최신 뉴스 날짜")
     has_content_count: int = Field(..., description="본문이 있는 뉴스 수")
 
+# 주간 뉴스 응답
+class SP500EarningsNewsWeeklyResponse(BaseModel):
+    """이번 주 실적 관련 뉴스 응답"""
+    week_start: str = Field(..., description="주간 시작일", example="2025-09-15")
+    week_end: str = Field(..., description="주간 종료일", example="2025-09-21")
+    
+    # 이번 주 실적 이벤트별 뉴스
+    earnings_with_news: List[dict] = Field(..., description="실적 이벤트별 뉴스 목록")
+    
+    # 전체 통계
+    total_earnings_count: int = Field(..., description="이번 주 총 실적 이벤트 수")
+    total_news_count: int = Field(..., description="이번 주 총 뉴스 수")
+    forecast_news_count: int = Field(..., description="예측 뉴스 수")
+    reaction_news_count: int = Field(..., description="반응 뉴스 수")
+    
+    message: Optional[str] = Field(None, description="메시지")
+
 # 뉴스 검색용 응답 (추후 확장)
 class SP500EarningsNewsSearchResponse(BaseModel):
     """뉴스 검색 결과"""
