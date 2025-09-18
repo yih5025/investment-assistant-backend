@@ -209,3 +209,63 @@ async def get_kimchi_premium_chart_data(
             status_code=500,
             detail=f"Failed to get chart data: {str(e)}"
         )
+
+@router.get(
+    "/investment/{symbol}/chart",
+    summary="Crypto Price Chart Data",
+    description="""
+    암호화폐 가격 차트 데이터를 제공합니다.
+    
+    **시간대별 옵션:**
+    - 1H: 최근 24시간 (1시간 간격)
+    - 1D: 최근 30일 (1일 간격) 
+    - 1W: 최근 12주 (1주 간격)
+    - 1MO: 최근 12개월 (1개월 간격)
+    
+    **데이터 소스:** Bithumb Ticker (실시간 빗썸 거래 데이터)
+    """,
+    tags=["Crypto Detail - Investment"]
+)
+async def get_crypto_price_chart(
+    symbol: str,
+    timeframe: str = Query("1D", description="차트 시간대 (1H/1D/1W/1MO)", regex="^(1H|1D|1W|1MO)$"),
+    db: Session = Depends(get_db)
+):
+    """
+    암호화폐 가격 차트 데이터 조회
+    
+    Args:
+        symbol: 암호화폐 심볼 (예: BTC, ETH, SOL)
+        timeframe: 차트 시간대
+            - 1H: 최근 24시간 (1시간 간격)
+            - 1D: 최근 30일 (1일 간격) 
+            - 1W: 최근 12주 (1주 간격)
+            - 1MO: 최근 12개월 (1개월 간격)
+    
+    Returns:
+        CryptoPriceChartResponse: 가격 차트 데이터
+        
+    Raises:
+        HTTPException 404: 해당 암호화폐를 찾을 수 없음
+        HTTPException 422: 잘못된 시간대 파라미터
+        HTTPException 500: 서버 내부 오류
+    """
+    try:
+        service = CryptoInvestmentService(db)
+        chart_data = await service.get_crypto_price_chart(symbol, timeframe)
+        
+        if not chart_data:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Price chart data for '{symbol}' not found"
+            )
+        
+        return chart_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to get price chart data: {str(e)}"
+        )

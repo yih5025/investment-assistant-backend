@@ -251,3 +251,61 @@ class DetailedKimchiPremiumResponse(BaseModel):
             datetime: lambda v: v.isoformat(),
             Decimal: lambda v: float(v)
         }
+
+class CryptoPriceChartDataPoint(BaseModel):
+    """차트 데이터 포인트 (빗썸 기반)"""
+    timestamp: str = Field(..., description="시간대 (ISO 형식)")
+    price: Decimal = Field(..., description="거래량 가중평균 가격 (KRW)")
+    open: Decimal = Field(..., description="시가 (KRW)")  
+    high: Decimal = Field(..., description="고가 (KRW)")
+    low: Decimal = Field(..., description="저가 (KRW)")
+    close: Decimal = Field(..., description="종가 (KRW)")
+    volume: Decimal = Field(..., description="거래량")
+    avg_24h_volume: Decimal = Field(..., description="24시간 평균 누적 거래량")
+    data_points: int = Field(..., description="해당 시간대 데이터 포인트 수")
+
+class CryptoPriceRange(BaseModel):
+    """가격 범위 정보"""
+    min: Decimal = Field(..., description="최저 가격")
+    max: Decimal = Field(..., description="최고 가격")
+
+class CryptoPriceChartResponse(BaseModel):
+    """암호화폐 가격 차트 응답 (빗썸 기반)"""
+    symbol: str = Field(..., description="암호화폐 심볼")
+    market_code: str = Field(..., description="빗썸 마켓 코드 (예: KRW-BTC)")
+    timeframe: str = Field(..., description="차트 시간대 (1H/1D/1W/1MO)")
+    timestamp: str = Field(..., description="조회 시간")
+    data_points: int = Field(..., description="총 데이터 포인트 수")
+    price_range: CryptoPriceRange = Field(..., description="가격 범위 (KRW)")
+    chart_data: List[CryptoPriceChartDataPoint] = Field(..., description="차트 데이터")
+    
+    class Config:
+        json_encoders = {
+            Decimal: lambda v: float(v) if v is not None else None
+        }
+        schema_extra = {
+            "example": {
+                "symbol": "BTC",
+                "market_code": "KRW-BTC",
+                "timeframe": "1D",
+                "timestamp": "2025-01-15T10:30:00Z",
+                "data_points": 30,
+                "price_range": {
+                    "min": 55000000.00,
+                    "max": 58000000.00
+                },
+                "chart_data": [
+                    {
+                        "timestamp": "2025-01-01T00:00:00Z",
+                        "price": 56500000.00,
+                        "open": 56000000.00,
+                        "high": 57000000.00,
+                        "low": 55500000.00,
+                        "close": 56500000.00,
+                        "volume": 150.50,
+                        "avg_24h_volume": 200.75,
+                        "data_points": 48
+                    }
+                ]
+            }
+        }
