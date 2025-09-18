@@ -108,11 +108,6 @@ class CryptoInvestmentService:
     def _get_timeframe_config(self, timeframe: str) -> Optional[Dict]:
         """시간대별 설정 반환 (원본 데이터 조회용 - 집계 없음)"""
         configs = {
-            "1M": {
-                "delta": {"minutes": 1},        # 최근 1분
-                "interval": "1M",              # 1분 범위
-                "description": "Last 1 minute raw data"
-            },
             "30M": {
                 "delta": {"minutes": 30},       # 최근 30분
                 "interval": "30M",             # 30분 범위
