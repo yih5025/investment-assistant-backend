@@ -58,7 +58,12 @@ class CryptoInvestmentService:
         print(f"🔍 DEBUG: {symbol} - End time: {datetime.fromtimestamp(end_timestamp)}")
         
         # 데이터 조회
-        chart_data = await self._fetch_bithumb_price_chart_data(market_code, start_timestamp, end_timestamp, time_config)
+        if time_config.get('aggregate', False):
+            # 1MO의 경우 집계된 데이터 조회
+            chart_data = await self._fetch_aggregated_price_chart_data(market_code, start_timestamp, end_timestamp, time_config)
+        else:
+            # 다른 timeframe의 경우 원본 데이터 조회
+            chart_data = await self._fetch_bithumb_price_chart_data(market_code, start_timestamp, end_timestamp, time_config)
         
         if not chart_data:
             print(f"❌ DEBUG: {symbol} - No chart data found for {market_code} in timeframe {timeframe}")
@@ -106,32 +111,42 @@ class CryptoInvestmentService:
         }
 
     def _get_timeframe_config(self, timeframe: str) -> Optional[Dict]:
-        """시간대별 설정 반환 (원본 데이터 조회용 - 집계 없음)"""
+        """시간대별 설정 반환 (원본 데이터 조회용 - 1MO는 집계 적용)"""
         configs = {
             "30M": {
                 "delta": {"minutes": 30},       # 최근 30분
                 "interval": "30M",             # 30분 범위
-                "description": "Last 30 minutes raw data"
+                "description": "Last 30 minutes raw data",
+                "aggregate": False,
+                "aggregate_interval": None
             },
             "1H": {
                 "delta": {"hours": 1},          # 최근 1시간
                 "interval": "1H",              # 1시간 범위
-                "description": "Last 1 hour raw data"
+                "description": "Last 1 hour raw data",
+                "aggregate": False,
+                "aggregate_interval": None
             },
             "1D": {
                 "delta": {"hours": 24},         # 최근 24시간
                 "interval": "1D",              # 1일 범위
-                "description": "Last 24 hours raw data"
+                "description": "Last 24 hours raw data",
+                "aggregate": False,
+                "aggregate_interval": None
             },
             "1W": {
                 "delta": {"days": 7},           # 최근 7일
                 "interval": "1W",              # 1주 범위
-                "description": "Last 7 days raw data"
+                "description": "Last 7 days raw data",
+                "aggregate": False,
+                "aggregate_interval": None
             },
             "1MO": {
                 "delta": {"days": 30},          # 최근 30일
                 "interval": "1MO",             # 1개월 범위
-                "description": "Last 30 days raw data"
+                "description": "Last 30 days hourly aggregated data",
+                "aggregate": True,             # 1MO는 집계 적용
+                "aggregate_interval": "1H"     # 1시간 단위로 집계
             }
         }
         
