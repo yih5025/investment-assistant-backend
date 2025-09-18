@@ -217,10 +217,12 @@ async def get_kimchi_premium_chart_data(
     암호화폐 가격 차트 데이터를 제공합니다.
     
     **시간대별 옵션:**
-    - 1H: 최근 24시간 (1시간 간격)
-    - 1D: 최근 30일 (1일 간격) 
-    - 1W: 최근 12주 (1주 간격)
-    - 1MO: 최근 12개월 (1개월 간격)
+    - 1M: 최근 1분 (원본 데이터)
+    - 30M: 최근 30분 (원본 데이터)
+    - 1H: 최근 1시간 (원본 데이터)
+    - 1D: 최근 24시간 (원본 데이터) 
+    - 1W: 최근 7일 (원본 데이터)
+    - 1MO: 최근 30일 (원본 데이터)
     
     **데이터 소스:** Bithumb Ticker (실시간 빗썸 거래 데이터)
     """,
@@ -228,7 +230,7 @@ async def get_kimchi_premium_chart_data(
 )
 async def get_crypto_price_chart(
     symbol: str,
-    timeframe: str = Query("1D", description="차트 시간대 (1H/1D/1W/1MO)", regex="^(1H|1D|1W|1MO)$"),
+    timeframe: str = Query("1D", description="차트 시간대 (1M/30M/1H/1D/1W/1MO)", regex="^(1M|30M|1H|1D|1W|1MO)$"),
     db: Session = Depends(get_db)
 ):
     """
@@ -237,10 +239,12 @@ async def get_crypto_price_chart(
     Args:
         symbol: 암호화폐 심볼 (예: BTC, ETH, SOL)
         timeframe: 차트 시간대
-            - 1H: 최근 24시간 (1시간 간격)
-            - 1D: 최근 30일 (1일 간격) 
-            - 1W: 최근 12주 (1주 간격)
-            - 1MO: 최근 12개월 (1개월 간격)
+            - 1M: 최근 1분 (원본 데이터)
+            - 30M: 최근 30분 (원본 데이터)
+            - 1H: 최근 1시간 (원본 데이터)
+            - 1D: 최근 24시간 (원본 데이터) 
+            - 1W: 최근 7일 (원본 데이터)
+            - 1MO: 최근 30일 (원본 데이터)
     
     Returns:
         CryptoPriceChartResponse: 가격 차트 데이터

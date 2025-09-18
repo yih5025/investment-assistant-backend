@@ -53,6 +53,9 @@ class CryptoInvestmentService:
         start_timestamp = int((datetime.utcnow() - timedelta(**time_config['delta'])).timestamp())
         
         print(f"🔍 DEBUG: {symbol} - Time range (seconds): {start_timestamp} to {end_timestamp}")
+        print(f"🔍 DEBUG: {symbol} - Current time: {datetime.utcnow()}")
+        print(f"🔍 DEBUG: {symbol} - Start time: {datetime.fromtimestamp(start_timestamp)}")
+        print(f"🔍 DEBUG: {symbol} - End time: {datetime.fromtimestamp(end_timestamp)}")
         
         # 데이터 조회
         chart_data = await self._fetch_bithumb_price_chart_data(market_code, start_timestamp, end_timestamp, time_config)
@@ -63,73 +66,84 @@ class CryptoInvestmentService:
         
         print(f"✅ DEBUG: {symbol} - Found {len(chart_data)} raw data points")
         
-        # 시간대별 데이터 집계
-        aggregated_data = self._aggregate_bithumb_price_data(chart_data, time_config)
+        # 원본 데이터를 차트 형식으로 변환 (집계 없음)
+        chart_points = self._convert_raw_data_to_chart_format(chart_data)
         
-        if not aggregated_data:
-            print(f"❌ DEBUG: {symbol} - No aggregated data after processing")
+        if not chart_points:
+            print(f"❌ DEBUG: {symbol} - No chart points after conversion")
             return None
         
-        print(f"✅ DEBUG: {symbol} - Successfully aggregated to {len(aggregated_data)} data points")
+        print(f"✅ DEBUG: {symbol} - Successfully converted to {len(chart_points)} chart points")
         
         return {
             "symbol": symbol.upper(),
             "market_code": market_code,
             "timeframe": timeframe,
             "timestamp": datetime.utcnow().isoformat(),
-            "data_points": len(aggregated_data),
+            "data_points": len(chart_points),
             "price_range": {
-                "min": min(point["price"] for point in aggregated_data) if aggregated_data else 0,
-                "max": max(point["price"] for point in aggregated_data) if aggregated_data else 0,
+                "min": min(point["price"] for point in chart_points) if chart_points else 0,
+                "max": max(point["price"] for point in chart_points) if chart_points else 0,
             },
-            "chart_data": aggregated_data,
+            "chart_data": chart_points,
             "debug_info": {
                 "market_searched": market_code,
                 "timeframe_used": timeframe,
                 "raw_data_points": len(chart_data),
-                "aggregated_points": len(aggregated_data),
+                "chart_points": len(chart_points),
                 "time_range_seconds": f"{start_timestamp} to {end_timestamp}",
-                "time_range_ms": f"{start_timestamp * 1000} to {end_timestamp * 1000}"
+                "time_range_ms": f"{start_timestamp * 1000} to {end_timestamp * 1000}",
+                "current_timestamp_ms": int(datetime.utcnow().timestamp() * 1000),
+                "start_date": datetime.fromtimestamp(start_timestamp).isoformat(),
+                "end_date": datetime.fromtimestamp(end_timestamp).isoformat(),
+                "sample_data_timestamps": [int(row.timestamp_field) for row in chart_data[:3]] if chart_data else [],
+                "timeframe_description": time_config['description'],
+                "aggregation": "none - raw data",
+                "sampling_applied": False,
+                "max_points_limit": None,
+                "performance_optimized": False
             }
         }
 
     def _get_timeframe_config(self, timeframe: str) -> Optional[Dict]:
-        """시간대별 설정 반환 (빗썸 데이터 특성 고려)"""
+        """시간대별 설정 반환 (원본 데이터 조회용 - 집계 없음)"""
         configs = {
+            "1M": {
+                "delta": {"minutes": 1},        # 최근 1분
+                "interval": "1M",              # 1분 범위
+                "description": "Last 1 minute raw data"
+            },
+            "30M": {
+                "delta": {"minutes": 30},       # 최근 30분
+                "interval": "30M",             # 30분 범위
+                "description": "Last 30 minutes raw data"
+            },
             "1H": {
-                "delta": {"hours": 24},        # 최근 24시간
-                "interval": "1H",              # 1시간 간격
-                "group_by": "hour",
-                "expected_points": 24,
-                "extract_format": "EXTRACT(EPOCH FROM DATE_TRUNC('hour', TO_TIMESTAMP(timestamp_field/1000)))"
+                "delta": {"hours": 1},          # 최근 1시간
+                "interval": "1H",              # 1시간 범위
+                "description": "Last 1 hour raw data"
             },
             "1D": {
-                "delta": {"days": 30},         # 최근 30일
-                "interval": "1D",              # 1일 간격
-                "group_by": "day", 
-                "expected_points": 30,
-                "extract_format": "EXTRACT(EPOCH FROM DATE_TRUNC('day', TO_TIMESTAMP(timestamp_field/1000)))"
+                "delta": {"hours": 24},         # 최근 24시간
+                "interval": "1D",              # 1일 범위
+                "description": "Last 24 hours raw data"
             },
             "1W": {
-                "delta": {"weeks": 12},        # 최근 12주
-                "interval": "1W",              # 1주 간격
-                "group_by": "week",
-                "expected_points": 12,
-                "extract_format": "EXTRACT(EPOCH FROM DATE_TRUNC('week', TO_TIMESTAMP(timestamp_field/1000)))"
+                "delta": {"days": 7},           # 최근 7일
+                "interval": "1W",              # 1주 범위
+                "description": "Last 7 days raw data"
             },
             "1MO": {
-                "delta": {"days": 365},        # 최근 12개월
-                "interval": "1MO",             # 1개월 간격
-                "group_by": "month",
-                "expected_points": 12,
-                "extract_format": "EXTRACT(EPOCH FROM DATE_TRUNC('month', TO_TIMESTAMP(timestamp_field/1000)))"
+                "delta": {"days": 30},          # 최근 30일
+                "interval": "1MO",             # 1개월 범위
+                "description": "Last 30 days raw data"
             }
         }
         
         return configs.get(timeframe)
 
     async def _fetch_bithumb_price_chart_data(self, market_code: str, start_timestamp: int, end_timestamp: int, time_config: Dict):
-        """빗썸 가격 차트 데이터 조회 (SQL 쿼리)"""
+        """빗썸 가격 차트 데이터 조회 - 원본 데이터 (집계 없음, 전체 데이터 반환)"""
         
         from sqlalchemy import text
         
@@ -139,9 +153,8 @@ class CryptoInvestmentService:
         
         print(f"🔍 DEBUG: {market_code} - Query range: {start_timestamp_ms} to {end_timestamp_ms}")
         
-        # 빗썸 티커 테이블에서 시간 범위 내의 데이터 조회
-        # timestamp_field is in milliseconds, so we need to convert for TO_TIMESTAMP
-        query = text(f"""
+        # 빗썸 티커 테이블에서 시간 범위 내의 모든 원본 데이터 조회 (제한 없음)
+        query = text("""
             SELECT 
                 market,
                 trade_price,
@@ -151,13 +164,13 @@ class CryptoInvestmentService:
                 trade_volume,
                 acc_trade_volume_24h,
                 timestamp_field,
-                {time_config['extract_format'].replace('timestamp_field', 'timestamp_field/1000')} as time_group
+                trade_date,
+                trade_time
             FROM bithumb_ticker 
             WHERE market = :market_code
             AND trade_price IS NOT NULL 
             AND trade_volume IS NOT NULL
-            AND timestamp_field >= :start_timestamp_ms
-            AND timestamp_field <= :end_timestamp_ms
+            AND timestamp_field BETWEEN :start_timestamp_ms AND :end_timestamp_ms
             ORDER BY timestamp_field ASC
         """)
         
@@ -168,106 +181,46 @@ class CryptoInvestmentService:
         })
         
         rows = result.fetchall()
-        print(f"🔍 DEBUG: {market_code} - fetched {len(rows)} raw data points")
+        print(f"🔍 DEBUG: {market_code} - fetched {len(rows)} raw data points (all data, no optimization)")
         
         # Debug: show sample data if available
         if rows:
             sample_row = rows[0]
             print(f"🔍 DEBUG: Sample row - market: {sample_row.market}, price: {sample_row.trade_price}, timestamp: {sample_row.timestamp_field}")
+            print(f"🔍 DEBUG: Sample timestamp as date: {datetime.fromtimestamp(sample_row.timestamp_field/1000)}")
         else:
-            # If no data found, let's check what data exists
-            count_query = text("""
-                SELECT COUNT(*) as total, 
-                       MIN(timestamp_field) as min_ts, 
-                       MAX(timestamp_field) as max_ts
-                FROM bithumb_ticker 
-                WHERE market = :market_code
-                AND trade_price IS NOT NULL
-            """)
-            count_result = self.db.execute(count_query, {"market_code": market_code})
-            count_data = count_result.fetchone()
-            print(f"🔍 DEBUG: Total records for {market_code}: {count_data.total}")
-            print(f"🔍 DEBUG: Timestamp range: {count_data.min_ts} to {count_data.max_ts}")
+            print(f"❌ DEBUG: No data found for {market_code} in the requested time range")
             
         return rows
 
-    def _aggregate_bithumb_price_data(self, chart_data, time_config: Dict) -> List[Dict]:
-        """빗썸 시간대별 데이터 집계"""
+    def _convert_raw_data_to_chart_format(self, chart_data) -> List[Dict]:
+        """원본 데이터를 차트 형식으로 변환 (집계 없음)"""
         
-        from collections import defaultdict
-        
-        # 시간대별 그룹화
-        time_groups = defaultdict(list)
+        chart_points = []
         
         for row in chart_data:
-            time_group = int(row.time_group)  # Unix timestamp
-            time_groups[time_group].append({
+            # 각 레코드를 개별 차트 포인트로 변환
+            chart_points.append({
+                "timestamp": datetime.fromtimestamp(row.timestamp_field / 1000).isoformat(),
                 "price": float(row.trade_price),
                 "open": float(row.opening_price) if row.opening_price else float(row.trade_price),
                 "high": float(row.high_price) if row.high_price else float(row.trade_price),
                 "low": float(row.low_price) if row.low_price else float(row.trade_price),
+                "close": float(row.trade_price),  # 현재가를 종가로 사용
                 "volume": float(row.trade_volume),
                 "acc_volume_24h": float(row.acc_trade_volume_24h) if row.acc_trade_volume_24h else 0,
-                "timestamp": int(row.timestamp_field)  # Keep original timestamp in milliseconds
+                "timestamp_ms": int(row.timestamp_field),
+                "trade_date": row.trade_date,
+                "trade_time": row.trade_time
             })
         
-        # 각 시간대별 집계 계산
-        aggregated_data = []
+        print(f"✅ DEBUG: 원본 데이터 변환 완료 - {len(chart_points)}개 차트 포인트")
         
-        for time_group in sorted(time_groups.keys()):
-            group_data = time_groups[time_group]
-            
-            # 거래량 가중평균 가격 계산 (빗썸 데이터 특성 고려)
-            total_value = sum(item["price"] * item["volume"] for item in group_data)
-            total_volume = sum(item["volume"] for item in group_data)
-            
-            if total_volume == 0:
-                # 거래량이 0인 경우 단순 평균 사용
-                weighted_price = sum(item["price"] for item in group_data) / len(group_data)
-                total_volume = sum(item["volume"] for item in group_data)
-            else:
-                weighted_price = total_value / total_volume
-            
-            # 시간순 정렬
-            sorted_data = sorted(group_data, key=lambda x: x["timestamp"])
-            
-            # OHLC 데이터 계산
-            prices = [item["price"] for item in sorted_data]
-            open_price = sorted_data[0]["price"]           # 시작 가격
-            high_price = max(prices)                       # 최고 가격
-            low_price = min(prices)                        # 최저 가격
-            close_price = sorted_data[-1]["price"]         # 종료 가격
-            
-            aggregated_data.append({
-                "timestamp": datetime.fromtimestamp(time_group).isoformat(),
-                "price": round(weighted_price, 2),          # 거래량 가중평균 가격
-                "open": round(open_price, 2),              # 시가
-                "high": round(high_price, 2),              # 고가
-                "low": round(low_price, 2),                # 저가
-                "close": round(close_price, 2),            # 종가
-                "volume": round(total_volume, 2),          # 총 거래량
-                "avg_24h_volume": round(sum(item["acc_volume_24h"] for item in group_data) / len(group_data), 2),  # 24h 평균 거래량
-                "data_points": len(group_data)             # 해당 시간대 데이터 포인트 수
-            })
+        if chart_points:
+            print(f"🔍 DEBUG: First point: {chart_points[0]['timestamp']} - Price: {chart_points[0]['price']}")
+            print(f"🔍 DEBUG: Last point: {chart_points[-1]['timestamp']} - Price: {chart_points[-1]['price']}")
         
-        # Debug: Log final aggregation results
-        if aggregated_data:
-            print(f"✅ DEBUG: Successfully created {len(aggregated_data)} aggregated points")
-            print(f"🔍 DEBUG: First point: {aggregated_data[0] if aggregated_data else 'None'}")
-            print(f"🔍 DEBUG: Last point: {aggregated_data[-1] if aggregated_data else 'None'}")
-        else:
-            print(f"❌ DEBUG: No aggregated data created")
-        
-        print(f"✅ DEBUG: 집계 완료 - {len(aggregated_data)}개 데이터 포인트")
-        
-        # Additional validation - ensure we have meaningful data
-        if len(aggregated_data) == 0:
-            print(f"❌ DEBUG: No meaningful aggregated data after processing")
-            return []
-        
-        print(f"✅ DEBUG: Final aggregated data contains {len(aggregated_data)} points")
-        
-        return aggregated_data
+        return chart_points
 
     async def get_investment_analysis(self, symbol: str) -> Optional[CryptoInvestmentAnalysisResponse]:
         """투자 분석 데이터 종합 조회"""
