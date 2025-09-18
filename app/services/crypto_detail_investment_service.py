@@ -46,19 +46,31 @@ class CryptoInvestmentService:
         
         # 빗썸 마켓 코드로 변환 (KRW-BTC, KRW-ETH 형태)
         market_code = f"KRW-{symbol.upper()}"
+        print(f"🔍 DEBUG: {symbol} - Looking for market_code: {market_code}")
         
-        # 시간 범위 계산 (timestamp_field는 Unix timestamp)
+        # 시간 범위 계산 (timestamp_field는 millisecond timestamp)
         end_timestamp = int(datetime.utcnow().timestamp())
         start_timestamp = int((datetime.utcnow() - timedelta(**time_config['delta'])).timestamp())
+        
+        print(f"🔍 DEBUG: {symbol} - Time range (seconds): {start_timestamp} to {end_timestamp}")
         
         # 데이터 조회
         chart_data = await self._fetch_bithumb_price_chart_data(market_code, start_timestamp, end_timestamp, time_config)
         
         if not chart_data:
+            print(f"❌ DEBUG: {symbol} - No chart data found for {market_code} in timeframe {timeframe}")
             return None
+        
+        print(f"✅ DEBUG: {symbol} - Found {len(chart_data)} raw data points")
         
         # 시간대별 데이터 집계
         aggregated_data = self._aggregate_bithumb_price_data(chart_data, time_config)
+        
+        if not aggregated_data:
+            print(f"❌ DEBUG: {symbol} - No aggregated data after processing")
+            return None
+        
+        print(f"✅ DEBUG: {symbol} - Successfully aggregated to {len(aggregated_data)} data points")
         
         return {
             "symbol": symbol.upper(),
@@ -70,7 +82,15 @@ class CryptoInvestmentService:
                 "min": min(point["price"] for point in aggregated_data) if aggregated_data else 0,
                 "max": max(point["price"] for point in aggregated_data) if aggregated_data else 0,
             },
-            "chart_data": aggregated_data
+            "chart_data": aggregated_data,
+            "debug_info": {
+                "market_searched": market_code,
+                "timeframe_used": timeframe,
+                "raw_data_points": len(chart_data),
+                "aggregated_points": len(aggregated_data),
+                "time_range_seconds": f"{start_timestamp} to {end_timestamp}",
+                "time_range_ms": f"{start_timestamp * 1000} to {end_timestamp * 1000}"
+            }
         }
 
     def _get_timeframe_config(self, timeframe: str) -> Optional[Dict]:
@@ -81,28 +101,28 @@ class CryptoInvestmentService:
                 "interval": "1H",              # 1시간 간격
                 "group_by": "hour",
                 "expected_points": 24,
-                "extract_format": "EXTRACT(EPOCH FROM DATE_TRUNC('hour', TO_TIMESTAMP(timestamp_field)))"
+                "extract_format": "EXTRACT(EPOCH FROM DATE_TRUNC('hour', TO_TIMESTAMP(timestamp_field/1000)))"
             },
             "1D": {
                 "delta": {"days": 30},         # 최근 30일
                 "interval": "1D",              # 1일 간격
                 "group_by": "day", 
                 "expected_points": 30,
-                "extract_format": "EXTRACT(EPOCH FROM DATE_TRUNC('day', TO_TIMESTAMP(timestamp_field)))"
+                "extract_format": "EXTRACT(EPOCH FROM DATE_TRUNC('day', TO_TIMESTAMP(timestamp_field/1000)))"
             },
             "1W": {
                 "delta": {"weeks": 12},        # 최근 12주
                 "interval": "1W",              # 1주 간격
                 "group_by": "week",
                 "expected_points": 12,
-                "extract_format": "EXTRACT(EPOCH FROM DATE_TRUNC('week', TO_TIMESTAMP(timestamp_field)))"
+                "extract_format": "EXTRACT(EPOCH FROM DATE_TRUNC('week', TO_TIMESTAMP(timestamp_field/1000)))"
             },
             "1MO": {
                 "delta": {"days": 365},        # 최근 12개월
                 "interval": "1MO",             # 1개월 간격
                 "group_by": "month",
                 "expected_points": 12,
-                "extract_format": "EXTRACT(EPOCH FROM DATE_TRUNC('month', TO_TIMESTAMP(timestamp_field)))"
+                "extract_format": "EXTRACT(EPOCH FROM DATE_TRUNC('month', TO_TIMESTAMP(timestamp_field/1000)))"
             }
         }
         
@@ -113,7 +133,14 @@ class CryptoInvestmentService:
         
         from sqlalchemy import text
         
+        # Convert seconds to milliseconds for comparison (timestamp_field is in milliseconds)
+        start_timestamp_ms = start_timestamp * 1000
+        end_timestamp_ms = end_timestamp * 1000
+        
+        print(f"🔍 DEBUG: {market_code} - Query range: {start_timestamp_ms} to {end_timestamp_ms}")
+        
         # 빗썸 티커 테이블에서 시간 범위 내의 데이터 조회
+        # timestamp_field is in milliseconds, so we need to convert for TO_TIMESTAMP
         query = text(f"""
             SELECT 
                 market,
@@ -124,25 +151,44 @@ class CryptoInvestmentService:
                 trade_volume,
                 acc_trade_volume_24h,
                 timestamp_field,
-                {time_config['extract_format']} as time_group
+                {time_config['extract_format'].replace('timestamp_field', 'timestamp_field/1000')} as time_group
             FROM bithumb_ticker 
             WHERE market = :market_code
             AND trade_price IS NOT NULL 
             AND trade_volume IS NOT NULL
-            AND timestamp_field >= :start_timestamp
-            AND timestamp_field <= :end_timestamp
+            AND timestamp_field >= :start_timestamp_ms
+            AND timestamp_field <= :end_timestamp_ms
             ORDER BY timestamp_field ASC
         """)
         
         result = self.db.execute(query, {
             "market_code": market_code,
-            "start_timestamp": start_timestamp,
-            "end_timestamp": end_timestamp
+            "start_timestamp_ms": start_timestamp_ms,
+            "end_timestamp_ms": end_timestamp_ms
         })
         
         rows = result.fetchall()
         print(f"🔍 DEBUG: {market_code} - fetched {len(rows)} raw data points")
         
+        # Debug: show sample data if available
+        if rows:
+            sample_row = rows[0]
+            print(f"🔍 DEBUG: Sample row - market: {sample_row.market}, price: {sample_row.trade_price}, timestamp: {sample_row.timestamp_field}")
+        else:
+            # If no data found, let's check what data exists
+            count_query = text("""
+                SELECT COUNT(*) as total, 
+                       MIN(timestamp_field) as min_ts, 
+                       MAX(timestamp_field) as max_ts
+                FROM bithumb_ticker 
+                WHERE market = :market_code
+                AND trade_price IS NOT NULL
+            """)
+            count_result = self.db.execute(count_query, {"market_code": market_code})
+            count_data = count_result.fetchone()
+            print(f"🔍 DEBUG: Total records for {market_code}: {count_data.total}")
+            print(f"🔍 DEBUG: Timestamp range: {count_data.min_ts} to {count_data.max_ts}")
+            
         return rows
 
     def _aggregate_bithumb_price_data(self, chart_data, time_config: Dict) -> List[Dict]:
@@ -162,7 +208,7 @@ class CryptoInvestmentService:
                 "low": float(row.low_price) if row.low_price else float(row.trade_price),
                 "volume": float(row.trade_volume),
                 "acc_volume_24h": float(row.acc_trade_volume_24h) if row.acc_trade_volume_24h else 0,
-                "timestamp": int(row.timestamp_field)
+                "timestamp": int(row.timestamp_field)  # Keep original timestamp in milliseconds
             })
         
         # 각 시간대별 집계 계산
@@ -204,7 +250,22 @@ class CryptoInvestmentService:
                 "data_points": len(group_data)             # 해당 시간대 데이터 포인트 수
             })
         
+        # Debug: Log final aggregation results
+        if aggregated_data:
+            print(f"✅ DEBUG: Successfully created {len(aggregated_data)} aggregated points")
+            print(f"🔍 DEBUG: First point: {aggregated_data[0] if aggregated_data else 'None'}")
+            print(f"🔍 DEBUG: Last point: {aggregated_data[-1] if aggregated_data else 'None'}")
+        else:
+            print(f"❌ DEBUG: No aggregated data created")
+        
         print(f"✅ DEBUG: 집계 완료 - {len(aggregated_data)}개 데이터 포인트")
+        
+        # Additional validation - ensure we have meaningful data
+        if len(aggregated_data) == 0:
+            print(f"❌ DEBUG: No meaningful aggregated data after processing")
+            return []
+        
+        print(f"✅ DEBUG: Final aggregated data contains {len(aggregated_data)} points")
         
         return aggregated_data
 
