@@ -32,6 +32,7 @@ from .endpoints import (
     sp500_earnings_calendar_endpoint,
     sp500_earnings_news_endpoint,
 
+    sns_endpoint,
 )
 
 # API v1 메인 라우터 생성
@@ -84,7 +85,13 @@ ROUTER_CONFIGS = [
         "category": "소셜미디어",
         "description": "elonmusk, RayDalio, jimcramer, tim_cook, satyanadella, sundarpichai, SecYellen, VitalikButerin crypto: saylor, brian_armstrong, CoinbaseAssets, tech_ceo: jeffbezos, sundarpichai, IBM, institutional: CathieDWood, mcuban, chamath, media: CNBC, business(Bloomberg), WSJ, corporate: Tesla, nvidia x 데이터 전달을 위한 엔드포인트"
     },
-
+    {
+        "router": sns_endpoint.router,
+        "prefix": "/sns",
+        "tag": "SNS",
+        "category": "소셜미디어",
+        "description": "X, Truth Social 트렌딩 포스트 데이터 전달을 위한 엔드포인트"
+    },
     # 실적 관련 API
     {
         "router": earnings_calendar_endpoint.router,
