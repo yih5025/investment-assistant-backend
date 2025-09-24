@@ -1,9 +1,10 @@
 # app/services/sns_service.py
 
 from sqlalchemy.orm import Session
-from sqlalchemy import text, desc, distinct
-from typing import List, Optional, Dict, Any, Tuple
+from sqlalchemy import text
+from typing import List, Optional, Dict, Any
 import math
+import json
 
 from app.models.sns_model import XPost, TruthSocialPost, TruthSocialTrend
 from app.schemas.sns_schema import UnifiedSNSPostResponse, SNSPostsResponse
@@ -18,7 +19,7 @@ class SNSService:
     def get_available_authors(self) -> Dict[str, List[Dict[str, Any]]]:
         """DB에서 사용 가능한 작성자 목록 조회"""
         
-        # X 사용자들 (최근 30일 내 게시글이 있는 사용자만)
+        # X 사용자들 (최근 30일 내 게시글이 있는 사용자만, @멘션 및 빈 내용 제외)
         x_query = """
         SELECT 
             source_account as username,
@@ -28,12 +29,15 @@ class SNSService:
             MAX(user_verified) as verified
         FROM x_posts 
         WHERE created_at >= NOW() - INTERVAL '30 days'
+            AND text NOT LIKE '@%'
+            AND text IS NOT NULL
+            AND LENGTH(TRIM(text)) > 0
         GROUP BY source_account, display_name
         HAVING COUNT(*) >= 1
         ORDER BY COUNT(*) DESC, MAX(created_at) DESC
         """
         
-        # Truth Social Posts 사용자들
+        # Truth Social Posts 사용자들 (VIP 3계정)
         truth_posts_query = """
         SELECT 
             username,
@@ -48,7 +52,7 @@ class SNSService:
         ORDER BY COUNT(*) DESC, MAX(created_at) DESC
         """
         
-        # Truth Social Trends 사용자들
+        # Truth Social Trends 사용자들 (VIP 3계정 제외)
         truth_trends_query = """
         SELECT 
             username,
@@ -58,6 +62,7 @@ class SNSService:
             false as verified
         FROM truth_social_trends 
         WHERE created_at >= NOW() - INTERVAL '30 days'
+            AND username NOT IN ('realDonaldTrump', 'WhiteHouse', 'DonaldJTrumpJr')
         GROUP BY username, display_name
         HAVING COUNT(*) >= 1
         ORDER BY COUNT(*) DESC, MAX(created_at) DESC
@@ -114,12 +119,6 @@ class SNSService:
                   limit: int = 50, offset: int = 0) -> SNSPostsResponse:
         """
         SNS 게시글 조회 - 최신순만, 사용자 필터링
-        
-        Args:
-            platform: "all", "x", "truth_social_posts", "truth_social_trends" 
-            author: 특정 작성자 필터 (선택적)
-            limit: 페이지 크기 (최대 100)
-            offset: 오프셋
         """
         
         if limit > 100:
@@ -142,16 +141,25 @@ class SNSService:
                 like_count,
                 retweet_count,
                 reply_count,
-                user_verified as verified,
+                false as has_media,
+                null as media_attachments,
                 created_at as sort_date
             FROM x_posts
+            WHERE text NOT LIKE '@%'
+                AND text IS NOT NULL
+                AND LENGTH(TRIM(text)) > 0
             """
             
-            x_count = "SELECT COUNT(*) as count FROM x_posts"
+            x_count = """
+            SELECT COUNT(*) as count FROM x_posts
+            WHERE text NOT LIKE '@%'
+                AND text IS NOT NULL
+                AND LENGTH(TRIM(text)) > 0
+            """
             
             if author:
-                x_select += f" WHERE source_account = '{author}'"
-                x_count += f" WHERE source_account = '{author}'"
+                x_select += f" AND source_account = '{author}'"
+                x_count += f" AND source_account = '{author}'"
             
             queries.append(x_select)
             count_queries.append(x_count)
@@ -169,21 +177,38 @@ class SNSService:
                 favourites_count as like_count,
                 reblogs_count as retweet_count,
                 replies_count as reply_count,
-                verified,
+                has_media,
+                media_attachments,
                 created_at as sort_date
             FROM truth_social_posts
+            WHERE (
+                (clean_content IS NOT NULL AND LENGTH(TRIM(clean_content)) > 0)
+                OR 
+                (media_attachments IS NOT NULL AND media_attachments != 'null'::jsonb)
+                OR
+                username IN ('realDonaldTrump', 'WhiteHouse', 'DonaldJTrumpJr')
+            )
             """
             
-            truth_posts_count = "SELECT COUNT(*) as count FROM truth_social_posts"
+            truth_posts_count = """
+            SELECT COUNT(*) as count FROM truth_social_posts
+            WHERE (
+                (clean_content IS NOT NULL AND LENGTH(TRIM(clean_content)) > 0)
+                OR 
+                (media_attachments IS NOT NULL AND media_attachments != 'null'::jsonb)
+                OR
+                username IN ('realDonaldTrump', 'WhiteHouse', 'DonaldJTrumpJr')
+            )
+            """
             
             if author:
-                truth_posts_select += f" WHERE username = '{author}'"
-                truth_posts_count += f" WHERE username = '{author}'"
+                truth_posts_select += f" AND username = '{author}'"
+                truth_posts_count += f" AND username = '{author}'"
             
             queries.append(truth_posts_select)
             count_queries.append(truth_posts_count)
         
-        # Truth Social Trends 쿼리
+        # Truth Social Trends 쿼리 (VIP 3계정 제외)
         if platform in ["all", "truth_social_trends"]:
             truth_trends_select = """
             SELECT 
@@ -196,19 +221,30 @@ class SNSService:
                 favourites_count as like_count,
                 reblogs_count as retweet_count,
                 replies_count as reply_count,
-                CASE 
-                    WHEN username IN ('realDonaldTrump', 'WhiteHouse') THEN true
-                    ELSE false 
-                END as verified,
+                false as has_media,
+                null as media_attachments,
                 created_at as sort_date
             FROM truth_social_trends
+            WHERE clean_content IS NOT NULL
+                AND LENGTH(TRIM(clean_content)) > 0
+                AND username NOT IN ('realDonaldTrump', 'WhiteHouse', 'DonaldJTrumpJr')
             """
             
-            truth_trends_count = "SELECT COUNT(*) as count FROM truth_social_trends"
+            truth_trends_count = """
+            SELECT COUNT(*) as count FROM truth_social_trends
+            WHERE clean_content IS NOT NULL
+                AND LENGTH(TRIM(clean_content)) > 0
+                AND username NOT IN ('realDonaldTrump', 'WhiteHouse', 'DonaldJTrumpJr')
+            """
             
             if author:
-                truth_trends_select += f" WHERE username = '{author}'"
-                truth_trends_count += f" WHERE username = '{author}'"
+                # author가 VIP 3계정 중 하나면 trends에서 결과 없음
+                if author in ['realDonaldTrump', 'WhiteHouse', 'DonaldJTrumpJr']:
+                    truth_trends_select += " AND 1=0"
+                    truth_trends_count += " AND 1=0"
+                else:
+                    truth_trends_select += f" AND username = '{author}'"
+                    truth_trends_count += f" AND username = '{author}'"
             
             queries.append(truth_trends_select)
             count_queries.append(truth_trends_count)
@@ -257,11 +293,24 @@ class SNSService:
             # 응답 데이터 구성
             items = []
             for post in posts:
+                # 미디어 정보 처리
+                thumbnail_url, media_type = self._extract_media_info(
+                    getattr(post, 'media_attachments', None),
+                    getattr(post, 'has_media', False)
+                )
+                
+                # 콘텐츠 표시 처리
+                display_content = self._format_content_for_display(
+                    post.content, 
+                    getattr(post, 'has_media', False), 
+                    media_type
+                )
+                
                 items.append(UnifiedSNSPostResponse(
                     id=post.id,
                     platform=post.platform,
-                    content=post.content or "",
-                    clean_content=post.content or "",
+                    content=display_content,
+                    clean_content=display_content,
                     author=post.author,
                     display_name=post.display_name,
                     created_at=post.created_at,
@@ -269,9 +318,9 @@ class SNSService:
                     retweets=post.retweet_count, 
                     replies=post.reply_count,
                     engagement_score=(post.like_count or 0) + (post.retweet_count or 0) + (post.reply_count or 0),
-                    verified=post.verified or False,
-                    has_media=False,
-                    has_market_impact=False
+                    has_media=getattr(post, 'has_media', False),
+                    media_thumbnail=thumbnail_url,
+                    media_type=media_type
                 ))
             
             return SNSPostsResponse(
@@ -280,7 +329,7 @@ class SNSService:
                 page=(offset // limit) + 1,
                 size=limit,
                 pages=math.ceil(total_count / limit) if total_count > 0 else 0,
-                platform_counts={}  # 필요시 추가 구현
+                platform_counts={}
             )
             
         except Exception as e:
@@ -294,8 +343,12 @@ class SNSService:
             SELECT 
                 tweet_id as id, 'x' as platform, text as content,
                 source_account as author, display_name, created_at,
-                like_count, retweet_count, reply_count, user_verified as verified
-            FROM x_posts WHERE tweet_id = :post_id
+                like_count, retweet_count, reply_count,
+                false as has_media, null as media_attachments
+            FROM x_posts 
+            WHERE tweet_id = :post_id
+                AND text IS NOT NULL
+                AND LENGTH(TRIM(text)) > 0
             """
         elif platform == "truth_social_posts":
             query = """
@@ -303,8 +356,16 @@ class SNSService:
                 id, 'truth_social_posts' as platform, clean_content as content,
                 username as author, display_name, created_at,
                 favourites_count as like_count, reblogs_count as retweet_count, 
-                replies_count as reply_count, verified
-            FROM truth_social_posts WHERE id = :post_id
+                replies_count as reply_count, has_media, media_attachments
+            FROM truth_social_posts 
+            WHERE id = :post_id
+                AND (
+                    (clean_content IS NOT NULL AND LENGTH(TRIM(clean_content)) > 0)
+                    OR 
+                    (media_attachments IS NOT NULL AND media_attachments != 'null'::jsonb)
+                    OR
+                    username IN ('realDonaldTrump', 'WhiteHouse', 'DonaldJTrumpJr')
+                )
             """
         elif platform == "truth_social_trends":
             query = """
@@ -312,9 +373,12 @@ class SNSService:
                 id, 'truth_social_trends' as platform, clean_content as content,
                 username as author, display_name, created_at,
                 favourites_count as like_count, reblogs_count as retweet_count,
-                replies_count as reply_count,
-                CASE WHEN username IN ('realDonaldTrump', 'WhiteHouse') THEN true ELSE false END as verified
-            FROM truth_social_trends WHERE id = :post_id
+                replies_count as reply_count, false as has_media, null as media_attachments
+            FROM truth_social_trends 
+            WHERE id = :post_id
+                AND clean_content IS NOT NULL
+                AND LENGTH(TRIM(clean_content)) > 0
+                AND username NOT IN ('realDonaldTrump', 'WhiteHouse', 'DonaldJTrumpJr')
             """
         else:
             return None
@@ -326,11 +390,24 @@ class SNSService:
             if not row:
                 return None
             
+            # 미디어 정보 처리
+            thumbnail_url, media_type = self._extract_media_info(
+                getattr(row, 'media_attachments', None),
+                getattr(row, 'has_media', False)
+            )
+            
+            # 콘텐츠 표시 처리
+            display_content = self._format_content_for_display(
+                row.content, 
+                getattr(row, 'has_media', False), 
+                media_type
+            )
+            
             return UnifiedSNSPostResponse(
                 id=row.id,
                 platform=row.platform,
-                content=row.content or "",
-                clean_content=row.content or "",
+                content=display_content,
+                clean_content=display_content,
                 author=row.author,
                 display_name=row.display_name,
                 created_at=row.created_at,
@@ -338,9 +415,9 @@ class SNSService:
                 retweets=row.retweet_count,
                 replies=row.reply_count,
                 engagement_score=(row.like_count or 0) + (row.retweet_count or 0) + (row.reply_count or 0),
-                verified=row.verified or False,
-                has_media=False,
-                has_market_impact=False
+                has_media=getattr(row, 'has_media', False),
+                media_thumbnail=thumbnail_url,
+                media_type=media_type
             )
             
         except Exception as e:
@@ -357,6 +434,9 @@ class SNSService:
                    COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours') as posts_24h,
                    COUNT(DISTINCT source_account) as unique_authors
             FROM x_posts
+            WHERE text NOT LIKE '@%'
+                AND text IS NOT NULL
+                AND LENGTH(TRIM(text)) > 0
             
             UNION ALL
             
@@ -365,6 +445,13 @@ class SNSService:
                    COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours') as posts_24h,
                    COUNT(DISTINCT username) as unique_authors
             FROM truth_social_posts
+            WHERE (
+                (clean_content IS NOT NULL AND LENGTH(TRIM(clean_content)) > 0)
+                OR 
+                (media_attachments IS NOT NULL AND media_attachments != 'null'::jsonb)
+                OR
+                username IN ('realDonaldTrump', 'WhiteHouse', 'DonaldJTrumpJr')
+            )
             
             UNION ALL
             
@@ -373,6 +460,9 @@ class SNSService:
                    COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours') as posts_24h,
                    COUNT(DISTINCT username) as unique_authors
             FROM truth_social_trends
+            WHERE clean_content IS NOT NULL
+                AND LENGTH(TRIM(clean_content)) > 0
+                AND username NOT IN ('realDonaldTrump', 'WhiteHouse', 'DonaldJTrumpJr')
         )
         SELECT * FROM stats
         """
@@ -405,3 +495,46 @@ class SNSService:
                 "totals": {"posts": 0, "posts_24h": 0, "authors": 0},
                 "last_updated": "오류"
             }
+    
+    def _extract_media_info(self, media_attachments, has_media):
+        """미디어 첨부파일에서 썸네일 정보 추출"""
+        if not has_media or not media_attachments:
+            return None, None
+        
+        try:
+            if isinstance(media_attachments, str):
+                media_data = json.loads(media_attachments)
+            else:
+                media_data = media_attachments
+            
+            if isinstance(media_data, list) and len(media_data) > 0:
+                first_media = media_data[0]
+                
+                # 썸네일 URL (preview_url 우선, 없으면 url)
+                thumbnail_url = first_media.get('preview_url') or first_media.get('url')
+                
+                # 미디어 타입 (image, video 등)
+                media_type = first_media.get('type', 'unknown')
+                
+                return thumbnail_url, media_type
+                
+        except (json.JSONDecodeError, KeyError, AttributeError, TypeError):
+            pass
+        
+        return None, None
+    
+    def _format_content_for_display(self, content, has_media, media_type):
+        """표시용 콘텐츠 포맷팅"""
+        if content and len(content.strip()) > 0:
+            return content
+        
+        # 텍스트가 없고 미디어만 있는 경우
+        if has_media and media_type:
+            if media_type == 'image':
+                return "[이미지]"
+            elif media_type == 'video':
+                return "[영상]"
+            else:
+                return "[미디어]"
+        
+        return "[내용 없음]"

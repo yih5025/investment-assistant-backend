@@ -9,7 +9,7 @@ from app.schemas.common import PaginatedResponse
 
 # Response Schemas (간소화)
 class UnifiedSNSPostResponse(BaseModel):
-    """통합 SNS 게시글 응답 스키마 - 단순화 버전"""
+    """통합 SNS 게시글 응답 스키마 - 미디어 지원 추가"""
     id: str = Field(..., description="게시글 ID")
     platform: str = Field(..., description="플랫폼 (x, truth_social_posts, truth_social_trends)")
     content: str = Field(..., description="게시글 내용")
@@ -24,12 +24,10 @@ class UnifiedSNSPostResponse(BaseModel):
     replies: Optional[int] = Field(None, description="댓글 수")
     engagement_score: int = Field(0, description="총 참여도 (표시용)")
     
-    # 기본 메타데이터
-    verified: bool = Field(False, description="인증 여부")
+    # 미디어 정보 (Truth Social 전용)
     has_media: bool = Field(False, description="미디어 포함")
-    
-    # 시장 분석 관련 (향후 구현)
-    has_market_impact: bool = Field(False, description="시장 영향 분석 가능")
+    media_thumbnail: Optional[str] = Field(None, description="썸네일 URL")
+    media_type: Optional[str] = Field(None, description="미디어 타입 (image, video)")
     
     class Config:
         from_attributes = True
