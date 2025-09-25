@@ -38,63 +38,6 @@ def get_balance_sheet_service() -> BalanceSheetService:
 # 🎯 주식 리스트 및 개요 엔드포인트
 # =========================
 
-@router.get("/", response_model=StockListResponse, summary="전체 주식 리스트 조회")
-async def get_all_stocks(
-    limit: int = Query(default=500, ge=1, le=500, description="반환할 최대 주식 개수"),
-    sp500_service: SP500Service = Depends(get_sp500_service)
-):
-    """
-    전체 SP500 주식 리스트 조회
-    
-    **주요 기능:**
-    - 모든 SP500 주식의 현재가 조회
-    - 전일 대비 변동률 계산
-    - 거래량 정보 포함
-    - 시장 상태 정보 제공
-    
-    **사용 예시:**
-    ```
-    GET /stocks/sp500/?limit=100
-    ```
-    
-    **응답 데이터:**
-    - 주식 심볼, 회사명, 현재가
-    - 변동 금액, 변동률 (전일 대비)
-    - 거래량, 섹터 정보
-    - 시장 상태 (개장/마감)
-    """
-    try:
-        logger.info(f"📊 전체 주식 리스트 조회 요청 (limit: {limit})")
-        
-        result = sp500_service.get_stock_list(limit)
-        
-        if result.get('error'):
-            logger.error(f"❌ 주식 리스트 조회 실패: {result['error']}")
-            raise HTTPException(
-                status_code=500,
-                detail=create_error_response(
-                    error_type="DATA_FETCH_ERROR",
-                    message=f"Failed to fetch stock list: {result['error']}",
-                    path="/stocks/sp500/"
-                ).model_dump()
-            )
-        
-        logger.info(f"✅ 주식 리스트 조회 성공: {result['total_count']}개")
-        return StockListResponse(**result)
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"❌ 예상치 못한 오류: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=create_error_response(
-                error_type="INTERNAL_ERROR",
-                message="Internal server error occurred",
-                path="/stocks/sp500/"
-            ).model_dump()
-        )
-
 @router.get("/market-overview", response_model=MarketOverviewResponse, summary="시장 개요 조회")
 async def get_market_overview(
     sp500_service: SP500Service = Depends(get_sp500_service)
