@@ -33,6 +33,8 @@ from .endpoints import (
     sp500_earnings_news_endpoint,
 
     sns_endpoint,
+
+    etf_endpoint,
 )
 
 # API v1 메인 라우터 생성
@@ -177,20 +179,20 @@ ROUTER_CONFIGS = [
     },
 
     # 분리된 WebSocket 실시간 데이터 API (각각 자체 prefix 보유)
-    {
-        "router": topgainers_websocket_endpoint.router,
-        "prefix": "",  # 라우터 내부에 prefix="/ws/topgainers" 이미 있음
-        "tag": "TopGainers WebSocket",
-        "category": "실시간WebSocket",
-        "description": "TopGainers 실시간 WebSocket API - 카테고리별 분류, 변화율 포함"
-    },
-    {
-        "router": sp500_websocket_endpoint.router,
-        "prefix": "",  # 라우터 내부에 prefix="/ws/sp500" 이미 있음
-        "tag": "SP500 WebSocket",
-        "category": "실시간WebSocket",
-        "description": "S&P 500 실시간 WebSocket API - 전날 종가 대비 변화율 포함"
-    },
+    # {
+    #     "router": topgainers_websocket_endpoint.router,
+    #     "prefix": "",  # 라우터 내부에 prefix="/ws/topgainers" 이미 있음
+    #     "tag": "TopGainers WebSocket",
+    #     "category": "실시간WebSocket",
+    #     "description": "TopGainers 실시간 WebSocket API - 카테고리별 분류, 변화율 포함"
+    # },
+    # {
+    #     "router": sp500_websocket_endpoint.router,
+    #     "prefix": "",  # 라우터 내부에 prefix="/ws/sp500" 이미 있음
+    #     "tag": "SP500 WebSocket",
+    #     "category": "실시간WebSocket",
+    #     "description": "S&P 500 실시간 WebSocket API - 전날 종가 대비 변화율 포함"
+    # },
     {
         "router": crypto_websocket_endpoint.router,
         "prefix": "",  # 라우터 내부에 prefix="/ws/crypto" 이미 있음
@@ -220,6 +222,15 @@ ROUTER_CONFIGS = [
         "tag": "Crypto Detail - Ecosystem",
         "category": "암호화폐분석",
         "description": "암호화폐 생태계 분석 API - 개발 활성도, 커뮤니티 건강도, 생태계 성숙도, 기술적 혁신성, 리스크 요인, 경쟁 분석, 투자 관점 요약 제공"
+    },
+
+    # ETF API
+    {
+        "router": etf_endpoint.router,
+        "prefix": "/etf",
+        "tag": "ETF",
+        "category": "ETF",
+        "description": "ETF 실시간 데이터 API"
     },
 ]
 
