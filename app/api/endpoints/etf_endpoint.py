@@ -147,59 +147,89 @@ async def get_etf_polling_data(
 # 개별 ETF 상세 조회 엔드포인트
 # =========================
 
-@router.get("/symbol/{symbol}", summary="개별 ETF 상세 정보 조회")
+@router.get("/symbol/{symbol}", summary="개별 ETF 상세 정보 조회 (차트 제외)")
 async def get_etf_detail(
     symbol: str = Path(..., description="ETF 심볼 (예: SPY)", regex=r"^[A-Z]{2,5}$"),
-    timeframe: TimeframeEnum = Query(default=TimeframeEnum.ONE_DAY, description="차트 시간대"),
     etf_service: ETFService = Depends(get_etf_service)
 ):
     """
-    개별 ETF 상세 정보 조회
+    개별 ETF 상세 정보 조회 (차트 데이터 제외)
     
     **주요 기능:**
     - ETF 기본 정보 (현재가, 변동률, 거래량)
     - ETF 프로필 (순자산, 보수율, 배당수익률 등)
     - 섹터별 구성 (파이차트용 데이터)
     - 주요 보유종목 (막대그래프용 데이터)
-    - 실시간 가격 차트 데이터
-    
-    **차트 시간대:**
-    - `1D`: 1일 (24시간)
-    - `1W`: 1주일 (7일)
-    - `1M`: 1개월 (30일)
+    - 주요 지표 (포맷된 형태)
     
     **사용 예시:**
     ```
-    GET /etf/symbol/SPY          # SPY ETF 상세 정보 (1일 차트)
-    GET /etf/symbol/QQQ?timeframe=1W  # QQQ ETF (1주일 차트)
+    GET /etf/symbol/SPY          # SPY ETF 상세 정보
+    GET /etf/symbol/QQQ          # QQQ ETF 상세 정보
     ```
     
     **응답 구조:**
     - `basic_info`: 기본 정보 (가격, 변동률 등)
     - `profile`: ETF 프로필 (순자산, 보수율, 섹터, 보유종목)
-    - `chart_data`: 가격 차트 데이터
     - `sector_chart_data`: 섹터 파이차트용 데이터
     - `holdings_chart_data`: 보유종목 막대그래프용 데이터
     - `key_metrics`: 주요 지표 (포맷된 형태)
+    
+    **주의:** 차트 데이터는 별도 /chart 엔드포인트에서 조회
     """
     try:
         symbol = symbol.upper()
-        logger.info(f"ETF 상세 정보 조회: {symbol} (timeframe: {timeframe.value})")
+        logger.info(f"ETF 상세 정보 조회 (차트 제외): {symbol}")
         
-        result = etf_service.get_etf_detail_complete(symbol, timeframe.value)
-        
-        if result.get('error'):
-            logger.error(f"ETF {symbol} 상세 정보 조회 실패: {result['error']}")
+        # 기본 정보 조회
+        basic_info_result = etf_service.get_etf_basic_info(symbol)
+        if basic_info_result.get('error'):
+            logger.error(f"ETF {symbol} 기본 정보 조회 실패: {basic_info_result['error']}")
             raise HTTPException(
-                status_code=404 if "not found" in result['error'].lower() else 500,
+                status_code=404 if "not found" in basic_info_result['error'].lower() else 500,
                 detail=create_error_response(
-                    error_type="ETF_NOT_FOUND" if "not found" in result['error'].lower() else "DETAIL_ERROR",
-                    message=result['error'],
+                    error_type="ETF_NOT_FOUND" if "not found" in basic_info_result['error'].lower() else "BASIC_INFO_ERROR",
+                    message=basic_info_result['error'],
                     path=f"/etf/symbol/{symbol}"
                 ).model_dump()
             )
         
-        logger.info(f"ETF {symbol} 상세 정보 조회 성공")
+        # 프로필 정보 조회
+        profile_result = etf_service.get_etf_profile(symbol)
+        # 프로필은 선택사항이므로 에러가 있어도 계속 진행
+        
+        # 응답 데이터 조합 (차트 데이터 제외)
+        result = {
+            "basic_info": {
+                "symbol": basic_info_result.get('symbol'),
+                "name": basic_info_result.get('name'),
+                "current_price": basic_info_result.get('current_price'),
+                "change_amount": basic_info_result.get('change_amount'),
+                "change_percentage": basic_info_result.get('change_percentage'),
+                "volume": basic_info_result.get('volume'),
+                "previous_close": basic_info_result.get('previous_close'),
+                "is_positive": basic_info_result.get('is_positive'),
+                "last_updated": basic_info_result.get('last_updated'),
+                "market_status": basic_info_result.get('market_status')
+            },
+            "profile": profile_result.get('profile'),
+            "last_updated": datetime.now(pytz.UTC).isoformat()
+        }
+        
+        # 프로필이 있으면 차트 데이터 생성
+        if profile_result.get('profile'):
+            profile = profile_result['profile']
+            
+            # 섹터 파이차트 데이터
+            result['sector_chart_data'] = etf_service._format_sector_chart_data(profile.get('sectors', []))
+            
+            # 보유종목 막대그래프 데이터
+            result['holdings_chart_data'] = etf_service._format_holdings_chart_data(profile.get('holdings', []))
+            
+            # 주요 지표 포맷팅
+            result['key_metrics'] = etf_service._format_key_metrics(profile)
+        
+        logger.info(f"ETF {symbol} 상세 정보 조회 성공 (차트 제외)")
         return result
         
     except HTTPException:
@@ -212,6 +242,72 @@ async def get_etf_detail(
                 error_type="INTERNAL_ERROR",
                 message="Internal server error occurred",
                 path=f"/etf/symbol/{symbol}"
+            ).model_dump()
+        )
+
+@router.get("/symbol/{symbol}/chart", summary="ETF 차트 데이터만 조회")
+async def get_etf_chart_data(
+    symbol: str = Path(..., description="ETF 심볼 (예: SPY)", regex=r"^[A-Z]{2,5}$"),
+    timeframe: TimeframeEnum = Query(default=TimeframeEnum.ONE_DAY, description="차트 시간대"),
+    etf_service: ETFService = Depends(get_etf_service)
+):
+    """
+    ETF 차트 데이터만 조회
+    
+    **주요 기능:**
+    - 시간대별 가격 차트 데이터
+    - 거래량 정보 포함
+    - 프론트엔드 차트 렌더링 최적화
+    
+    **차트 시간대:**
+    - `1D`: 1일 (24시간)
+    - `1W`: 1주일 (7일)
+    - `1M`: 1개월 (30일)
+    
+    **사용 예시:**
+    ```
+    GET /etf/symbol/SPY/chart?timeframe=1D
+    GET /etf/symbol/QQQ/chart?timeframe=1W
+    ```
+    
+    **응답 구조:**
+    - `symbol`: ETF 심볼
+    - `timeframe`: 차트 시간대
+    - `chart_data`: 차트 데이터 포인트 배열
+    - `data_points`: 데이터 포인트 개수
+    - `market_status`: 시장 상태
+    - `last_updated`: 최종 업데이트 시간
+    """
+    try:
+        symbol = symbol.upper()
+        logger.info(f"ETF 차트 데이터 조회: {symbol} (timeframe: {timeframe.value})")
+        
+        result = etf_service.get_chart_data_only(symbol, timeframe.value)
+        
+        if result.get('error'):
+            logger.error(f"ETF {symbol} 차트 데이터 조회 실패: {result['error']}")
+            raise HTTPException(
+                status_code=404 if "not found" in result['error'].lower() else 500,
+                detail=create_error_response(
+                    error_type="ETF_NOT_FOUND" if "not found" in result['error'].lower() else "CHART_ERROR",
+                    message=result['error'],
+                    path=f"/etf/symbol/{symbol}/chart"
+                ).model_dump()
+            )
+        
+        logger.info(f"ETF {symbol} 차트 데이터 조회 성공: {result.get('data_points', 0)}개 포인트")
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"예상치 못한 오류: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=create_error_response(
+                error_type="INTERNAL_ERROR",
+                message="Internal server error occurred",
+                path=f"/etf/symbol/{symbol}/chart"
             ).model_dump()
         )
 
@@ -263,59 +359,6 @@ async def get_etf_basic_info(
                 error_type="INTERNAL_ERROR",
                 message="Internal server error occurred",
                 path=f"/etf/symbol/{symbol}/basic"
-            ).model_dump()
-        )
-
-@router.get("/symbol/{symbol}/chart", summary="ETF 차트 데이터만 조회")
-async def get_etf_chart_data(
-    symbol: str = Path(..., description="ETF 심볼 (예: SPY)", regex=r"^[A-Z]{2,5}$"),
-    timeframe: TimeframeEnum = Query(default=TimeframeEnum.ONE_DAY, description="차트 시간대"),
-    etf_service: ETFService = Depends(get_etf_service)
-):
-    """
-    ETF 차트 데이터만 조회
-    
-    **주요 기능:**
-    - 시간대별 가격 차트 데이터
-    - 거래량 정보 포함
-    - 프론트엔드 차트 렌더링 최적화
-    
-    **사용 예시:**
-    ```
-    GET /etf/symbol/SPY/chart?timeframe=1D
-    GET /etf/symbol/QQQ/chart?timeframe=1W
-    ```
-    """
-    try:
-        symbol = symbol.upper()
-        logger.info(f"ETF 차트 데이터 조회: {symbol} (timeframe: {timeframe.value})")
-        
-        result = etf_service.get_chart_data_only(symbol, timeframe.value)
-        
-        if result.get('error'):
-            logger.error(f"ETF {symbol} 차트 데이터 조회 실패: {result['error']}")
-            raise HTTPException(
-                status_code=404 if "not found" in result['error'].lower() else 500,
-                detail=create_error_response(
-                    error_type="ETF_NOT_FOUND" if "not found" in result['error'].lower() else "CHART_ERROR",
-                    message=result['error'],
-                    path=f"/etf/symbol/{symbol}/chart"
-                ).model_dump()
-            )
-        
-        logger.info(f"ETF {symbol} 차트 데이터 조회 성공: {result.get('data_points', 0)}개 포인트")
-        return result
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"예상치 못한 오류: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=create_error_response(
-                error_type="INTERNAL_ERROR",
-                message="Internal server error occurred",
-                path=f"/etf/symbol/{symbol}/chart"
             ).model_dump()
         )
 
