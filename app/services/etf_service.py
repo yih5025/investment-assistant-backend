@@ -575,60 +575,7 @@ class ETFService:
         finally:
             db.close()
     
-    def get_etf_detail_complete(self, symbol: str, timeframe: str = '1D') -> Dict[str, Any]:
-        """
-        ETF 상세 페이지용 완전한 정보 조회 (기본 정보 + 프로필 + 차트)
-        
-        Args:
-            symbol: ETF 심볼 (예: 'SPY')
-            timeframe: 차트 시간대 ('1D', '1W', '1M')
-            
-        Returns:
-            Dict[str, Any]: ETF 상세 페이지 전체 정보
-        """
-        try:
-            # 기본 정보 조회
-            basic_info = self.get_etf_basic_info(symbol)
-            if basic_info.get('error'):
-                return basic_info
-            
-            # 프로필 정보 조회
-            profile_info = self.get_etf_profile(symbol)
-            
-            # 차트 데이터 조회
-            chart_info = self.get_chart_data_only(symbol, timeframe)
-            
-            # 결과 조합
-            result = {
-                'basic_info': basic_info,
-                'profile': profile_info.get('profile'),
-                'chart_data': chart_info.get('chart_data', []),
-                'timeframe': timeframe,
-                'last_updated': datetime.now(pytz.UTC).isoformat()
-            }
-            
-            # 프론트엔드용 차트 데이터 생성
-            if profile_info.get('profile'):
-                profile = profile_info['profile']
-                
-                # 섹터 파이차트 데이터
-                result['sector_chart_data'] = self._format_sector_chart_data(profile.get('sectors', []))
-                
-                # 보유종목 막대그래프 데이터
-                result['holdings_chart_data'] = self._format_holdings_chart_data(profile.get('holdings', []))
-                
-                # 주요 지표 포맷팅
-                result['key_metrics'] = self._format_key_metrics(profile)
-            
-            return result
-            
-        except Exception as e:
-            logger.error(f"{symbol} ETF 상세 정보 조회 실패: {e}")
-            self.stats["errors"] += 1
-            return {
-                'symbol': symbol,
-                'error': str(e)
-            }
+
 
     # =========================
     # 검색 API
@@ -702,7 +649,7 @@ class ETFService:
         finally:
             db.close()
 
-    # =========================
+    # ========================= 
     # 시장 요약 정보 API
     # =========================
     
@@ -756,7 +703,7 @@ class ETFService:
             logger.error(f"시장 상태 조회 실패: {e}")
             return {"is_open": False, "status": "UNKNOWN", "error": str(e)}
     
-    def _format_timestamp_by_timeframe(self, dt: datetime, timeframe: str) -> str:
+    def format_timestamp_by_timeframe(self, dt: datetime, timeframe: str) -> str:
         """시간대별로 적절한 timestamp 포맷 생성"""
         if timeframe == '1D':
             return dt.strftime('%Y-%m-%d %H:%M')
@@ -773,7 +720,7 @@ class ETFService:
         ]
         return colors[index % len(colors)]
     
-    def _format_sector_chart_data(self, sectors: List[Dict]) -> List[Dict[str, Any]]:
+    def format_sector_chart_data(self, sectors: List[Dict]) -> List[Dict[str, Any]]:
         """섹터 데이터를 파이차트용으로 포맷"""
         return [{
             'name': sector['sector'].replace('_', ' ').title(),
@@ -781,7 +728,7 @@ class ETFService:
             'color': sector.get('color', '#60a5fa')
         } for sector in sectors]
     
-    def _format_holdings_chart_data(self, holdings: List[Dict]) -> List[Dict[str, Any]]:
+    def format_holdings_chart_data(self, holdings: List[Dict]) -> List[Dict[str, Any]]:
         """보유종목 데이터를 막대그래프용으로 포맷"""
         return [{
             'symbol': holding['symbol'],
@@ -789,7 +736,7 @@ class ETFService:
             'weight': holding['weight'] * 100
         } for holding in holdings[:10]]  # 상위 10개만
     
-    def _format_key_metrics(self, profile: Dict) -> Dict[str, Any]:
+    def format_key_metrics(self, profile: Dict) -> Dict[str, Any]:
         """주요 지표를 프론트엔드 표시용으로 포맷"""
         def format_number(value):
             if not value:
