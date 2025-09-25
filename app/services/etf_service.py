@@ -877,3 +877,79 @@ class ETFService:
             }
         finally:
             db.close()
+
+    # =========================
+    # Redis 연동 메서드 추가
+    # =========================
+
+    async def init_redis(self) -> bool:
+        """Redis 연결 초기화"""
+        try:
+            import redis.asyncio as redis
+            
+            self.redis_client = redis.Redis(
+                host=settings.redis_host,
+                port=settings.redis_port,
+                db=settings.redis_db,
+                password=settings.redis_password,
+                decode_responses=True,
+                socket_connect_timeout=5,
+                socket_timeout=5
+            )
+            
+            await self.redis_client.ping()
+            logger.info("ETF Redis 연결 성공")
+            return True
+            
+        except Exception as e:
+            logger.warning(f"ETF Redis 연결 실패: {e}")
+            self.redis_client = None
+            return False
+
+    async def get_etf_from_redis(self, limit: int = 100) -> List[Dict[str, Any]]:
+        """
+        Redis에서 ETF 데이터 조회
+        
+        Args:
+            limit: 반환할 최대 개수
+            
+        Returns:
+            List[Dict]: ETF 데이터 리스트
+        """
+        if not self.redis_client:
+            logger.warning("Redis 클라이언트가 없습니다. 빈 리스트 반환")
+            return []
+            
+        try:
+            # Redis 키 패턴: latest:etf:{symbol} (SP500과 다른 패턴 사용)
+            pattern = "latest:etf:*"
+            keys = await self.redis_client.keys(pattern)
+            
+            if not keys:
+                logger.debug("📊 Redis ETF 데이터 없음")
+                return []
+            
+            # 배치로 모든 키의 데이터 조회
+            pipeline = self.redis_client.pipeline()
+            for key in keys[:limit]:
+                pipeline.get(key)
+            
+            results = await pipeline.execute()
+            
+            # JSON 파싱 및 데이터 변환
+            etf_data = []
+            for i, result in enumerate(results):
+                if result:
+                    try:
+                        data = json.loads(result)
+                        etf_data.append(data)
+                    except json.JSONDecodeError as e:
+                        logger.warning(f"ETF Redis JSON 파싱 실패 ({keys[i]}): {e}")
+                        continue
+            
+            logger.debug(f"📊 Redis ETF 데이터 조회 완료: {len(etf_data)}개")
+            return etf_data
+            
+        except Exception as e:
+            logger.error(f"Redis ETF 데이터 조회 실패: {e}")
+            return []
