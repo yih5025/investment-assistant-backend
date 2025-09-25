@@ -14,11 +14,8 @@ class ETFBasicInfo(Base):
     """ETF 기본 정보 테이블"""
     __tablename__ = "etf_basic_info"
 
-    id = Column(Integer, primary_key=True, index=True)
     symbol = Column(String(10), unique=True, index=True, nullable=False)
     name = Column(String(255), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 class ETFProfileHoldings(Base):
     """ETF 프로필 및 보유종목 정보 테이블"""
