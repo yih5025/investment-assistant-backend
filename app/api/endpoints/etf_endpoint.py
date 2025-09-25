@@ -8,7 +8,7 @@ import pytz
 from app.database import get_db
 from app.services.etf_service import ETFService
 from app.schemas.etf_schema import (
-    ETFListResponse, ETFDetailResponse, ETFSearchResponse, 
+    ETFListResponse, ETFDetailCompleteResponse, ETFSearchResponse, 
     ETFMarketOverviewResponse, ServiceStats, HealthCheckResponse, 
     ErrorResponse, TimeframeEnum, SortOrderEnum, create_error_response
 )
