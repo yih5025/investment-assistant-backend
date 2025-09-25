@@ -86,7 +86,7 @@ async def get_all_etfs(
 
 @router.get("/polling", summary="ETF 실시간 폴링 데이터 (더보기 방식)")
 async def get_etf_polling_data(
-    limit: int = Query(default=20, ge=1, le=200, description="반환할 ETF 개수"),
+    limit: int = Query(default=50, ge=1, le=200, description="반환할 ETF 개수"),
     sort_by: str = Query(default="price", regex="^(price|change_percent)$", description="정렬 기준"),
     order: SortOrderEnum = Query(default=SortOrderEnum.desc, description="정렬 순서"),
     etf_service: ETFService = Depends(get_etf_service)
@@ -112,7 +112,7 @@ async def get_etf_polling_data(
     
     **더보기 방식:**
     ```
-    GET /etf/polling?limit=20         # 처음 20개
+    GET /etf/polling?limit=50         # 처음 50개
     GET /etf/polling?limit=50         # 더보기로 50개
     GET /etf/polling?limit=100        # 더보기로 100개
     ```

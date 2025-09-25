@@ -73,20 +73,20 @@ ROUTER_CONFIGS = [
     },
 
     # 소셜 미디어 API
-    {
-        "router": truth_social_endpoint.router,
-        "prefix": "/truth-social",
-        "tag": "Truth Social",
-        "category": "소셜미디어",
-        "description": "realDonaldTrump, WhiteHouse, DonaldJTrumpJr, Truth Social 트렌딩 포스트 데이터 전달을 위한 엔드포인트"
-    },
-    {
-        "router": x_posts_endpoint.router,
-        "prefix": "/x-posts",
-        "tag": "X Posts",
-        "category": "소셜미디어",
-        "description": "elonmusk, RayDalio, jimcramer, tim_cook, satyanadella, sundarpichai, SecYellen, VitalikButerin crypto: saylor, brian_armstrong, CoinbaseAssets, tech_ceo: jeffbezos, sundarpichai, IBM, institutional: CathieDWood, mcuban, chamath, media: CNBC, business(Bloomberg), WSJ, corporate: Tesla, nvidia x 데이터 전달을 위한 엔드포인트"
-    },
+    # {
+    #     "router": truth_social_endpoint.router,
+    #     "prefix": "/truth-social",
+    #     "tag": "Truth Social",
+    #     "category": "소셜미디어",
+    #     "description": "realDonaldTrump, WhiteHouse, DonaldJTrumpJr, Truth Social 트렌딩 포스트 데이터 전달을 위한 엔드포인트"
+    # },
+    # {
+    #     "router": x_posts_endpoint.router,
+    #     "prefix": "/x-posts",
+    #     "tag": "X Posts",
+    #     "category": "소셜미디어",
+    #     "description": "elonmusk, RayDalio, jimcramer, tim_cook, satyanadella, sundarpichai, SecYellen, VitalikButerin crypto: saylor, brian_armstrong, CoinbaseAssets, tech_ceo: jeffbezos, sundarpichai, IBM, institutional: CathieDWood, mcuban, chamath, media: CNBC, business(Bloomberg), WSJ, corporate: Tesla, nvidia x 데이터 전달을 위한 엔드포인트"
+    # },
     {
         "router": sns_endpoint.router,
         "prefix": "/sns",
