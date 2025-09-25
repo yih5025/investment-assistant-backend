@@ -6,7 +6,8 @@ from typing import List, Optional, Dict, Any
 import math
 import json
 
-from app.models.sns_model import XPost, TruthSocialPost, TruthSocialTrend
+from app.models.x_posts_model import XPost
+from app.models.truth_social_model import TruthSocialPost, TruthSocialTrend
 from app.schemas.sns_schema import UnifiedSNSPostResponse, SNSPostsResponse
 
 
