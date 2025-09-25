@@ -103,24 +103,30 @@ class SP500Service:
     # 🎯 주식 리스트 페이지 API
     # =========================
     
-    async def get_realtime_polling_data(self, limit: int, sort_by: str = "volume", order: str = "desc"):
+    async def get_realtime_polling_data(self, limit: int, offset: int = 0, sort_by: str = "volume", order: str = "desc"):
         """
-        SP500 실시간 폴링 데이터 ("더보기" 방식) + 변화율 계산 (기존 로직 유지)
+        SP500 실시간 폴링 데이터 (페이징 방식, "더보기" 지원) + 변화율 계산
         
-        현재 SP500Service는 이미 전날 종가 기반 변화율 계산이 구현되어 있으므로,
-        WebSocket 서비스와 연동만 추가
+        Args:
+            limit: 페이지당 반환할 항목 수 (기본값: 50)
+            offset: 시작 위치 (0부터 시작, 기본값: 0)
+            sort_by: 정렬 기준 (volume, change_percent, price)
+            order: 정렬 순서 (desc, asc)
+        
+        Returns:
+            페이징된 데이터와 메타데이터 (total_count, has_next, current_page 등)
         """
         try:
             # Redis 클라이언트가 없으면 초기화
             if not self.redis_client:
                 await self.init_redis()
             
-            # 🎯 Redis에서 기본 데이터 조회 후 변화율 직접 계산 (성능 최적화)
-            redis_data = await self.get_sp500_from_redis(limit=limit*2)
+            # 🎯 Redis에서 전체 데이터 조회 후 변화율 직접 계산 (페이징을 위해 전체 데이터 필요)
+            redis_data = await self.get_sp500_from_redis(limit=1000)  # 전체 SP500 데이터 조회
             
             if not redis_data:
                 logger.warning("📊 Redis SP500 데이터 없음, DB fallback")
-                return await self._get_db_polling_data_with_changes(limit, sort_by, order)
+                return await self._get_db_polling_data_with_changes(limit, offset, sort_by, order)
             
             # 🎯 실제 변화율 계산 로직으로 변경
             all_data = []
@@ -179,26 +185,44 @@ class SP500Service:
             elif sort_by == "price":
                 all_data.sort(key=lambda x: x.get('current_price', 0), reverse=(order == "desc"))
             
-            # 순위 추가
+            # 순위 추가 (전체 데이터 기준)
             for i, item in enumerate(all_data):
                 item['rank'] = i + 1
             
-            # limit만큼 자르기
-            limited_data = all_data[:limit]
-            total_available = len(all_data)
+            # 페이징 적용 (offset과 limit 사용)
+            total_count = len(all_data)
+            end_index = offset + limit
+            paged_data = all_data[offset:end_index]
+            
+            # 페이징 메타데이터 계산
+            current_page = (offset // limit) + 1
+            total_pages = (total_count + limit - 1) // limit  # 올림 계산
+            has_next = end_index < total_count
+            has_prev = offset > 0
             
             return {
-                "data": limited_data,
+                "data": paged_data,
+                "pagination": {
+                    "current_page": current_page,
+                    "total_pages": total_pages,
+                    "page_size": limit,
+                    "total_count": total_count,
+                    "has_next": has_next,
+                    "has_prev": has_prev,
+                    "next_offset": end_index if has_next else None,
+                    "prev_offset": max(0, offset - limit) if has_prev else None,
+                    "showing_range": {
+                        "from": offset + 1 if paged_data else 0,
+                        "to": offset + len(paged_data),
+                        "total": total_count
+                    }
+                },
                 "metadata": {
-                    "current_count": len(limited_data),
-                    "total_available": total_available,
-                    "has_more": limit < total_available,
-                    "next_limit": min(limit + 50, total_available),
                     "timestamp": datetime.now(pytz.UTC).isoformat(),
                     "data_source": "redis_realtime_with_changes",
                     "market_status": self._get_market_status(),
                     "sort_info": {"sort_by": sort_by, "order": order},
-                    "features": ["real_time_prices", "change_calculation", "previous_close_comparison"]
+                    "features": ["real_time_prices", "change_calculation", "previous_close_comparison", "pagination"]
                 }
             }
             
@@ -206,11 +230,11 @@ class SP500Service:
             logger.error(f"❌ SP500 실시간 폴링 데이터 조회 실패: {e}")
             return {"error": str(e)}
 
-    async def _get_db_polling_data_with_changes(self, limit: int, sort_by: str, order: str):
+    async def _get_db_polling_data_with_changes(self, limit: int, offset: int, sort_by: str, order: str):
         """DB fallback 시 기존 SP500 Service 로직 사용 (변화율 포함)"""
         try:
-            # 기존 SP500 Service의 get_stock_list 사용 (변화율 계산 포함)
-            stock_list_result = self.get_stock_list(limit)
+            # 전체 데이터 조회 (페이징을 위해)
+            stock_list_result = self.get_stock_list(1000)  # 전체 데이터 조회
             
             if stock_list_result.get('error'):
                 return {"error": stock_list_result['error']}
@@ -225,21 +249,44 @@ class SP500Service:
             elif sort_by == "price":
                 stocks.sort(key=lambda x: x.get('current_price', 0), reverse=(order == "desc"))
             
-            # 순위 추가
+            # 순위 추가 (전체 데이터 기준)
             for i, stock in enumerate(stocks):
                 stock['rank'] = i + 1
             
+            # 페이징 적용
+            total_count = len(stocks)
+            end_index = offset + limit
+            paged_data = stocks[offset:end_index]
+            
+            # 페이징 메타데이터 계산
+            current_page = (offset // limit) + 1
+            total_pages = (total_count + limit - 1) // limit
+            has_next = end_index < total_count
+            has_prev = offset > 0
+            
             return {
-                "data": stocks[:limit],
+                "data": paged_data,
+                "pagination": {
+                    "current_page": current_page,
+                    "total_pages": total_pages,
+                    "page_size": limit,
+                    "total_count": total_count,
+                    "has_next": has_next,
+                    "has_prev": has_prev,
+                    "next_offset": end_index if has_next else None,
+                    "prev_offset": max(0, offset - limit) if has_prev else None,
+                    "showing_range": {
+                        "from": offset + 1 if paged_data else 0,
+                        "to": offset + len(paged_data),
+                        "total": total_count
+                    }
+                },
                 "metadata": {
-                    "current_count": len(stocks[:limit]),
-                    "total_available": len(stocks),
-                    "has_more": limit < len(stocks),
-                    "next_limit": min(limit + 50, len(stocks)),
                     "timestamp": datetime.now(pytz.UTC).isoformat(),
                     "data_source": "database_with_changes",
                     "market_status": stock_list_result.get('market_status'),
-                    "sort_info": {"sort_by": sort_by, "order": order}
+                    "sort_info": {"sort_by": sort_by, "order": order},
+                    "features": ["database_fallback", "change_calculation", "pagination"]
                 }
             }
             
