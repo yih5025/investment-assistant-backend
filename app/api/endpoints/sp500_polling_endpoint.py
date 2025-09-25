@@ -153,7 +153,7 @@ async def get_market_overview(
 
 @router.get("/polling", response_model=dict, summary="SP500 실시간 폴링 데이터 (페이징 방식)")
 async def get_sp500_polling_data(
-    limit: int = Query(default=50, ge=1, le=100, description="페이지당 항목 수"),
+    limit: int = Query(default=50, ge=1, le=500, description="페이지당 항목 수"),
     offset: int = Query(default=0, ge=0, description="시작 위치 (0부터 시작)"),
     sort_by: str = Query(default="volume", description="정렬 기준: volume, change_percent, price"),
     order: str = Query(default="desc", regex="^(asc|desc)$", description="정렬 순서"),
