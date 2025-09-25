@@ -14,7 +14,7 @@ class ETFBasicInfo(Base):
     """ETF 기본 정보 테이블"""
     __tablename__ = "etf_basic_info"
 
-    symbol = Column(String(10), unique=True, index=True, nullable=False)
+    symbol = Column(String(10), primary_key=True, index=True, nullable=False)
     name = Column(String(255), nullable=False)
 
 class ETFProfileHoldings(Base):
