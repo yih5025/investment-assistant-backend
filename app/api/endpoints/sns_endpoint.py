@@ -13,7 +13,13 @@ from app.schemas import sns_schema
 # 설명: 이 라우터는 프론트엔드 목업 페이지(SNSPage, SNSDetailPage)에 필요한
 #       '분석된 데이터'를 제공하는 역할을 합니다.
 # --------------------------------------------------------------------------
-router_analysis = APIRouter()
+router_analysis = APIRouter(
+    tags=["SNS Analysis"],
+    responses={
+        404: {"description": "게시물을 찾을 수 없습니다"},
+        500: {"description": "서버 내부 오류 발생"}
+    }
+)
 
 @router_analysis.get("/posts", response_model=List[sns_schema.SNSPostAnalysisListResponse], summary="Get Analyzed SNS Posts (Feed)")
 async def get_analyzed_posts(
