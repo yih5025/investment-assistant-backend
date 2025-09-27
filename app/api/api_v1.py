@@ -94,6 +94,13 @@ ROUTER_CONFIGS = [
         "category": "소셜미디어",
         "description": "X, Truth Social 트렌딩 포스트 데이터 전달을 위한 엔드포인트"
     },
+    {
+        "router": sns_endpoint.router_analysis,
+        "prefix": "/sns/analysis",  # 분석 API는 별도 prefix
+        "tag": "SNS Analysis",
+        "category": "소셜미디어",
+        "description": "Airflow로 분석된 SNS 게시글 데이터 전달을 위한 엔드포인트"
+    },
     # 실적 관련 API
     {
         "router": earnings_calendar_endpoint.router,
