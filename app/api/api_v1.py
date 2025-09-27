@@ -33,6 +33,7 @@ from .endpoints import (
     sp500_earnings_news_endpoint,
 
     sns_endpoint,
+    sns_analysis_endpoint,
 
     etf_endpoint,
 )

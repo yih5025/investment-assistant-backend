@@ -13,10 +13,7 @@ from app.schemas import sns_schema
 # 설명: 이 라우터는 프론트엔드 목업 페이지(SNSPage, SNSDetailPage)에 필요한
 #       '분석된 데이터'를 제공하는 역할을 합니다.
 # --------------------------------------------------------------------------
-router_analysis = APIRouter(
-    prefix="/sns-analysis",
-    tags=["SNS Analysis (For Frontend)"],
-)
+router_analysis = APIRouter()
 
 @router_analysis.get("/posts", response_model=List[sns_schema.SNSPostAnalysisListResponse], summary="Get Analyzed SNS Posts (Feed)")
 async def get_analyzed_posts(
@@ -53,67 +50,63 @@ async def get_analyzed_post_detail(
         raise HTTPException(status_code=500, detail=f"분석 게시글 상세 조회 중 오류 발생: {str(e)}")
 
 
-# --------------------------------------------------------------------------
-# 2. 원본 데이터 조회용 API 라우터 (기존 코드 유지 및 스타일 통일)
-# 설명: 이 라우터는 기존에 구현된 '원본 데이터' 조회 기능을 그대로 유지합니다.
-# --------------------------------------------------------------------------
-router = APIRouter() # 기존 라우터는 prefix 없이 사용
+# router = APIRouter() # 기존 라우터는 prefix 없이 사용
 
-@router.get("/authors", response_model=sns_schema.AvailableAuthorsResponse)
-async def get_available_authors(db: Session = Depends(get_db)):
-    """사용 가능한 작성자 목록 조회 (최근 30일 활동 기준)"""
-    try:
-        service = SNSService(db)
-        authors = service.get_available_authors()
-        # Pydantic 모델로 변환하여 응답
-        return sns_schema.AvailableAuthorsResponse(**authors)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"작성자 목록 조회 중 오류 발생: {str(e)}")
+# @router.get("/authors", response_model=sns_schema.AvailableAuthorsResponse)
+# async def get_available_authors(db: Session = Depends(get_db)):
+#     """사용 가능한 작성자 목록 조회 (최근 30일 활동 기준)"""
+#     try:
+#         service = SNSService(db)
+#         authors = service.get_available_authors()
+#         # Pydantic 모델로 변환하여 응답
+#         return sns_schema.AvailableAuthorsResponse(**authors)
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"작성자 목록 조회 중 오류 발생: {str(e)}")
 
-@router.get("/posts", response_model=sns_schema.SNSPostsResponse)
-async def get_sns_posts(
-    platform: str = Query("all", description="플랫폼 (all, x, truth_social_posts, truth_social_trends)"),
-    author: Optional[str] = Query(None, description="작성자 필터 (username)"),
-    limit: int = Query(50, ge=1, le=100, description="페이지 크기"),
-    offset: int = Query(0, ge=0, description="오프셋"),
-    db: Session = Depends(get_db)
-):
-    """SNS 게시글 목록 조회 (최신순)"""
-    valid_platforms = ["all", "x", "truth_social_posts", "truth_social_trends"]
-    if platform not in valid_platforms:
-        raise HTTPException(status_code=400, detail=f"Invalid platform.")
-    try:
-        service = SNSService(db)
-        return service.get_posts(platform=platform, author=author, limit=limit, offset=offset)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"SNS 게시글 조회 중 오류 발생: {str(e)}")
+# @router.get("/posts", response_model=sns_schema.SNSPostsResponse)
+# async def get_sns_posts(
+#     platform: str = Query("all", description="플랫폼 (all, x, truth_social_posts, truth_social_trends)"),
+#     author: Optional[str] = Query(None, description="작성자 필터 (username)"),
+#     limit: int = Query(50, ge=1, le=100, description="페이지 크기"),
+#     offset: int = Query(0, ge=0, description="오프셋"),
+#     db: Session = Depends(get_db)
+# ):
+#     """SNS 게시글 목록 조회 (최신순)"""
+#     valid_platforms = ["all", "x", "truth_social_posts", "truth_social_trends"]
+#     if platform not in valid_platforms:
+#         raise HTTPException(status_code=400, detail=f"Invalid platform.")
+#     try:
+#         service = SNSService(db)
+#         return service.get_posts(platform=platform, author=author, limit=limit, offset=offset)
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"SNS 게시글 조회 중 오류 발생: {str(e)}")
 
-@router.get("/posts/{post_id}", response_model=sns_schema.UnifiedSNSPostResponse)
-async def get_sns_post_detail(
-    post_id: str,
-    platform: str = Query(..., description="플랫폼 (x, truth_social_posts, truth_social_trends)"),
-    db: Session = Depends(get_db)
-):
-    """개별 SNS 게시글 상세 조회"""
-    valid_platforms = ["x", "truth_social_posts", "truth_social_trends"]
-    if platform not in valid_platforms:
-        raise HTTPException(status_code=400, detail=f"Invalid platform for detail view.")
-    try:
-        service = SNSService(db)
-        post = service.get_post_detail(post_id, platform)
-        if not post:
-            raise HTTPException(status_code=404, detail=f"게시글을 찾을 수 없습니다: {post_id} ({platform})")
-        return post
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"게시글 상세 조회 중 오류 발생: {str(e)}")
+# @router.get("/posts/{post_id}", response_model=sns_schema.UnifiedSNSPostResponse)
+# async def get_sns_post_detail(
+#     post_id: str,
+#     platform: str = Query(..., description="플랫폼 (x, truth_social_posts, truth_social_trends)"),
+#     db: Session = Depends(get_db)
+# ):
+#     """개별 SNS 게시글 상세 조회"""
+#     valid_platforms = ["x", "truth_social_posts", "truth_social_trends"]
+#     if platform not in valid_platforms:
+#         raise HTTPException(status_code=400, detail=f"Invalid platform for detail view.")
+#     try:
+#         service = SNSService(db)
+#         post = service.get_post_detail(post_id, platform)
+#         if not post:
+#             raise HTTPException(status_code=404, detail=f"게시글을 찾을 수 없습니다: {post_id} ({platform})")
+#         return post
+#     except HTTPException as e:
+#         raise e
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"게시글 상세 조회 중 오류 발생: {str(e)}")
 
-@router.get("/stats")
-async def get_basic_stats(db: Session = Depends(get_db)):
-    """기본 통계 조회"""
-    try:
-        service = SNSService(db)
-        return service.get_basic_stats()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"통계 조회 중 오류 발생: {str(e)}")
+# @router.get("/stats")
+# async def get_basic_stats(db: Session = Depends(get_db)):
+#     """기본 통계 조회"""
+#     try:
+#         service = SNSService(db)
+#         return service.get_basic_stats()
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"통계 조회 중 오류 발생: {str(e)}")
