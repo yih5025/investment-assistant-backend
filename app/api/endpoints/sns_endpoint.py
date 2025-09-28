@@ -25,6 +25,7 @@ router_analysis = APIRouter(
 async def get_analyzed_posts(
     skip: int = Query(0, ge=0, description="페이지네이션을 위한 오프셋 (offset)"),
     limit: int = Query(20, ge=1, le=100, description="페이지당 항목 수"),
+    platform: str = Query(..., description="플랫폼 (x, truth_social_posts, truth_social_trends)"),
     db: Session = Depends(get_db)
 ):
     """
@@ -34,7 +35,7 @@ async def get_analyzed_posts(
     """
     try:
         service = SNSService(db)
-        return service.get_analysis_posts(db=db, skip=skip, limit=limit)
+        return service.get_analysis_posts(db=db, skip=skip, limit=limit, platform=platform)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"분석 게시글 목록 조회 중 오류 발생: {str(e)}")
 

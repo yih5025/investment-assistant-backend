@@ -250,10 +250,21 @@ class SNSService:
 
     # --- 2. 프론트엔드 분석 페이지용 서비스 (신규 추가) ---
     
-    def get_analysis_posts(self, db: Session, skip: int, limit: int) -> List[sns_schema.SNSPostAnalysisListResponse]:
+    def get_analysis_posts(self, db: Session, skip: int, limit: int, post_source: str) -> List[sns_schema.SNSPostAnalysisListResponse]:
         """[분석 목록 페이지용] 분석된 SNS 게시글 목록을 조회합니다."""
         
-        analysis_results = db.query(PostAnalysisCache).order_by(PostAnalysisCache.post_timestamp.desc()).offset(skip).limit(limit).all()
+        query = db.query(PostAnalysisCache)
+
+        # post_source가 'all'이 아닐 경우에만 필터링 조건 추가
+        if post_source != "all":
+            valid_sources = ["x", "truth_social_posts", "truth_social_trends"]
+            if post_source in valid_sources:
+                query = query.filter(PostAnalysisCache.post_source == post_source)
+            else:
+                # 유효하지 않은 source 값이 들어오면 빈 리스트 반환
+                return []
+
+        analysis_results = query.order_by(PostAnalysisCache.post_timestamp.desc()).offset(skip).limit(limit).all()
         
         post_ids_by_source = {'x': [], 'truth_social_posts': [], 'truth_social_trends': []}
         for result in analysis_results:
@@ -271,14 +282,12 @@ class SNSService:
             media_schema = None
 
             if original_post_data:
-                content = original_post_data.get("content", "")
-                content_schema = sns_schema.OriginalPostForAnalysisSchema(content=content)
+                content_schema = sns_schema.OriginalPostForAnalysisSchema(content=original_post_data.get("content"))
                 
-                # 플랫폼에 따라 다른 스키마를 채움
                 if result.post_source == 'x' and original_post_data.get("engagement"):
                     engagement_schema = sns_schema.XPostEngagementSchema(**original_post_data["engagement"])
                 
-                elif result.post_source == 'truth_social_posts':
+                elif result.post_source in ['truth_social_posts', 'truth_social_trends']:
                     has_media = original_post_data.get("has_media", False)
                     thumbnail, m_type = self._extract_media_info(original_post_data.get("media_attachments"), has_media)
                     media_schema = sns_schema.TruthSocialMediaSchema(
