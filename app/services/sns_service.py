@@ -7,7 +7,7 @@ import math
 import json
 
 from app.models.x_posts_model import XPost
-from app.models.truth_social_model import TruthSocialPost
+from app.models.truth_social_model import TruthSocialPost, TruthSocialTrend
 from app.models.post_analysis_cache_model import PostAnalysisCache
 from app.schemas import sns_schema
 from fastapi import HTTPException
@@ -267,16 +267,31 @@ class SNSService:
             
             content_schema = sns_schema.OriginalPostForAnalysisSchema(content="원본 게시물을 찾을 수 없습니다.")
             engagement_schema = None
+            media_schema = None
 
             if original_post_data:
-                content_schema = sns_schema.OriginalPostForAnalysisSchema(content=original_post_data.get("content"))
-                if original_post_data.get("engagement"):
+                content = original_post_data.get("content")
+                # _format_content_for_display를 여기서 호출할 수도 있지만, 원본 content를 그대로 전달합니다.
+                content_schema = sns_schema.OriginalPostForAnalysisSchema(content=content)
+                
+                # 플랫폼에 따라 다른 스키마를 채움
+                if result.post_source == 'x' and original_post_data.get("engagement"):
                     engagement_schema = sns_schema.XPostEngagementSchema(**original_post_data["engagement"])
+                
+                elif result.post_source == 'truth_social_posts':
+                    has_media = original_post_data.get("has_media", False)
+                    thumbnail, m_type = self._extract_media_info(original_post_data.get("media_attachments"), has_media)
+                    media_schema = sns_schema.TruthSocialMediaSchema(
+                        has_media=has_media,
+                        media_thumbnail=thumbnail,
+                        media_type=m_type
+                    )
 
             combined_posts.append(sns_schema.SNSPostAnalysisListResponse(
                 analysis=result,
                 original_post=content_schema,
-                engagement=engagement_schema
+                engagement=engagement_schema,
+                media=media_schema
             ))
         return combined_posts
 
@@ -288,23 +303,37 @@ class SNSService:
         ).first()
 
         if not analysis_result:
-            raise HTTPException(status_code=404, detail="Analysis data not found.")
+            raise HTTPException(status_code=404, detail="Analysis data not found for the given post.")
         
         original_posts_map = self._get_original_posts_for_analysis_map(db, {post_source: [post_id]})
         original_post_data = original_posts_map.get((post_source, post_id))
 
         content_schema = sns_schema.OriginalPostForAnalysisSchema(content="원본 게시물을 찾을 수 없습니다.")
         engagement_schema = None
+        media_schema = None
 
         if original_post_data:
-            content_schema = sns_schema.OriginalPostForAnalysisSchema(content=original_post_data.get("content"))
-            if original_post_data.get("engagement"):
+            content = original_post_data.get("content")
+            content_schema = sns_schema.OriginalPostForAnalysisSchema(content=content)
+
+            # 플랫폼에 따라 다른 스키마를 채움
+            if post_source == 'x' and original_post_data.get("engagement"):
                 engagement_schema = sns_schema.XPostEngagementSchema(**original_post_data["engagement"])
+            
+            elif post_source == 'truth_social_posts':
+                has_media = original_post_data.get("has_media", False)
+                thumbnail, m_type = self._extract_media_info(original_post_data.get("media_attachments"), has_media)
+                media_schema = sns_schema.TruthSocialMediaSchema(
+                    has_media=has_media,
+                    media_thumbnail=thumbnail,
+                    media_type=m_type
+                )
         
         return sns_schema.SNSPostAnalysisDetailResponse(
             analysis=analysis_result,
             original_post=content_schema,
-            engagement=engagement_schema
+            engagement=engagement_schema,
+            media=media_schema
         )
     
     def _get_original_posts_for_analysis_map(self, db: Session, post_ids_by_source: dict) -> dict:
@@ -322,11 +351,36 @@ class SNSService:
                     }
                 }
         
-        all_truth_ids = post_ids_by_source.get('truth_social_posts', []) + post_ids_by_source.get('truth_social_trends', [])
-        if all_truth_ids:
-            truth_posts = db.query(TruthSocialPost).filter(TruthSocialPost.id.in_(all_truth_ids)).all()
+        truth_post_ids = post_ids_by_source.get('truth_social_posts', [])
+        if truth_post_ids:
+            # --- 👇 [수정] media_attachments, has_media 컬럼 추가 조회 ---
+            truth_posts = db.query(
+                TruthSocialPost.id, 
+                TruthSocialPost.clean_content, 
+                TruthSocialPost.has_media, 
+                TruthSocialPost.media_attachments
+            ).filter(TruthSocialPost.id.in_(truth_post_ids)).all()
             for post in truth_posts:
-                source = 'truth_social_posts' if str(post.id) in post_ids_by_source.get('truth_social_posts', []) else 'truth_social_trends'
-                original_posts_map[(source, str(post.id))] = {"content": post.clean_content, "engagement": None}
+                original_posts_map[('truth_social_posts', str(post.id))] = {
+                    "content": post.clean_content, 
+                    "engagement": None,
+                    "has_media": post.has_media,
+                    "media_attachments": post.media_attachments
+                }
+        
+        truth_trend_ids = post_ids_by_source.get('truth_social_trends', [])
+        if truth_trend_ids:
+            # --- 👇 [수정] Trends 테이블에서도 미디어 정보 조회 ---
+            truth_trends = db.query(
+                TruthSocialTrend.id, 
+                TruthSocialTrend.clean_content, 
+                TruthSocialTrend.has_media, 
+                TruthSocialTrend.media_attachments
+            ).filter(TruthSocialTrend.id.in_(truth_trend_ids)).all()
+            for trend in truth_trends:
+                original_posts_map[('truth_social_trends', str(trend.id))] = {
+                    "content": trend.clean_content, "engagement": None,
+                    "has_media": trend.has_media, "media_attachments": trend.media_attachments
+                }
                 
         return original_posts_map

@@ -6,12 +6,6 @@ from datetime import datetime
 
 from app.schemas.common import PaginatedResponse
 
-
-# --------------------------------------------------------------------------
-# 1. 원본 SNS 데이터 조회용 스키마 (기존 코드 유지)
-# 설명: DB에 저장된 원본 게시물을 그대로 보여주기 위한 데이터 모델입니다.
-# --------------------------------------------------------------------------
-
 class UnifiedSNSPostResponse(BaseModel):
     """(원본 데이터용) 통합 SNS 게시글 응답 스키마"""
     id: str = Field(..., description="게시글 ID")
@@ -54,12 +48,6 @@ class AvailableAuthorsResponse(BaseModel):
     truth_social_trends: List[AuthorInfo]
 
 
-# --------------------------------------------------------------------------
-# 2. 프론트엔드 분석 페이지용 스키마 (신규 추가)
-# 설명: Airflow DAG가 분석한 post_analysis_cache 테이블의 데이터를
-#        프론트엔드 목업 페이지에 맞게 제공하기 위한 데이터 모델입니다.
-# --------------------------------------------------------------------------
-
 class PostAnalysisCacheBaseSchema(BaseModel):
     """(분석 데이터용) 목록 페이지에 필요한 post_analysis_cache의 핵심 정보"""
     post_id: str
@@ -91,20 +79,24 @@ class XPostEngagementSchema(BaseModel):
     impression_count: int = 0
     account_category: Optional[str] = None
 
+class TruthSocialMediaSchema(BaseModel):
+    """Truth Social 게시물의 미디어 정보"""
+    has_media: bool = False
+    media_thumbnail: Optional[str] = None
+    media_type: Optional[str] = None
+
 class SNSPostAnalysisListResponse(BaseModel):
-    """
-    [분석 목록 페이지용] API 응답 스키마
-    - 프론트엔드: SNSPage.tsx의 피드 목록 렌더링에 사용됩니다.
-    """
+    """[분석 목록 페이지용] API 응답 스키마"""
     analysis: PostAnalysisCacheBaseSchema
     original_post: OriginalPostForAnalysisSchema
+    # --- 👇 [수정] 플랫폼별로 하나만 존재할 수 있도록 Optional 객체로 분리 ---
     engagement: Optional[XPostEngagementSchema] = None
+    media: Optional[TruthSocialMediaSchema] = None
 
 class SNSPostAnalysisDetailResponse(BaseModel):
-    """
-    [분석 상세 페이지용] API 응답 스키마
-    - 프론트엔드: SNSDetailPage.tsx의 모든 섹션(개요, 차트 등) 렌더링에 사용됩니다.
-    """
+    """[분석 상세 페이지용] API 응답 스키마"""
     analysis: PostAnalysisCacheDetailSchema
     original_post: OriginalPostForAnalysisSchema
+    # --- 👇 [수정] 플랫폼별로 하나만 존재할 수 있도록 Optional 객체로 분리 ---
     engagement: Optional[XPostEngagementSchema] = None
+    media: Optional[TruthSocialMediaSchema] = None
