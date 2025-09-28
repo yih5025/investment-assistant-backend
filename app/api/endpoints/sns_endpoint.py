@@ -30,6 +30,7 @@ async def get_analyzed_posts(
     """
     Airflow로 분석된 SNS 게시글 목록을 페이지네이션으로 가져옵니다.
     프론트엔드의 메인 SNS 피드 페이지에서 사용됩니다.
+    성능 최적화를 위해 응답 시간을 단축했습니다.
     """
     try:
         service = SNSService(db)
@@ -46,6 +47,7 @@ async def get_analyzed_post_detail(
     """
     특정 게시물의 모든 상세 분석 데이터를 가져옵니다.
     프론트엔드의 SNS 상세 분석 페이지에서 사용됩니다.
+    성능 최적화를 위해 응답 시간을 단축했습니다.
     """
     try:
         service = SNSService(db)

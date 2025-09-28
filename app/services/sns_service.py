@@ -252,6 +252,7 @@ class SNSService:
     
     def get_analysis_posts(self, db: Session, skip: int, limit: int) -> List[sns_schema.SNSPostAnalysisListResponse]:
         """[분석 목록 페이지용] 분석된 SNS 게시글 목록을 조회합니다."""
+        
         analysis_results = db.query(PostAnalysisCache).order_by(PostAnalysisCache.post_timestamp.desc()).offset(skip).limit(limit).all()
         
         post_ids_by_source = {'x': [], 'truth_social_posts': [], 'truth_social_trends': []}
@@ -270,8 +271,7 @@ class SNSService:
             media_schema = None
 
             if original_post_data:
-                content = original_post_data.get("content")
-                # _format_content_for_display를 여기서 호출할 수도 있지만, 원본 content를 그대로 전달합니다.
+                content = original_post_data.get("content", "")
                 content_schema = sns_schema.OriginalPostForAnalysisSchema(content=content)
                 
                 # 플랫폼에 따라 다른 스키마를 채움
@@ -336,6 +336,55 @@ class SNSService:
             media=media_schema
         )
     
+    def _get_original_posts_for_analysis_map_optimized(self, db: Session, post_ids_by_source: dict) -> dict:
+        """(분석용) Helper to fetch original posts efficiently - 최적화 버전."""
+        original_posts_map = {}
+        
+        # X 포스트 조회 - 필요한 컬럼만 선택
+        if post_ids_by_source.get('x'):
+            x_posts = db.query(
+                XPost.tweet_id,
+                XPost.text,
+                XPost.retweet_count,
+                XPost.reply_count,
+                XPost.like_count,
+                XPost.quote_count,
+                XPost.impression_count,
+                XPost.account_category
+            ).filter(XPost.tweet_id.in_(post_ids_by_source['x'])).all()
+            
+            for post in x_posts:
+                original_posts_map[('x', post.tweet_id)] = {
+                    "content": post.text[:500] if post.text else "",  # 내용 길이 제한
+                    "engagement": {
+                        "retweet_count": post.retweet_count or 0, 
+                        "reply_count": post.reply_count or 0,
+                        "like_count": post.like_count or 0, 
+                        "quote_count": post.quote_count or 0,
+                        "impression_count": post.impression_count or 0, 
+                        "account_category": post.account_category,
+                    }
+                }
+        
+        # Truth Social 포스트 조회 - 미디어 정보 간소화
+        truth_post_ids = post_ids_by_source.get('truth_social_posts', [])
+        if truth_post_ids:
+            truth_posts = db.query(
+                TruthSocialPost.id, 
+                TruthSocialPost.clean_content, 
+                TruthSocialPost.has_media
+            ).filter(TruthSocialPost.id.in_(truth_post_ids)).all()
+            
+            for post in truth_posts:
+                original_posts_map[('truth_social_posts', str(post.id))] = {
+                    "content": post.clean_content[:500] if post.clean_content else "",  # 내용 길이 제한
+                    "engagement": None,
+                    "has_media": post.has_media or False,
+                    "media_attachments": None  # 목록에서는 미디어 상세 정보 제외
+                }
+        
+        return original_posts_map
+
     def _get_original_posts_for_analysis_map(self, db: Session, post_ids_by_source: dict) -> dict:
         """(분석용) Helper to fetch original posts efficiently."""
         original_posts_map = {}
