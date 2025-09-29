@@ -150,9 +150,23 @@ class ETFService:
     def _parse_profile_to_schemas(self, profile: ETFProfileHoldings):
         """DB 모델을 받아서 여러 Pydantic 스키마로 변환하여 반환"""
         try:
-            sectors = json.loads(profile.sectors) if profile.sectors else []
-            holdings = json.loads(profile.holdings) if profile.holdings else []
-        except json.JSONDecodeError:
+            # sectors가 이미 리스트인 경우 그대로 사용, 문자열인 경우 JSON 파싱
+            if isinstance(profile.sectors, list):
+                sectors = profile.sectors
+            elif isinstance(profile.sectors, str) and profile.sectors:
+                sectors = json.loads(profile.sectors)
+            else:
+                sectors = []
+            
+            # holdings도 동일하게 처리
+            if isinstance(profile.holdings, list):
+                holdings = profile.holdings
+            elif isinstance(profile.holdings, str) and profile.holdings:
+                holdings = json.loads(profile.holdings)
+            else:
+                holdings = []
+        except (json.JSONDecodeError, TypeError) as e:
+            self.logger.warning(f"JSON 파싱 오류: {e}, 빈 리스트로 대체")
             sectors, holdings = [], []
 
         profile_schema = etf_schema.ETFProfile(
