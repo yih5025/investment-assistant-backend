@@ -169,8 +169,12 @@ class ETFService:
             self.logger.warning(f"JSON 파싱 오류: {e}, 빈 리스트로 대체")
             sectors, holdings = [], []
 
+        # ETF 이름 조회 (_get_batch_etf_names와 동일한 로직)
+        etf_names = self._get_etf_names_sync([profile.symbol])
+        etf_name = etf_names.get(profile.symbol, profile.symbol)
+        
         profile_schema = etf_schema.ETFProfile(
-            symbol=profile.symbol, name=profile.name, net_assets=profile.net_assets,
+            symbol=profile.symbol, name=etf_name, net_assets=profile.net_assets,
             net_expense_ratio=profile.net_expense_ratio, portfolio_turnover=profile.portfolio_turnover,
             dividend_yield=profile.dividend_yield, 
             inception_date=profile.inception_date.isoformat() if profile.inception_date else None,
@@ -395,6 +399,34 @@ class ETFService:
         finally:
             if 'db' in locals():
                 db.close()
+
+    def _get_etf_names_sync(self, symbols: List[str]) -> Dict[str, str]:
+        """
+        여러 ETF 심볼의 이름을 일괄 조회 (동기 버전)
+        
+        Args:
+            symbols: ETF 심볼 리스트
+            
+        Returns:
+            Dict[str, str]: {symbol: etf_name}
+        """
+        try:
+            etf_names = {}
+            
+            # ETFBasicInfo에서 심볼과 이름 일괄 조회
+            etf_infos = self.db.query(ETFBasicInfo).filter(
+                ETFBasicInfo.symbol.in_(symbols)
+            ).all()
+            
+            for etf_info in etf_infos:
+                etf_names[etf_info.symbol] = etf_info.name
+            
+            logger.debug(f"ETF 이름 조회 완료: {len(etf_names)}개 / {len(symbols)}개")
+            return etf_names
+            
+        except Exception as e:
+            logger.error(f"ETF 이름 조회 실패: {e}")
+            return {}
 
     def get_etf_list(self, limit: int = 100) -> Dict[str, Any]:
         """
