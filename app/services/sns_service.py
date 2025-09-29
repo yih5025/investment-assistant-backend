@@ -316,28 +316,31 @@ class SNSService:
         if not analysis_result:
             raise HTTPException(status_code=404, detail="Analysis data not found for the given post.")
         
-        # --- ▼ [수정] market_data를 새로운 스키마에 맞게 파싱하고 검증하는 로직 추가 ---
+        # market_data 처리 (기존/신규 형식 모두 지원)
         try:
             if analysis_result.market_data:
-                # DB에 저장된 JSON 문자열을 Python 딕셔너리로 변환
-                market_data_dict = json.loads(analysis_result.market_data)
+                market_data_dict = analysis_result.market_data
                 
-                # Pydantic 모델을 사용하여 데이터 유효성 검사 및 객체 변환
+                # 문자열인 경우 파싱
+                if isinstance(market_data_dict, str):
+                    market_data_dict = json.loads(market_data_dict)
+                
+                # Pydantic 검증 (OHLCV와 기존 형식 모두 통과)
                 validated_market_data = {
                     symbol: sns_schema.MarketAssetDataSchema.model_validate(data)
                     for symbol, data in market_data_dict.items()
                 }
-                # 검증된 Pydantic 객체를 다시 analysis_result에 할당
                 analysis_result.market_data = validated_market_data
             else:
-                 analysis_result.market_data = {} # market_data가 null일 경우 빈 dict로 초기화
+                analysis_result.market_data = {}
 
         except (json.JSONDecodeError, ValidationError) as e:
-            # 파싱 또는 유효성 검사 실패 시 에러 로깅 (실제 운영환경에서는 logging 사용)
-            print(f"Error parsing or validating market_data for post {post_id}: {e}")
-            # 프론트엔드가 에러를 처리할 수 있도록 market_data를 비워줌
+            print(f"Error validating market_data for post {post_id}: {e}")
+            import traceback
+            traceback.print_exc()
             analysis_result.market_data = {}
 
+        # 원본 게시물 데이터 조회
         original_posts_map = self._get_original_posts_for_analysis_map(db, {post_source: [post_id]})
         original_post_data = original_posts_map.get((post_source, post_id))
 
@@ -352,7 +355,7 @@ class SNSService:
             if post_source == 'x' and original_post_data.get("engagement"):
                 engagement_schema = sns_schema.XPostEngagementSchema(**original_post_data["engagement"])
             
-            elif post_source == 'truth_social_posts':
+            elif post_source in ['truth_social_posts', 'truth_social_trends']:
                 has_media = original_post_data.get("has_media", False)
                 thumbnail, m_type = self._extract_media_info(original_post_data.get("media_attachments"), has_media)
                 media_schema = sns_schema.TruthSocialMediaSchema(
