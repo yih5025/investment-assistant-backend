@@ -131,6 +131,9 @@ class ETFService:
             # 전날 종가 일괄 조회
             previous_close_prices = await self._get_batch_previous_close_prices(symbols)
             
+            # ETF 이름 일괄 조회
+            etf_names = await self._get_batch_etf_names(symbols)
+            
             for item in redis_data:
                 # Redis 데이터는 이미 딕셔너리 형태
                 item_dict = item.copy() if isinstance(item, dict) else {}
@@ -138,6 +141,10 @@ class ETFService:
                 # 심볼과 현재가 추출
                 symbol = item_dict.get('symbol', '')
                 current_price = float(item_dict.get('price', 0)) if item_dict.get('price') else 0
+                
+                # ETF 이름 추가
+                etf_name = etf_names.get(symbol, symbol)  # 이름이 없으면 심볼 사용
+                item_dict['name'] = etf_name
                 
                 # 전날 종가 조회
                 previous_close = previous_close_prices.get(symbol)
@@ -265,6 +272,38 @@ class ETFService:
             
         except Exception as e:
             logger.error(f"ETF 전날 종가 일괄 조회 실패: {e}")
+            return {}
+        finally:
+            if 'db' in locals():
+                db.close()
+
+    async def _get_batch_etf_names(self, symbols: List[str]) -> Dict[str, str]:
+        """
+        여러 ETF 심볼의 이름을 일괄 조회 (성능 최적화)
+        
+        Args:
+            symbols: ETF 심볼 리스트
+            
+        Returns:
+            Dict[str, str]: {symbol: etf_name}
+        """
+        try:
+            db = next(get_db())
+            etf_names = {}
+            
+            # ETFBasicInfo에서 심볼과 이름 일괄 조회
+            etf_infos = db.query(ETFBasicInfo).filter(
+                ETFBasicInfo.symbol.in_(symbols)
+            ).all()
+            
+            for etf_info in etf_infos:
+                etf_names[etf_info.symbol] = etf_info.name
+            
+            logger.debug(f"ETF 이름 조회 완료: {len(etf_names)}개 / {len(symbols)}개")
+            return etf_names
+            
+        except Exception as e:
+            logger.error(f"ETF 이름 일괄 조회 실패: {e}")
             return {}
         finally:
             if 'db' in locals():
