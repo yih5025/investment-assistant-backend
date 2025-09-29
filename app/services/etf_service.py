@@ -56,6 +56,13 @@ class ETFService:
         self.market_checker = MarketTimeChecker()
         # 서비스가 초기화될 때 DB 세션을 받지 않도록 수정
         # 각 함수 내에서 필요할 때 get_db()를 통해 세션을 얻음
+        self.redis_client = None
+        self.stats = {
+            "api_requests": 0, "db_queries": 0, "cache_hits": 0,
+            "errors": 0, "last_request": None
+        }
+        logger.info("ETFService 초기화 완료")
+
 
     # --- ▼ [신규/수정] 상세 정보 조회를 위한 단일 통합 함수 ---
     def get_etf_details_by_symbol(self, symbol: str) -> Optional[etf_schema.ETFDetailResponse]:
