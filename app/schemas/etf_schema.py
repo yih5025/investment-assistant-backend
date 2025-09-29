@@ -118,6 +118,24 @@ class HoldingChartData(BaseModel):
 # API 응답 모델
 # =========================
 
+class KeyMetrics(BaseModel):
+    net_assets: str
+    net_expense_ratio: str
+    dividend_yield: str
+    inception_year: str
+
+class ETFDetailResponse(BaseModel):
+    """(신규/수정) 개별 ETF 상세 페이지 최종 응답 스키마"""
+    basic_info: Optional[ETFInfo] = None # 타입을 ETFInfo로 변경하여 더 많은 정보 포함
+    profile: Optional[ETFProfile] = None # 타입을 ETFProfile로 수정
+    sector_chart_data: Optional[List[SectorChartData]] = None
+    holdings_chart_data: Optional[List[HoldingChartData]] = None
+    key_metrics: Optional[KeyMetrics] = None
+    last_updated: datetime
+
+    class Config:
+        from_attributes = True
+
 class ETFListResponse(BaseModel):
     """ETF 리스트 응답"""
     etfs: List[ETFInfo] = Field(..., description="ETF 리스트")
