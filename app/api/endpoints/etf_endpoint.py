@@ -12,6 +12,7 @@ from app.schemas.etf_schema import (
     ETFMarketOverviewResponse, ServiceStats, HealthCheckResponse, 
     ErrorResponse, TimeframeEnum, SortOrderEnum, create_error_response
 )
+from app.schemas import etf_schema
 
 # 로깅 설정
 logger = logging.getLogger(__name__)
@@ -147,103 +148,24 @@ async def get_etf_polling_data(
 # 개별 ETF 상세 조회 엔드포인트
 # =========================
 
-@router.get("/symbol/{symbol}", summary="개별 ETF 상세 정보 조회 (차트 제외)")
-async def get_etf_detail(
-    symbol: str = Path(..., description="ETF 심볼 (예: SPY)", regex=r"^[A-Z]{2,5}$"),
-    etf_service: ETFService = Depends(get_etf_service)
-):
+@router.get("/symbol/{symbol}", response_model=etf_schema.ETFDetailResponse, summary="개별 ETF 상세 정보 조회")
+async def get_etf_symbol_details(symbol: str):
     """
-    개별 ETF 상세 정보 조회 (차트 데이터 제외)
-    
-    **주요 기능:**
-    - ETF 기본 정보 (현재가, 변동률, 거래량)
-    - ETF 프로필 (순자산, 보수율, 배당수익률 등)
-    - 섹터별 구성 (파이차트용 데이터)
-    - 주요 보유종목 (막대그래프용 데이터)
-    - 주요 지표 (포맷된 형태)
-    
-    **사용 예시:**
-    ```
-    GET /etf/symbol/SPY          # SPY ETF 상세 정보
-    GET /etf/symbol/QQQ          # QQQ ETF 상세 정보
-    ```
-    
-    **응답 구조:**
-    - `basic_info`: 기본 정보 (가격, 변동률 등)
-    - `profile`: ETF 프로필 (순자산, 보수율, 섹터, 보유종목)
-    - `sector_chart_data`: 섹터 파이차트용 데이터
-    - `holdings_chart_data`: 보유종목 막대그래프용 데이터
-    - `key_metrics`: 주요 지표 (포맷된 형태)
-    
-    **주의:** 차트 데이터는 별도 /chart 엔드포인트에서 조회
+    특정 ETF 심볼에 대한 모든 상세 정보를 반환합니다.
+    기본 정보, 프로필, 보유 종목 데이터를 모두 포함합니다.
     """
     try:
-        symbol = symbol.upper()
-        logger.info(f"ETF 상세 정보 조회 (차트 제외): {symbol}")
+        service = ETFService()
+        details = service.get_etf_details_by_symbol(symbol)
         
-        # 기본 정보 조회
-        basic_info_result = etf_service.get_etf_basic_info(symbol)
-        if basic_info_result.get('error'):
-            logger.error(f"ETF {symbol} 기본 정보 조회 실패: {basic_info_result['error']}")
-            raise HTTPException(
-                status_code=404 if "not found" in basic_info_result['error'].lower() else 500,
-                detail=create_error_response(
-                    error_type="ETF_NOT_FOUND" if "not found" in basic_info_result['error'].lower() else "BASIC_INFO_ERROR",
-                    message=basic_info_result['error'],
-                    path=f"/etf/symbol/{symbol}"
-                ).model_dump()
-            )
+        if not details:
+            raise HTTPException(status_code=404, detail=f"ETF not found: {symbol}")
         
-        # 프로필 정보 조회
-        profile_result = etf_service.get_etf_profile(symbol)
-        # 프로필은 선택사항이므로 에러가 있어도 계속 진행
-        
-        # 응답 데이터 조합 (차트 데이터 제외)
-        result = {
-            "basic_info": {
-                "symbol": basic_info_result.get('symbol'),
-                "name": basic_info_result.get('name'),
-                "current_price": basic_info_result.get('current_price'),
-                "change_amount": basic_info_result.get('change_amount'),
-                "change_percentage": basic_info_result.get('change_percentage'),
-                "volume": basic_info_result.get('volume'),
-                "previous_close": basic_info_result.get('previous_close'),
-                "is_positive": basic_info_result.get('is_positive'),
-                "last_updated": basic_info_result.get('last_updated'),
-                "market_status": basic_info_result.get('market_status')
-            },
-            "profile": profile_result.get('profile'),
-            "last_updated": datetime.now(pytz.UTC).isoformat()
-        }
-        
-        # 프로필이 있으면 차트 데이터 생성
-        if profile_result.get('profile'):
-            profile = profile_result['profile']
-            
-            # 섹터 파이차트 데이터
-            result['sector_chart_data'] = etf_service._format_sector_chart_data(profile.get('sectors', []))
-            
-            # 보유종목 막대그래프 데이터
-            result['holdings_chart_data'] = etf_service._format_holdings_chart_data(profile.get('holdings', []))
-            
-            # 주요 지표 포맷팅
-            result['key_metrics'] = etf_service._format_key_metrics(profile)
-        
-        logger.info(f"ETF {symbol} 상세 정보 조회 성공 (차트 제외)")
-        return result
-        
-    except HTTPException:
-        raise
+        return details
     except Exception as e:
-        logger.error(f"예상치 못한 오류: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=create_error_response(
-                error_type="INTERNAL_ERROR",
-                message="Internal server error occurred",
-                path=f"/etf/symbol/{symbol}"
-            ).model_dump()
-        )
+        logger.error(f"ETF 상세 정보 API 오류 ({symbol}): {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
 
 @router.get("/symbol/{symbol}/chart", summary="ETF 차트 데이터만 조회")
 async def get_etf_chart_data(

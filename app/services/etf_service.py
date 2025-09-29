@@ -7,6 +7,8 @@ import pytz
 from app.config import settings
 from app.database import get_db
 from app.models.etf_model import ETFBasicInfo, ETFProfileHoldings, ETFRealtimePrices
+from sqlalchemy import func
+from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 
@@ -99,9 +101,116 @@ class ETFService:
         
         logger.info("ETFService 초기화 완료")
     
-    # =========================
-    # ETF 리스트 페이지 API
-    # =========================
+    # --- ▼ [신규/수정] 상세 정보 조회를 위한 통합 함수 ---
+    def get_etf_details_by_symbol(self, symbol: str) -> Optional[Dict[str, Any]]:
+        """
+        특정 ETF 심볼에 대한 모든 상세 정보를 조회, 계산 및 조합합니다.
+        - `profile`과 `basic_info`를 안정적으로 결합합니다.
+        - 전일 종가를 직접 계산하여 `change_amount` 등의 누락 문제를 해결합니다.
+        """
+        db = next(get_db())
+        try:
+            symbol_upper = symbol.upper()
+            
+            # 1. 기본 정보 및 최신 가격 조회
+            basic_info = db.query(ETFBasicInfo).filter(ETFBasicInfo.symbol == symbol_upper).first()
+            latest_price_info = db.query(ETFRealtimePrices).filter(ETFRealtimePrices.symbol == symbol_upper).order_by(ETFRealtimePrices.timestamp_ms.desc()).first()
+
+            if not basic_info or not latest_price_info:
+                logger.warning(f"기본 정보 또는 실시간 가격 정보 없음: {symbol_upper}")
+                return None
+
+            # 2. 프로필 정보 별도 조회 (안정성 확보)
+            profile_info = db.query(ETFProfileHoldings).filter(ETFProfileHoldings.symbol == symbol_upper).first()
+            if not profile_info:
+                logger.warning(f"프로필 정보 없음: {symbol_upper}")
+                # 프로필이 없어도 기본 정보는 반환할 수 있도록 null 처리
+                profile_data = None
+            else:
+                profile_data = self._parse_profile_data(profile_info)
+
+            # 3. 전일 종가 직접 계산 (핵심 로직 수정)
+            previous_close = self._get_robust_previous_close_price(db, symbol_upper, latest_price_info.created_at)
+
+            # 4. 변동률 계산
+            change_amount = None
+            change_percentage = None
+            is_positive = None
+            if previous_close is not None and latest_price_info.price is not None:
+                change_amount = latest_price_info.price - previous_close
+                change_percentage = (change_amount / previous_close) * 100 if previous_close != 0 else 0
+                is_positive = change_amount >= 0
+
+            # 5. 최종 응답 데이터 조합
+            response = {
+                "basic_info": {
+                    "symbol": basic_info.symbol,
+                    "name": basic_info.name,
+                    "current_price": latest_price_info.price,
+                    "change_amount": round(change_amount, 2) if change_amount is not None else None,
+                    "change_percentage": round(change_percentage, 2) if change_percentage is not None else None,
+                    "volume": latest_price_info.volume,
+                    "previous_close": previous_close,
+                    "is_positive": is_positive,
+                    "last_updated": latest_price_info.created_at,
+                    "market_status": self.market_checker.get_market_status()
+                },
+                "profile": profile_data,
+                "last_updated": datetime.now(pytz.utc)
+            }
+            return response
+
+        except Exception as e:
+            logger.error(f"{symbol} ETF 상세 정보 조회 실패: {e}")
+            return None # 에러 발생 시 None 반환
+        finally:
+            db.close()
+
+    def _get_robust_previous_close_price(self, db: Session, symbol: str, current_timestamp_utc: datetime) -> Optional[float]:
+        """
+        (신규 헬퍼 함수)
+        안정적으로 전일 종가를 조회합니다. 주말과 공휴일을 고려합니다.
+        """
+        et_tz = pytz.timezone('US/Eastern')
+        
+        # 기준 시간을 미국 동부 시간으로 변환
+        current_et_time = current_timestamp_utc.astimezone(et_tz)
+        
+        # 조회 시작 날짜를 하루 전으로 설정
+        lookup_date = current_et_time.date() - timedelta(days=1)
+        
+        # 주말이거나 공휴일이면 하루씩 더 이전으로 이동
+        while lookup_date.weekday() >= 5 or lookup_date.strftime('%Y-%m-%d') in self.market_checker.market_holidays:
+            lookup_date -= timedelta(days=1)
+        
+        # 해당 날짜의 마지막 거래 기록을 찾음
+        previous_close_record = db.query(ETFRealtimePrices.price)\
+            .filter(ETFRealtimePrices.symbol == symbol)\
+            .filter(func.date(ETFRealtimePrices.created_at.op('AT TIME ZONE')('UTC').op('AT TIME ZONE')('US/Eastern')) == lookup_date)\
+            .order_by(ETFRealtimePrices.timestamp_ms.desc())\
+            .first()
+
+        return previous_close_record[0] if previous_close_record else None
+
+    def _parse_profile_data(self, profile: ETFProfileHoldings) -> Dict[str, Any]:
+        """(신규 헬퍼 함수) 프로필 DB 모델을 API 응답 딕셔너리로 파싱"""
+        try:
+            sectors_data = json.loads(profile.sectors) if profile.sectors else []
+            holdings_data = json.loads(profile.holdings) if profile.holdings else []
+        except json.JSONDecodeError:
+            sectors_data = []
+            holdings_data = []
+
+        return {
+            'net_assets': profile.net_assets,
+            'net_expense_ratio': profile.net_expense_ratio,
+            'portfolio_turnover': profile.portfolio_turnover,
+            'dividend_yield': profile.dividend_yield,
+            'inception_date': profile.inception_date,
+            'leveraged': profile.leveraged,
+            'sectors': sectors_data,
+            'holdings': holdings_data[:15] # 상위 15개만
+        }
     
     async def get_realtime_polling_data(self, limit: int, sort_by: str = "price", order: str = "desc"):
         """
@@ -401,150 +510,6 @@ class ETFService:
     # =========================
     # ETF 개별 상세 정보 API
     # =========================
-    
-    def get_etf_basic_info(self, symbol: str) -> Dict[str, Any]:
-        """
-        개별 ETF 기본 정보 조회 (차트 데이터 제외)
-        
-        Args:
-            symbol: ETF 심볼 (예: 'SPY')
-            
-        Returns:
-            Dict[str, Any]: 차트를 제외한 ETF 기본 정보
-        """
-        try:
-            self.stats["api_requests"] += 1
-            self.stats["last_request"] = datetime.now(pytz.UTC)
-            
-            symbol = symbol.upper()
-            db = next(get_db())
-            
-            # ETF 기본 정보 조회
-            basic_info = db.query(ETFBasicInfo).filter(ETFBasicInfo.symbol == symbol).first()
-            if not basic_info:
-                return {
-                    'symbol': symbol,
-                    'error': f'No basic info found for ETF {symbol}'
-                }
-            
-            # 현재가 및 변동 정보 조회
-            change_info = ETFRealtimePrices.get_price_change_info(db, symbol)
-            
-            if not change_info['current_price']:
-                return {
-                    'symbol': symbol,
-                    'name': basic_info.name,
-                    'error': f'No price data found for ETF {symbol}'
-                }
-            
-            self.stats["db_queries"] += 1
-            
-            return {
-                'symbol': symbol,
-                'name': basic_info.name,
-                'current_price': change_info['current_price'],
-                'change_amount': change_info['change_amount'],
-                'change_percentage': change_info['change_percentage'],
-                'volume': change_info['volume'],
-                'previous_close': change_info['previous_close'],
-                'is_positive': change_info['change_amount'] > 0 if change_info['change_amount'] else None,
-                'market_status': self.market_checker.get_market_status(),
-                'last_updated': change_info['last_updated']
-            }
-            
-        except Exception as e:
-            logger.error(f"{symbol} ETF 기본 정보 조회 실패: {e}")
-            self.stats["errors"] += 1
-            return {
-                'symbol': symbol,
-                'error': str(e)
-            }
-        finally:
-            db.close()
-    
-    def get_etf_profile(self, symbol: str) -> Dict[str, Any]:
-        """
-        ETF 프로필 및 보유종목 정보 조회
-        
-        Args:
-            symbol: ETF 심볼 (예: 'SPY')
-            
-        Returns:
-            Dict[str, Any]: ETF 프로필 정보 (섹터, 보유종목 등)
-        """
-        try:
-            self.stats["api_requests"] += 1
-            
-            symbol = symbol.upper()
-            db = next(get_db())
-            
-            # ETF 프로필 정보 조회
-            profile = db.query(ETFProfileHoldings).filter(ETFProfileHoldings.symbol == symbol).first()
-            
-            if not profile:
-                return {
-                    'symbol': symbol,
-                    'profile': None,
-                    'error': f'No profile data found for ETF {symbol}'
-                }
-            
-            # JSON 데이터 파싱
-            sectors_data = []
-            holdings_data = []
-            
-            try:
-                if profile.sectors:
-                    sectors_json = json.loads(profile.sectors)
-                    for i, sector in enumerate(sectors_json):
-                        sectors_data.append({
-                            'sector': sector.get('sector', ''),
-                            'weight': float(sector.get('weight', 0)),
-                            'color': self._get_sector_color(i)
-                        })
-                
-                if profile.holdings:
-                    holdings_json = json.loads(profile.holdings)
-                    for holding in holdings_json[:15]:  # 상위 15개만
-                        holdings_data.append({
-                            'symbol': holding.get('symbol', ''),
-                            'description': holding.get('description', ''),
-                            'weight': float(holding.get('weight', 0))
-                        })
-                        
-            except json.JSONDecodeError as e:
-                logger.error(f"{symbol} ETF JSON 파싱 실패: {e}")
-                return {
-                    'symbol': symbol,
-                    'profile': None,
-                    'error': 'Failed to parse ETF profile data'
-                }
-            
-            self.stats["db_queries"] += 1
-            
-            return {
-                'symbol': symbol,
-                'profile': {
-                    'net_assets': profile.net_assets,
-                    'net_expense_ratio': profile.net_expense_ratio,
-                    'portfolio_turnover': profile.portfolio_turnover,
-                    'dividend_yield': profile.dividend_yield,
-                    'inception_date': profile.inception_date,
-                    'leveraged': profile.leveraged,
-                    'sectors': sectors_data,
-                    'holdings': holdings_data
-                }
-            }
-            
-        except Exception as e:
-            logger.error(f"{symbol} ETF 프로필 조회 실패: {e}")
-            self.stats["errors"] += 1
-            return {
-                'symbol': symbol,
-                'profile': None,
-                'error': str(e)
-            }
-        finally:
-            db.close()
     
     def get_chart_data_only(self, symbol: str, timeframe: str = '1D') -> Dict[str, Any]:
         """
