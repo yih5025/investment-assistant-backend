@@ -178,12 +178,12 @@ class SP500Service:
                 all_data.append(item_dict)
             
             # 정렬 처리 (변화율 정보가 포함된 데이터)
-            if sort_by == "volume":
+            if sort_by == "price":
+                all_data.sort(key=lambda x: x.get('current_price', 0), reverse=(order == "desc"))
+            elif sort_by == "volume":
                 all_data.sort(key=lambda x: x.get('volume', 0), reverse=(order == "desc"))
             elif sort_by == "change_percent":
                 all_data.sort(key=lambda x: x.get('change_percentage', 0), reverse=(order == "desc"))
-            elif sort_by == "price":
-                all_data.sort(key=lambda x: x.get('current_price', 0), reverse=(order == "desc"))
             
             # 순위 추가 (전체 데이터 기준)
             for i, item in enumerate(all_data):
@@ -242,12 +242,12 @@ class SP500Service:
             stocks = stock_list_result.get('stocks', [])
             
             # 정렬 처리
-            if sort_by == "volume":
+            if sort_by == "price":
+                stocks.sort(key=lambda x: x.get('current_price', 0), reverse=(order == "desc"))
+            elif sort_by == "volume":
                 stocks.sort(key=lambda x: x.get('volume', 0), reverse=(order == "desc"))
             elif sort_by == "change_percent":
                 stocks.sort(key=lambda x: x.get('change_percentage', 0), reverse=(order == "desc"))
-            elif sort_by == "price":
-                stocks.sort(key=lambda x: x.get('current_price', 0), reverse=(order == "desc"))
             
             # 순위 추가 (전체 데이터 기준)
             for i, stock in enumerate(stocks):

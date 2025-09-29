@@ -5,12 +5,14 @@ from sqlalchemy import text
 from typing import List, Optional, Dict, Any
 import math
 import json
+from pydantic import ValidationError
 
 from app.models.x_posts_model import XPost
 from app.models.truth_social_model import TruthSocialPost, TruthSocialTrend
 from app.models.post_analysis_cache_model import PostAnalysisCache
 from app.schemas import sns_schema
 from fastapi import HTTPException
+
 
 class SNSService:
     """통합 SNS 서비스: 원본 데이터 조회 및 분석 데이터 조회를 모두 처리"""
@@ -314,6 +316,28 @@ class SNSService:
         if not analysis_result:
             raise HTTPException(status_code=404, detail="Analysis data not found for the given post.")
         
+        # --- ▼ [수정] market_data를 새로운 스키마에 맞게 파싱하고 검증하는 로직 추가 ---
+        try:
+            if analysis_result.market_data:
+                # DB에 저장된 JSON 문자열을 Python 딕셔너리로 변환
+                market_data_dict = json.loads(analysis_result.market_data)
+                
+                # Pydantic 모델을 사용하여 데이터 유효성 검사 및 객체 변환
+                validated_market_data = {
+                    symbol: sns_schema.MarketAssetDataSchema.model_validate(data)
+                    for symbol, data in market_data_dict.items()
+                }
+                # 검증된 Pydantic 객체를 다시 analysis_result에 할당
+                analysis_result.market_data = validated_market_data
+            else:
+                 analysis_result.market_data = {} # market_data가 null일 경우 빈 dict로 초기화
+
+        except (json.JSONDecodeError, ValidationError) as e:
+            # 파싱 또는 유효성 검사 실패 시 에러 로깅 (실제 운영환경에서는 logging 사용)
+            print(f"Error parsing or validating market_data for post {post_id}: {e}")
+            # 프론트엔드가 에러를 처리할 수 있도록 market_data를 비워줌
+            analysis_result.market_data = {}
+
         original_posts_map = self._get_original_posts_for_analysis_map(db, {post_source: [post_id]})
         original_post_data = original_posts_map.get((post_source, post_id))
 
@@ -325,7 +349,6 @@ class SNSService:
             content = original_post_data.get("content")
             content_schema = sns_schema.OriginalPostForAnalysisSchema(content=content)
 
-            # 플랫폼에 따라 다른 스키마를 채움
             if post_source == 'x' and original_post_data.get("engagement"):
                 engagement_schema = sns_schema.XPostEngagementSchema(**original_post_data["engagement"])
             

@@ -6,6 +6,29 @@ from datetime import datetime
 
 from app.schemas.common import PaginatedResponse
 
+# ==================================================================================
+# === 신규 추가/수정된 스키마: OHLCV 데이터 구조를 정의합니다. ===
+# ==================================================================================
+
+class PriceTimelineOHLCVSchema(BaseModel):
+    """(신규) 1분 단위 OHLCV 시계열 데이터 스키마"""
+    timestamp: datetime
+    open: Optional[float] = None
+    high: Optional[float] = None
+    low: Optional[float] = None
+    close: Optional[float] = None
+    volume: Optional[float] = None
+
+class MarketAssetDataSchema(BaseModel):
+    """(신규) 단일 자산에 대한 시장 데이터 스키마"""
+    price_timeline: List[PriceTimelineOHLCVSchema]
+    data_source: str
+    asset_info: Dict[str, Any]
+
+# ==================================================================================
+# === 기존 스키마 ===
+# ==================================================================================
+
 class UnifiedSNSPostResponse(BaseModel):
     """(원본 데이터용) 통합 SNS 게시글 응답 스키마"""
     id: str = Field(..., description="게시글 ID")
@@ -64,7 +87,8 @@ class PostAnalysisCacheDetailSchema(PostAnalysisCacheBaseSchema):
     """(분석 데이터용) 상세 페이지에 필요한 모든 분석 정보 (차트 데이터 포함)"""
     price_analysis: Optional[dict] = None
     volume_analysis: Optional[dict] = None
-    market_data: Optional[dict] = None
+    # --- ▼ [수정] market_data의 타입을 OHLCV 구조를 포함하는 스키마로 변경 ---
+    market_data: Optional[Dict[str, MarketAssetDataSchema]] = None
 
 class OriginalPostForAnalysisSchema(BaseModel):
     """(분석 데이터용) 분석된 게시물의 원본 내용"""
@@ -89,7 +113,6 @@ class SNSPostAnalysisListResponse(BaseModel):
     """[분석 목록 페이지용] API 응답 스키마"""
     analysis: PostAnalysisCacheBaseSchema
     original_post: OriginalPostForAnalysisSchema
-    # --- 👇 [수정] 플랫폼별로 하나만 존재할 수 있도록 Optional 객체로 분리 ---
     engagement: Optional[XPostEngagementSchema] = None
     media: Optional[TruthSocialMediaSchema] = None
 
@@ -97,6 +120,5 @@ class SNSPostAnalysisDetailResponse(BaseModel):
     """[분석 상세 페이지용] API 응답 스키마"""
     analysis: PostAnalysisCacheDetailSchema
     original_post: OriginalPostForAnalysisSchema
-    # --- 👇 [수정] 플랫폼별로 하나만 존재할 수 있도록 Optional 객체로 분리 ---
     engagement: Optional[XPostEngagementSchema] = None
     media: Optional[TruthSocialMediaSchema] = None

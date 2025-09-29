@@ -161,8 +161,8 @@ class CryptoService:
                         logger.warning(f"⚠️ Redis 암호화폐 데이터 파싱 실패: {e}")
                         continue
             
-            # 거래량별 정렬 및 제한
-            data.sort(key=lambda x: x.trade_volume or 0, reverse=True)
+            # 현재가별 정렬 및 제한
+            data.sort(key=lambda x: x.trade_price or 0, reverse=True)
             data = data[:limit]
             
             self.stats["last_update"] = datetime.now(pytz.UTC)
