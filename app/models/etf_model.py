@@ -170,25 +170,38 @@ class ETFRealtimePrices(Base):
     def get_chart_data_by_timeframe(cls, db: Session, symbol: str, timeframe: str = '1D', limit: int = 200) -> List['ETFRealtimePrices']:
         """시간대별 차트 데이터 조회"""
         try:
-            # 시간대별 필터링 로직
+            # 해당 심볼의 최신 데이터 시점을 기준으로 조회
+            latest_record = db.query(cls).filter(cls.symbol == symbol).order_by(cls.created_at.desc()).first()
+            
+            if not latest_record:
+                logger.warning(f"ETF {symbol}의 데이터가 없습니다")
+                return []
+            
+            latest_time = latest_record.created_at
+            logger.info(f"ETF {symbol} 최신 데이터 시점: {latest_time}")
+            
+            # 최신 데이터 시점을 기준으로 시간대별 필터링
             if timeframe == '1D':
-                # 1일: 최근 24시간
-                start_time = datetime.now() - timedelta(hours=24)
+                # 1일: 최신 데이터 시점에서 24시간 전
+                start_time = latest_time - timedelta(hours=24)
             elif timeframe == '1W':
-                # 1주일: 최근 7일
-                start_time = datetime.now() - timedelta(days=7)
+                # 1주일: 최신 데이터 시점에서 7일 전
+                start_time = latest_time - timedelta(days=7)
             elif timeframe == '1M':
-                # 1개월: 최근 30일
-                start_time = datetime.now() - timedelta(days=30)
+                # 1개월: 최신 데이터 시점에서 30일 전
+                start_time = latest_time - timedelta(days=30)
             else:
-                # 기본값: 1일
-                start_time = datetime.now() - timedelta(hours=24)
+                # 기본값: 24시간 전
+                start_time = latest_time - timedelta(hours=24)
+            
+            logger.info(f"ETF {symbol} 차트 조회 범위: {start_time} ~ {latest_time} ({timeframe})")
             
             chart_data = db.query(cls).filter(
                 cls.symbol == symbol,
                 cls.created_at >= start_time
             ).order_by(cls.created_at.asc()).limit(limit).all()
             
+            logger.info(f"ETF {symbol} 차트 데이터 조회 결과: {len(chart_data)}개")
             return chart_data
             
         except Exception as e:

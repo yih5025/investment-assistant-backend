@@ -411,10 +411,11 @@ class ETFService:
             Dict[str, str]: {symbol: etf_name}
         """
         try:
+            db = next(get_db())
             etf_names = {}
             
             # ETFBasicInfo에서 심볼과 이름 일괄 조회
-            etf_infos = self.db.query(ETFBasicInfo).filter(
+            etf_infos = db.query(ETFBasicInfo).filter(
                 ETFBasicInfo.symbol.in_(symbols)
             ).all()
             
@@ -427,6 +428,37 @@ class ETFService:
         except Exception as e:
             logger.error(f"ETF 이름 조회 실패: {e}")
             return {}
+        finally:
+            if 'db' in locals():
+                db.close()
+
+    def _format_timestamp_by_timeframe(self, timestamp: datetime, timeframe: str) -> str:
+        """
+        시간대별로 적절한 타임스탬프 포맷 반환
+        
+        Args:
+            timestamp: datetime 객체
+            timeframe: 시간대 ('1D', '1W', '1M')
+            
+        Returns:
+            str: 포맷된 타임스탬프
+        """
+        try:
+            if timeframe == '1D':
+                # 1일: 시:분 포맷
+                return timestamp.strftime('%H:%M')
+            elif timeframe == '1W':
+                # 1주일: 월/일 포맷
+                return timestamp.strftime('%m/%d')
+            elif timeframe == '1M':
+                # 1개월: 월/일 포맷
+                return timestamp.strftime('%m/%d')
+            else:
+                # 기본값: 시:분 포맷
+                return timestamp.strftime('%H:%M')
+        except Exception as e:
+            logger.error(f"타임스탬프 포맷 오류: {e}")
+            return timestamp.isoformat()
 
     def get_etf_list(self, limit: int = 100) -> Dict[str, Any]:
         """
