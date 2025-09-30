@@ -454,19 +454,19 @@ class SNSService:
         
         truth_trend_ids = post_ids_by_source.get('truth_social_trends', [])
         if truth_trend_ids:
-            # TruthSocialTrend 모델에는 has_media / media_attachments 컬럼이 없습니다.
-            # 존재하지 않는 컬럼 접근으로 인한 AttributeError를 방지하기 위해
-            # 트렌드 데이터는 미디어가 없다고 간주하여 기본값을 사용합니다.
+            # TruthSocialTrend 모델에 미디어 컬럼이 추가되어 Posts와 동일하게 처리합니다.
             truth_trends = db.query(
                 TruthSocialTrend.id, 
-                TruthSocialTrend.clean_content
+                TruthSocialTrend.clean_content, 
+                TruthSocialTrend.has_media, 
+                TruthSocialTrend.media_attachments
             ).filter(TruthSocialTrend.id.in_(truth_trend_ids)).all()
             for trend in truth_trends:
                 original_posts_map[('truth_social_trends', str(trend.id))] = {
                     "content": trend.clean_content, 
                     "engagement": None,
-                    "has_media": False, 
-                    "media_attachments": None
+                    "has_media": trend.has_media or False,
+                    "media_attachments": trend.media_attachments
                 }
                 
         return original_posts_map

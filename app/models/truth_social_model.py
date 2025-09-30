@@ -115,6 +115,11 @@ class TruthSocialTrend(BaseModel):
     url = Column(Text)
     uri = Column(Text)
     
+    # 미디어 정보 (Posts와 동일하게 추가)
+    has_media = Column(Boolean, default=False)
+    media_count = Column(Integer, default=0)
+    media_attachments = Column(JSONB)
+    
     # 태그 및 멘션 (JSONB 배열)
     tags = Column(JSONB, default=lambda: [])
     mentions = Column(JSONB, default=lambda: [])
