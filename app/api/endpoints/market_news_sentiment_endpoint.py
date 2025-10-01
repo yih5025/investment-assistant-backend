@@ -333,7 +333,8 @@ async def get_sentiment_stats(
     
     return {
         "period": f"최근 {days}일",
-        "total_news": total_count,
+        "total_count": total_count,
+        "total_news": total_count,  # 호환성을 위해 둘 다 제공
         "sentiment_distribution": {
             "bullish": len(bullish_news),
             "bearish": len(bearish_news),
@@ -348,27 +349,6 @@ async def get_sentiment_stats(
         "market_mood": "긍정적" if avg_sentiment > 0.1 else "부정적" if avg_sentiment < -0.1 else "중립적",
         "market_mood_emoji": "📈" if avg_sentiment > 0.1 else "📉" if avg_sentiment < -0.1 else "➡️"
     }
-    
-    # 감성 라벨 파싱
-    labels_list = None
-    if sentiment_labels:
-        labels_list = [label.strip() for label in sentiment_labels.split(",")]
-    
-    # 뉴스 목록 조회
-    news_list, total_count = service.get_news_list(
-        days=days, limit=limit, offset=offset,
-        min_sentiment=min_sentiment, max_sentiment=max_sentiment,
-        sentiment_labels=labels_list, sort_by=sort_by, order=order
-    )
-    
-    # 배치 정보 조회
-    batch_info = service.get_batch_info()
-    
-    return MarketSentimentListResponse(
-        total_count=total_count,
-        batch_info=BatchInfo(**batch_info),
-        news=news_list
-    )
 
 
 @router.get(

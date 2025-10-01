@@ -279,6 +279,28 @@ async def get_news_by_symbol(
         )
 
 
+@router.get("/stats", summary="Financial News 통계")
+async def get_financial_news_stats(db: Session = Depends(get_db)):
+    """
+    Financial News 통계 정보를 반환합니다.
+    
+    - Hero 섹션 등에서 사용할 간단한 통계 정보
+    """
+    try:
+        service = FinancialNewsService(db)
+        stats_result = service.get_categories_statistics()
+        
+        return {
+            "total_count": stats_result.total_news
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"통계 조회 중 오류가 발생했습니다: {str(e)}"
+        )
+
+
 @router.get(
     "/categories/stats",
     response_model=CategoriesStatsResponse,

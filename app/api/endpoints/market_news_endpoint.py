@@ -260,6 +260,38 @@ async def get_daily_news_stats(
         )
 
 
+@router.get("/stats", summary="Market News 통계")
+async def get_market_news_stats(db: Session = Depends(get_db)):
+    """
+    Market News 통계 정보를 반환합니다.
+    
+    - Hero 섹션 등에서 사용할 간단한 통계 정보
+    """
+    try:
+        service = MarketNewsService(db)
+        
+        # 전체 뉴스 개수
+        total_count = service.db.query(MarketNews).count()
+        
+        # 최신 뉴스 날짜
+        latest_news = service.db.query(MarketNews.published_at).order_by(
+            MarketNews.published_at.desc()
+        ).first()
+        
+        latest_date = latest_news[0] if latest_news else None
+        
+        return {
+            "total_count": total_count,
+            "latest_news_date": latest_date
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"통계 조회 중 오류가 발생했습니다: {str(e)}"
+        )
+
+
 @router.get("/health", summary="Market News API 상태")
 async def health_check(db: Session = Depends(get_db)):
     """
