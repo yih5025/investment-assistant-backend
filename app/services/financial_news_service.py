@@ -60,6 +60,14 @@ class FinancialNewsService:
         # 기본 쿼리 (최신순 정렬)
         query = self.db.query(FinancialNews).order_by(FinancialNews.published_at.desc())
         
+        # 제목/내용 필터링: headline이나 summary가 없으면 제외
+        query = query.filter(
+            or_(
+                and_(FinancialNews.headline.isnot(None), FinancialNews.headline != ''),
+                and_(FinancialNews.summary.isnot(None), FinancialNews.summary != '')
+            )
+        )
+        
         # 카테고리 필터링
         if categories:
             query = query.filter(FinancialNews.category.in_(categories))
@@ -198,6 +206,12 @@ class FinancialNewsService:
                 # 소스에서 검색
                 FinancialNews.source.ilike(f'%{query_text}%')
             )
+        ).filter(
+            # 제목/내용 필터링: headline이나 summary가 없으면 제외
+            or_(
+                and_(FinancialNews.headline.isnot(None), FinancialNews.headline != ''),
+                and_(FinancialNews.summary.isnot(None), FinancialNews.summary != '')
+            )
         ).order_by(FinancialNews.published_at.desc())
         
         # 카테고리 필터링
@@ -298,6 +312,12 @@ class FinancialNewsService:
         
         query = self.db.query(FinancialNews).filter(
             FinancialNews.published_at >= cutoff_time
+        ).filter(
+            # 제목/내용 필터링: headline이나 summary가 없으면 제외
+            or_(
+                and_(FinancialNews.headline.isnot(None), FinancialNews.headline != ''),
+                and_(FinancialNews.summary.isnot(None), FinancialNews.summary != '')
+            )
         )
         
         if categories:

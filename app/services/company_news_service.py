@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import func, and_, desc
+from sqlalchemy import func, and_, or_, desc
 from typing import List, Dict, Optional, Tuple
 from datetime import datetime, timedelta
 
@@ -87,7 +87,14 @@ class CompanyNewsService:
         return (self.db.query(CompanyNews)
                 .filter(and_(
                     CompanyNews.symbol.in_(symbols),
-                    CompanyNews.published_at >= cutoff_date
+                    CompanyNews.published_at >= cutoff_date,
+                    # 제목/내용 필터링: title이 있고, (description 또는 content 중 하나라도 있어야 함)
+                    CompanyNews.title.isnot(None),
+                    CompanyNews.title != '',
+                    or_(
+                        and_(CompanyNews.description.isnot(None), CompanyNews.description != ''),
+                        and_(CompanyNews.content.isnot(None), CompanyNews.content != '')
+                    )
                 ))
                 .order_by(desc(CompanyNews.published_at))
                 .limit(limit)
@@ -113,7 +120,14 @@ class CompanyNewsService:
         return (self.db.query(CompanyNews)
                 .filter(and_(
                     CompanyNews.symbol == symbol,
-                    CompanyNews.published_at >= cutoff_date
+                    CompanyNews.published_at >= cutoff_date,
+                    # 제목/내용 필터링: title이 있고, (description 또는 content 중 하나라도 있어야 함)
+                    CompanyNews.title.isnot(None),
+                    CompanyNews.title != '',
+                    or_(
+                        and_(CompanyNews.description.isnot(None), CompanyNews.description != ''),
+                        and_(CompanyNews.content.isnot(None), CompanyNews.content != '')
+                    )
                 ))
                 .order_by(desc(CompanyNews.published_at))
                 .limit(limit)
@@ -136,7 +150,14 @@ class CompanyNewsService:
         return (self.db.query(CompanyNews)
                 .filter(and_(
                     CompanyNews.symbol == symbol,
-                    CompanyNews.published_at >= cutoff_date
+                    CompanyNews.published_at >= cutoff_date,
+                    # 제목/내용 필터링: title이 있고, (description 또는 content 중 하나라도 있어야 함)
+                    CompanyNews.title.isnot(None),
+                    CompanyNews.title != '',
+                    or_(
+                        and_(CompanyNews.description.isnot(None), CompanyNews.description != ''),
+                        and_(CompanyNews.content.isnot(None), CompanyNews.content != '')
+                    )
                 ))
                 .count())
     

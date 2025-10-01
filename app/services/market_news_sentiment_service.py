@@ -177,6 +177,16 @@ class MarketNewsSentimentService:
         # 기본 쿼리
         query = self.db.query(MarketNewsSentiment)
         
+        # 제목/내용 필터링: title이 있고, summary도 있어야 함
+        query = query.filter(
+            and_(
+                MarketNewsSentiment.title.isnot(None),
+                MarketNewsSentiment.title != '',
+                MarketNewsSentiment.summary.isnot(None),
+                MarketNewsSentiment.summary != ''
+            )
+        )
+        
         # 날짜 필터
         cutoff_date = datetime.now() - timedelta(days=days)
         query = query.filter(MarketNewsSentiment.time_published >= cutoff_date)
@@ -219,6 +229,15 @@ class MarketNewsSentimentService:
         """특정 배치의 뉴스를 조회합니다."""
         news_items = (self.db.query(MarketNewsSentiment)
                      .filter(MarketNewsSentiment.batch_id == batch_id)
+                     .filter(
+                         # 제목/내용 필터링: title이 있고, summary도 있어야 함
+                         and_(
+                             MarketNewsSentiment.title.isnot(None),
+                             MarketNewsSentiment.title != '',
+                             MarketNewsSentiment.summary.isnot(None),
+                             MarketNewsSentiment.summary != ''
+                         )
+                     )
                      .order_by(desc(MarketNewsSentiment.time_published))
                      .limit(limit)
                      .offset(offset)
@@ -338,6 +357,14 @@ class MarketNewsSentimentService:
         
         query = self.db.query(MarketNewsSentiment).filter(
             MarketNewsSentiment.time_published >= cutoff_date
+        ).filter(
+            # 제목/내용 필터링: title이 있고, summary도 있어야 함
+            and_(
+                MarketNewsSentiment.title.isnot(None),
+                MarketNewsSentiment.title != '',
+                MarketNewsSentiment.summary.isnot(None),
+                MarketNewsSentiment.summary != ''
+            )
         )
         
         # 감성 타입별 필터링

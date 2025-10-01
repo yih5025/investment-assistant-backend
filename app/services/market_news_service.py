@@ -55,6 +55,18 @@ class MarketNewsService:
         # 기본 쿼리 (최신순 정렬)
         query = self.db.query(MarketNews).order_by(MarketNews.published_at.desc())
         
+        # 제목/내용 필터링: title이 있고, (description 또는 content 중 하나라도 있어야 함)
+        query = query.filter(
+            and_(
+                MarketNews.title.isnot(None),
+                MarketNews.title != '',
+                or_(
+                    and_(MarketNews.description.isnot(None), MarketNews.description != ''),
+                    and_(MarketNews.content.isnot(None), MarketNews.content != '')
+                )
+            )
+        )
+        
         # 날짜 필터링
         if start_date:
             query = query.filter(MarketNews.published_at >= start_date)
@@ -180,6 +192,16 @@ class MarketNewsService:
                     func.plainto_tsquery('english', query_text)
                 )
             )
+        ).filter(
+            # 제목/내용 필터링: title이 있고, (description 또는 content 중 하나라도 있어야 함)
+            and_(
+                MarketNews.title.isnot(None),
+                MarketNews.title != '',
+                or_(
+                    and_(MarketNews.description.isnot(None), MarketNews.description != ''),
+                    and_(MarketNews.content.isnot(None), MarketNews.content != '')
+                )
+            )
         ).order_by(MarketNews.published_at.desc())
         
         # 날짜 필터링
@@ -235,6 +257,16 @@ class MarketNewsService:
         
         items = self.db.query(MarketNews).filter(
             MarketNews.published_at >= cutoff_time
+        ).filter(
+            # 제목/내용 필터링: title이 있고, (description 또는 content 중 하나라도 있어야 함)
+            and_(
+                MarketNews.title.isnot(None),
+                MarketNews.title != '',
+                or_(
+                    and_(MarketNews.description.isnot(None), MarketNews.description != ''),
+                    and_(MarketNews.content.isnot(None), MarketNews.content != '')
+                )
+            )
         ).order_by(
             MarketNews.published_at.desc()
         ).limit(limit).all()

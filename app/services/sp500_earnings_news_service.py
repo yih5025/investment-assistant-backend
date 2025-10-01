@@ -20,6 +20,16 @@ class SP500EarningsNewsService:
         """
         query = self.db.query(SP500EarningsNews).filter(
             SP500EarningsNews.calendar_id == calendar_id
+        ).filter(
+            # 제목/내용 필터링: title이 있고, (summary 또는 content 중 하나라도 있어야 함)
+            and_(
+                SP500EarningsNews.title.isnot(None),
+                SP500EarningsNews.title != '',
+                or_(
+                    and_(SP500EarningsNews.summary.isnot(None), SP500EarningsNews.summary != ''),
+                    and_(SP500EarningsNews.content.isnot(None), SP500EarningsNews.content != '')
+                )
+            )
         )
         
         if params:
@@ -89,7 +99,14 @@ class SP500EarningsNewsService:
         forecast_news = self.db.query(SP500EarningsNews).filter(
             and_(
                 SP500EarningsNews.calendar_id == calendar_id,
-                SP500EarningsNews.news_section == "forecast"
+                SP500EarningsNews.news_section == "forecast",
+                # 제목/내용 필터링: title이 있고, (summary 또는 content 중 하나라도 있어야 함)
+                SP500EarningsNews.title.isnot(None),
+                SP500EarningsNews.title != '',
+                or_(
+                    and_(SP500EarningsNews.summary.isnot(None), SP500EarningsNews.summary != ''),
+                    and_(SP500EarningsNews.content.isnot(None), SP500EarningsNews.content != '')
+                )
             )
         ).order_by(desc(SP500EarningsNews.published_at)).all()
         
@@ -97,7 +114,14 @@ class SP500EarningsNewsService:
         reaction_news = self.db.query(SP500EarningsNews).filter(
             and_(
                 SP500EarningsNews.calendar_id == calendar_id,
-                SP500EarningsNews.news_section == "reaction"
+                SP500EarningsNews.news_section == "reaction",
+                # 제목/내용 필터링: title이 있고, (summary 또는 content 중 하나라도 있어야 함)
+                SP500EarningsNews.title.isnot(None),
+                SP500EarningsNews.title != '',
+                or_(
+                    and_(SP500EarningsNews.summary.isnot(None), SP500EarningsNews.summary != ''),
+                    and_(SP500EarningsNews.content.isnot(None), SP500EarningsNews.content != '')
+                )
             )
         ).order_by(desc(SP500EarningsNews.published_at)).all()
         
@@ -128,7 +152,14 @@ class SP500EarningsNewsService:
         query = self.db.query(SP500EarningsNews).filter(
             and_(
                 SP500EarningsNews.calendar_id == calendar_id,
-                SP500EarningsNews.news_section == "forecast"
+                SP500EarningsNews.news_section == "forecast",
+                # 제목/내용 필터링: title이 있고, (summary 또는 content 중 하나라도 있어야 함)
+                SP500EarningsNews.title.isnot(None),
+                SP500EarningsNews.title != '',
+                or_(
+                    and_(SP500EarningsNews.summary.isnot(None), SP500EarningsNews.summary != ''),
+                    and_(SP500EarningsNews.content.isnot(None), SP500EarningsNews.content != '')
+                )
             )
         ).order_by(desc(SP500EarningsNews.published_at))
         
@@ -148,7 +179,14 @@ class SP500EarningsNewsService:
         query = self.db.query(SP500EarningsNews).filter(
             and_(
                 SP500EarningsNews.calendar_id == calendar_id,
-                SP500EarningsNews.news_section == "reaction"
+                SP500EarningsNews.news_section == "reaction",
+                # 제목/내용 필터링: title이 있고, (summary 또는 content 중 하나라도 있어야 함)
+                SP500EarningsNews.title.isnot(None),
+                SP500EarningsNews.title != '',
+                or_(
+                    and_(SP500EarningsNews.summary.isnot(None), SP500EarningsNews.summary != ''),
+                    and_(SP500EarningsNews.content.isnot(None), SP500EarningsNews.content != '')
+                )
             )
         ).order_by(desc(SP500EarningsNews.published_at))
         
@@ -191,14 +229,28 @@ class SP500EarningsNewsService:
             forecast_news = self.db.query(SP500EarningsNews).filter(
                 and_(
                     SP500EarningsNews.calendar_id == calendar_event.id,
-                    SP500EarningsNews.news_section == "forecast"
+                    SP500EarningsNews.news_section == "forecast",
+                    # 제목/내용 필터링: title이 있고, (summary 또는 content 중 하나라도 있어야 함)
+                    SP500EarningsNews.title.isnot(None),
+                    SP500EarningsNews.title != '',
+                    or_(
+                        and_(SP500EarningsNews.summary.isnot(None), SP500EarningsNews.summary != ''),
+                        and_(SP500EarningsNews.content.isnot(None), SP500EarningsNews.content != '')
+                    )
                 )
             ).order_by(desc(SP500EarningsNews.published_at)).all()
             
             reaction_news = self.db.query(SP500EarningsNews).filter(
                 and_(
                     SP500EarningsNews.calendar_id == calendar_event.id,
-                    SP500EarningsNews.news_section == "reaction"
+                    SP500EarningsNews.news_section == "reaction",
+                    # 제목/내용 필터링: title이 있고, (summary 또는 content 중 하나라도 있어야 함)
+                    SP500EarningsNews.title.isnot(None),
+                    SP500EarningsNews.title != '',
+                    or_(
+                        and_(SP500EarningsNews.summary.isnot(None), SP500EarningsNews.summary != ''),
+                        and_(SP500EarningsNews.content.isnot(None), SP500EarningsNews.content != '')
+                    )
                 )
             ).order_by(desc(SP500EarningsNews.published_at)).all()
             

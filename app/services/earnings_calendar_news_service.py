@@ -81,7 +81,14 @@ class EarningsCalendarNewsService:
                 CompanyNews.symbol == symbol,
                 CompanyNews.published_at >= start_date,
                 CompanyNews.published_at <= end_date,
-                or_(*keyword_conditions)
+                or_(*keyword_conditions),
+                # 제목/내용 필터링: title이 있고, (description 또는 content 중 하나라도 있어야 함)
+                CompanyNews.title.isnot(None),
+                CompanyNews.title != '',
+                or_(
+                    and_(CompanyNews.description.isnot(None), CompanyNews.description != ''),
+                    and_(CompanyNews.content.isnot(None), CompanyNews.content != '')
+                )
             )
         ).order_by(CompanyNews.published_at.desc())
         
@@ -171,7 +178,14 @@ class EarningsCalendarNewsService:
                 CompanyNews.symbol == symbol,
                 CompanyNews.published_at >= overall_start,
                 CompanyNews.published_at <= overall_end,
-                or_(*keyword_conditions)
+                or_(*keyword_conditions),
+                # 제목/내용 필터링: title이 있고, (description 또는 content 중 하나라도 있어야 함)
+                CompanyNews.title.isnot(None),
+                CompanyNews.title != '',
+                or_(
+                    and_(CompanyNews.description.isnot(None), CompanyNews.description != ''),
+                    and_(CompanyNews.content.isnot(None), CompanyNews.content != '')
+                )
             )
         ).order_by(CompanyNews.published_at.desc())
         
@@ -264,7 +278,14 @@ class EarningsCalendarNewsService:
                     CompanyNews.symbol == schedule.symbol,
                     CompanyNews.published_at >= start_date,
                     CompanyNews.published_at <= end_date,
-                    or_(*keyword_conditions)
+                    or_(*keyword_conditions),
+                    # 제목/내용 필터링: title이 있고, (description 또는 content 중 하나라도 있어야 함)
+                    CompanyNews.title.isnot(None),
+                    CompanyNews.title != '',
+                    or_(
+                        and_(CompanyNews.description.isnot(None), CompanyNews.description != ''),
+                        and_(CompanyNews.content.isnot(None), CompanyNews.content != '')
+                    )
                 )
             )
             
@@ -401,7 +422,14 @@ class EarningsCalendarNewsService:
         search_query = self.db.query(CompanyNews).filter(
             and_(
                 or_(*keyword_conditions),  # 실적 관련 키워드 포함
-                or_(*search_conditions)    # 검색어 포함
+                or_(*search_conditions),    # 검색어 포함
+                # 제목/내용 필터링: title이 있고, (description 또는 content 중 하나라도 있어야 함)
+                CompanyNews.title.isnot(None),
+                CompanyNews.title != '',
+                or_(
+                    and_(CompanyNews.description.isnot(None), CompanyNews.description != ''),
+                    and_(CompanyNews.content.isnot(None), CompanyNews.content != '')
+                )
             )
         ).order_by(CompanyNews.published_at.desc())
         
