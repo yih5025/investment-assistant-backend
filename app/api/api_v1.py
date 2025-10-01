@@ -35,6 +35,8 @@ from .endpoints import (
     sns_endpoint,
 
     etf_endpoint,
+
+    ipo_calendar_endpoint,
 )
 
 # API v1 메인 라우터 생성
@@ -184,22 +186,6 @@ ROUTER_CONFIGS = [
         "category": "실시간주식",
         "description": "실시간 S&P 500 주식 데이터 API - WebSocket fallback 지원"
     },
-
-    # 분리된 WebSocket 실시간 데이터 API (각각 자체 prefix 보유)
-    # {
-    #     "router": topgainers_websocket_endpoint.router,
-    #     "prefix": "",  # 라우터 내부에 prefix="/ws/topgainers" 이미 있음
-    #     "tag": "TopGainers WebSocket",
-    #     "category": "실시간WebSocket",
-    #     "description": "TopGainers 실시간 WebSocket API - 카테고리별 분류, 변화율 포함"
-    # },
-    # {
-    #     "router": sp500_websocket_endpoint.router,
-    #     "prefix": "",  # 라우터 내부에 prefix="/ws/sp500" 이미 있음
-    #     "tag": "SP500 WebSocket",
-    #     "category": "실시간WebSocket",
-    #     "description": "S&P 500 실시간 WebSocket API - 전날 종가 대비 변화율 포함"
-    # },
     {
         "router": crypto_websocket_endpoint.router,
         "prefix": "",  # 라우터 내부에 prefix="/ws/crypto" 이미 있음
@@ -238,6 +224,15 @@ ROUTER_CONFIGS = [
         "tag": "ETF",
         "category": "ETF",
         "description": "ETF 실시간 데이터 API"
+    },
+
+    # IPO 캘린더 API
+    {
+        "router": ipo_calendar_endpoint.router,
+        "prefix": "/ipo-calendar",
+        "tag": "IPO Calendar",
+        "category": "IPO",
+        "description": "IPO 캘린더 API"
     },
 ]
 
