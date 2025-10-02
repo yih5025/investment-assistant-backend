@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.etf_model import ETFBasicInfo, ETFProfileHoldings, ETFRealtimePrices
 from app.schemas import etf_schema  # Pydantic 스키마를 직접 사용
+from app.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -886,16 +887,17 @@ class ETFService:
                 db=settings.redis_db,
                 password=settings.redis_password,
                 decode_responses=True,
-                socket_connect_timeout=5,
-                socket_timeout=5
+                socket_connect_timeout=10,
+                socket_timeout=10,
+                retry_on_timeout=True
             )
             
             await self.redis_client.ping()
-            logger.info("ETF Redis 연결 성공")
+            logger.info("✅ ETF Redis 연결 성공")
             return True
             
         except Exception as e:
-            logger.warning(f"ETF Redis 연결 실패: {e}")
+            logger.warning(f"❌ ETF Redis 연결 실패: {e}")
             self.redis_client = None
             return False
 

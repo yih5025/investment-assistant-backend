@@ -205,7 +205,9 @@ is_development = not is_production
 production_origins = [
     "https://investment-assistant.vercel.app",
     "https://investment-assistant.site", 
-    "https://api.investment-assistant.site"
+    "https://api.investment-assistant.site",
+    "https://www.weinvesting.site",
+    "https://weinvesting.site"
 ]
 
 # 개발용 오리진 (개발 환경에서만)
