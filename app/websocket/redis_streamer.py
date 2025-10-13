@@ -168,7 +168,7 @@ class RedisStreamer:
                         logger.warning(f"⚠️ 알 수 없는 채널: {channel}")
                         continue
                     
-                    logger.info(f"📬 '{data_type}' 업데이트 신호 수신!")
+                    # logger.info(f"📬 '{data_type}' 업데이트 신호 수신!")
                     
                     # 데이터 타입별 처리
                     await self._handle_update(data_type)
