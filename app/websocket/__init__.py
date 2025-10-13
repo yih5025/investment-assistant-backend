@@ -12,8 +12,9 @@ WebSocket 실시간 데이터 스트리밍 모듈
 - RealtimeService: 실시간 데이터 처리 로직
 
 지원하는 엔드포인트:
-- /ws/stocks/topgainers - 모든 상승 주식 실시간 데이터
-- /ws/stocks/topgainers/{symbol} - 특정 심볼 실시간 데이터
+- /ws/crypto - 암호화폐 실시간 데이터
+- /ws/sp500 - SP500 실시간 데이터
+- /ws/etf - ETF 실시간 데이터
 """
 
 from .manager import WebSocketManager

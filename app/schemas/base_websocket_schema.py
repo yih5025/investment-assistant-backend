@@ -13,17 +13,17 @@ class WebSocketMessageType(str, Enum):
     HEARTBEAT = "heartbeat"
     
     # 데이터 업데이트 메시지
-    TOPGAINERS_UPDATE = "topgainers_update"
     CRYPTO_UPDATE = "crypto_update"
     SP500_UPDATE = "sp500_update"
+    ETF_UPDATE = "etf_update"
     SYMBOL_UPDATE = "symbol_update"
     DASHBOARD_UPDATE = "dashboard_update"
 
 class SubscriptionType(str, Enum):
     """구독 타입 정의"""
-    ALL_TOPGAINERS = "all_topgainers"
     ALL_CRYPTO = "all_crypto"
     ALL_SP500 = "all_sp500"
+    ALL_ETF = "all_etf"
     SINGLE_SYMBOL = "single_symbol"
     DASHBOARD = "dashboard"
 
@@ -71,9 +71,9 @@ class DashboardUpdateMessage(BaseModel):
     timestamp: str = Field(default_factory=lambda: datetime.now(pytz.UTC).isoformat())
     
     # 각 데이터 소스별 요약 데이터
-    top_gainers: Optional[List[Dict[str, Any]]] = None
     top_crypto: Optional[List[Dict[str, Any]]] = None
     sp500_highlights: Optional[List[Dict[str, Any]]] = None
+    etf_highlights: Optional[List[Dict[str, Any]]] = None
     
     # 요약 통계
     summary: Optional[Dict[str, Any]] = None
@@ -113,16 +113,16 @@ def create_symbol_update_message(symbol: str, data_type: str, data: Dict[str, An
     )
 
 def create_dashboard_update_message(
-    top_gainers: List[Dict[str, Any]] = None,
     top_crypto: List[Dict[str, Any]] = None,
     sp500_highlights: List[Dict[str, Any]] = None,
+    etf_highlights: List[Dict[str, Any]] = None,
     summary: Dict[str, Any] = None
 ) -> DashboardUpdateMessage:
     """대시보드 업데이트 메시지 생성"""
     return DashboardUpdateMessage(
-        top_gainers=top_gainers or [],
         top_crypto=top_crypto or [],
         sp500_highlights=sp500_highlights or [],
+        etf_highlights=etf_highlights or [],
         summary=summary or {}
     )
 
