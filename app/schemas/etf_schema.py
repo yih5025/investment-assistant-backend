@@ -328,3 +328,73 @@ def format_date(date_str: Optional[str]) -> str:
         return date_str[:4]  # 연도만 추출
     except:
         return "N/A"
+
+# =========================
+# 🆕 WebSocket 메시지 스키마
+# =========================
+
+class ETFUpdateMessage(BaseModel):
+    """ETF WebSocket 업데이트 메시지"""
+    type: str = "etf_update"
+    data: List[ETFInfo]
+    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    data_count: int = Field(..., description="전송된 데이터 개수")
+    market_status: MarketStatus = Field(..., description="시장 상태")
+    data_source: str = Field(default="redis_push", description="데이터 소스")
+    
+    class Config:
+        from_attributes = True
+
+class ETFStatusMessage(BaseModel):
+    """ETF WebSocket 상태 메시지"""
+    type: str = "etf_status"
+    status: str = Field(..., description="connected, disconnected, error")
+    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    connected_clients: Optional[int] = None
+    market_status: MarketStatus = Field(..., description="시장 상태")
+    data_source: str = Field(default="redis_push")
+
+class ETFErrorMessage(BaseModel):
+    """ETF WebSocket 에러 메시지"""
+    type: str = "etf_error"
+    error_code: str
+    message: str
+    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    symbol: Optional[str] = None
+    details: Optional[Dict[str, Any]] = None
+
+# =========================
+# 🆕 WebSocket 헬퍼 함수
+# =========================
+
+def create_etf_update_message(data: List[ETFInfo], market_status: Optional[MarketStatus] = None) -> ETFUpdateMessage:
+    """ETF 업데이트 메시지 생성"""
+    import pytz
+    
+    if not market_status:
+        current_time_utc = datetime.now(pytz.UTC)
+        et_timezone = pytz.timezone('US/Eastern')
+        current_time_et = current_time_utc.astimezone(et_timezone)
+        
+        market_status = MarketStatus(
+            is_open=True,
+            status="UNKNOWN",
+            current_time_et=current_time_et.strftime("%Y-%m-%d %H:%M:%S"),
+            current_time_utc=current_time_utc.strftime("%Y-%m-%d %H:%M:%S"),
+            timezone="US/Eastern"
+        )
+    
+    return ETFUpdateMessage(
+        data=data,
+        data_count=len(data),
+        market_status=market_status
+    )
+
+def create_etf_error_message(error_code: str, message: str, symbol: str = None, details: Dict[str, Any] = None) -> ETFErrorMessage:
+    """ETF 에러 메시지 생성"""
+    return ETFErrorMessage(
+        error_code=error_code,
+        message=message,
+        symbol=symbol,
+        details=details or {}
+    )

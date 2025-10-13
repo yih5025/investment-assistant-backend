@@ -3,6 +3,7 @@ from app.config import settings
 
 # 도메인별 엔드포인트 라우터 imports
 from .endpoints import (
+    # 뉴스 관련
     earnings_calendar_endpoint,
     earnings_calendar_news_endpoint,
     truth_social_endpoint,
@@ -10,32 +11,37 @@ from .endpoints import (
     financial_news_endpoint,
     company_news_endpoint,
     market_news_sentiment_endpoint,
+    
+    # 경제 지표
     inflation_endpoint,
     federal_funds_rate_endpoint,
     cpi_endpoint,
+    
+    # 소셜 미디어
     x_posts_endpoint,
+    sns_endpoint,
+    
+    # 재무/국채
     balance_sheet_endpoint,
     treasury_yield_endpoint,
-    # websocket_endpoint,  # 제거됨 - 통합 WebSocket 엔드포인트
-    sp500_polling_endpoint,
-    topgainers_polling_endpoint,
-    # 새로운 분리된 WebSocket 엔드포인트들 추가
-    sp500_websocket_endpoint,
-    topgainers_websocket_endpoint,
-    crypto_websocket_endpoint,
-    # 암호화폐 투자 분석 엔드포인트 추가
+    
+    # 실시간 주식/ETF (REST API)
+    sp500_endpoint,
+    etf_endpoint,
+    
+    # 🆕 통합 WebSocket 엔드포인트 (Push 방식)
+    websocket_endpoint,
+    
+    # 암호화폐 투자 분석
     crypto_detail_investment_endpoint,
     crypto_detail_concept_endpoint,
     crypto_detail_ecosystem_endpoint,
-
-
+    
+    # SP500 실적 정보
     sp500_earnings_calendar_endpoint,
     sp500_earnings_news_endpoint,
-
-    sns_endpoint,
-
-    etf_endpoint,
-
+    
+    # IPO
     ipo_calendar_endpoint,
 )
 
@@ -74,21 +80,6 @@ ROUTER_CONFIGS = [
         "description": "Alpha Vantage -  월: 에너지·제조(예: topics=energy_transportation, manufacturing / XOM, CVX, EOG, CAT, GE 등), 화: 기술·IPO(technology, ipo / AAPL, MSFT, NVDA, AMZN, TSLA 등), 수: 블록체인·금융(blockchain, finance / JPM, BAC, V, MA, COIN 등), 목: 실적·헬스케어(earnings, life_sciences / AAPL, MSFT, NVDA, JNJ, PFE 등), 금: 리테일·M&A(retail_wholesale, mergers_and_acquisitions / WMT, TGT, COST, DIS, NFLX 등), 토: 부동산·거시(real_estate, economy_macro / HD, LOW, CAT, GE, F, GM 등), 일: 금융시장·정책(technology, finance, earnings, ipo, blockchain, mergers_and_acquisitions, retail_wholesale, life_sciences + 주요 빅테크/금융 티커) 뉴스 감성 분석 API"
     },
 
-    # 소셜 미디어 API
-    # {
-    #     "router": truth_social_endpoint.router,
-    #     "prefix": "/truth-social",
-    #     "tag": "Truth Social",
-    #     "category": "소셜미디어",
-    #     "description": "realDonaldTrump, WhiteHouse, DonaldJTrumpJr, Truth Social 트렌딩 포스트 데이터 전달을 위한 엔드포인트"
-    # },
-    # {
-    #     "router": x_posts_endpoint.router,
-    #     "prefix": "/x-posts",
-    #     "tag": "X Posts",
-    #     "category": "소셜미디어",
-    #     "description": "elonmusk, RayDalio, jimcramer, tim_cook, satyanadella, sundarpichai, SecYellen, VitalikButerin crypto: saylor, brian_armstrong, CoinbaseAssets, tech_ceo: jeffbezos, sundarpichai, IBM, institutional: CathieDWood, mcuban, chamath, media: CNBC, business(Bloomberg), WSJ, corporate: Tesla, nvidia x 데이터 전달을 위한 엔드포인트"
-    # },
     {
         "router": sns_endpoint.router,
         "prefix": "/sns",
@@ -171,27 +162,22 @@ ROUTER_CONFIGS = [
         "description": "국채 수익률 API"
     },
 
-    # 실시간 주식 데이터 API
+    # 실시간 주식 데이터 API (REST)
     {
-        "router": topgainers_polling_endpoint.router,
-        "prefix": "/stocks/topgainers",
-        "tag": "TopGainers",
-        "category": "실시간주식",
-        "description": "실시간 상승/하락/활발한 주식 데이터 API - WebSocket fallback 지원"
-    },
-    {
-        "router": sp500_polling_endpoint.router,
+        "router": sp500_endpoint.router,
         "prefix": "/stocks/sp500",
-        "tag": "SP500",
+        "tag": "SP500 REST API",
         "category": "실시간주식",
-        "description": "실시간 S&P 500 주식 데이터 API - WebSocket fallback 지원"
+        "description": "S&P 500 주식 REST API - 시장 개요, 종목 상세, 검색, 차트 등"
     },
+    
+    # 🆕 통합 WebSocket API (Push 방식)
     {
-        "router": crypto_websocket_endpoint.router,
-        "prefix": "",  # 라우터 내부에 prefix="/ws/crypto" 이미 있음
-        "tag": "Crypto WebSocket",
+        "router": websocket_endpoint.router,
+        "prefix": "",  # 라우터 내부에 /ws/* 경로 포함
+        "tag": "WebSocket Push API",
         "category": "실시간WebSocket",
-        "description": "암호화폐 실시간 WebSocket API - 빗썸 거래소 24시간 데이터"
+        "description": "통합 실시간 WebSocket Push API - SP500(/ws/sp500), ETF(/ws/etf), Crypto(/ws/crypto)"
     },
 
     # 암호화폐 투자 분석 API
@@ -286,9 +272,10 @@ async def api_v1_info():
         "categories": categories,
         "available_endpoints": available_endpoints,
         "websocket_endpoints": {
-            "topgainers": "/ws/topgainers/",
-            "sp500": "/ws/sp500/",
-            "crypto": "/ws/crypto/"
+            "sp500": f"{settings.api_v1_prefix}/ws/sp500",
+            "etf": f"{settings.api_v1_prefix}/ws/etf",
+            "crypto": f"{settings.api_v1_prefix}/ws/crypto",
+            "architecture": "통합 Push 방식 WebSocket (Redis Pub/Sub + Hash)"
         },
         "documentation": {
             "swagger_ui": "/docs",
@@ -311,7 +298,8 @@ async def health_check():
         "service": settings.app_name,
         "version": settings.app_version,
         "uptime": "operational",
-        "websocket_status": "분리된 도메인별 WebSocket 지원",
+        "websocket_status": "통합 Push 방식 WebSocket 지원 (SP500, ETF, Crypto)",
+        "architecture": "Redis Pub/Sub + Hash 기반 실시간 데이터 스트리밍",
         "docs": "/docs",
     }
 
@@ -344,16 +332,23 @@ async def api_stats():
             "pagination",
             "filtering",
             "sorting",
-            "real_time",
+            "real_time_push",
             "sentiment_analysis",
-            "websocket_fallback",
-            "separated_websocket_domains",  # 새로운 기능
-            "change_rate_calculation",      # 새로운 기능
+            "unified_websocket",
+            "redis_pub_sub_streaming",
+            "change_rate_calculation",
         ],
         "websocket_architecture": {
-            "approach": "도메인별 분리된 WebSocket",
-            "domains": ["topgainers", "sp500", "crypto"],
-            "benefits": ["독립적 운영", "에러 격리", "도메인 특화"]
+            "approach": "통합 Push 방식 WebSocket",
+            "domains": ["sp500", "etf", "crypto"],
+            "technology": "Redis Pub/Sub + Hash",
+            "benefits": [
+                "서버 주도 Push (클라이언트 폴링 불필요)",
+                "Redis Pub/Sub 기반 실시간 이벤트",
+                "Hash 구조로 효율적 데이터 저장",
+                "대규모 클라이언트 확장성",
+                "네트워크 트래픽 최소화"
+            ]
         }
     }
 
@@ -367,13 +362,22 @@ async def api_test():
     Returns:
         dict: 테스트 응답 메시지
     """
+    from datetime import datetime
+    import pytz
+    
     return {
         "message": "API v1 연결 테스트 성공",
-        "timestamp": "2025-08-28",
+        "timestamp": datetime.now(pytz.UTC).isoformat(),
         "status": "ok",
         "websocket_endpoints": {
-            "topgainers": "/api/v1/ws/topgainers/",
-            "sp500": "/api/v1/ws/sp500/",
-            "crypto": "/api/v1/ws/crypto/"
+            "sp500": f"{settings.api_v1_prefix}/ws/sp500",
+            "etf": f"{settings.api_v1_prefix}/ws/etf",
+            "crypto": f"{settings.api_v1_prefix}/ws/crypto"
+        },
+        "architecture": "통합 Push 방식 WebSocket (Redis Pub/Sub)",
+        "test_commands": {
+            "sp500": f"wscat -c ws://localhost:8000{settings.api_v1_prefix}/ws/sp500",
+            "etf": f"wscat -c ws://localhost:8000{settings.api_v1_prefix}/ws/etf",
+            "crypto": f"wscat -c ws://localhost:8000{settings.api_v1_prefix}/ws/crypto"
         }
     }

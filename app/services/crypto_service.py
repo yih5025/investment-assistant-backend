@@ -91,7 +91,7 @@ class CryptoService:
     
     async def get_crypto_from_redis(self, limit: int = 415) -> List[CryptoData]:
         """
-        Redis에서 암호화폐 데이터 조회 (24시간 거래이므로 Redis 우선)
+        🆕 Redis Hash에서 암호화폐 데이터 조회 (Push 방식)
         
         Args:
             limit: 반환할 최대 개수
@@ -107,59 +107,54 @@ class CryptoService:
         try:
             self.stats["redis_calls"] += 1
             
-            # Redis 키 패턴: latest:crypto:{market}
-            pattern = "latest:crypto:*"
-            keys = await asyncio.wait_for(self.redis_client.keys(pattern), timeout=8.0)
+            # 🆕 Redis Hash에서 모든 암호화폐 데이터 조회
+            crypto_list_key = "crypto_realtime_data"
+            all_data = await asyncio.wait_for(
+                self.redis_client.hgetall(crypto_list_key), 
+                timeout=8.0
+            )
             
-            if not keys:
+            if not all_data:
                 logger.debug("📊 Redis 암호화폐 데이터 없음, DB fallback")
                 return await self.get_crypto_from_db(limit)
             
-            # 모든 키의 데이터 가져오기 (timeout 추가)
-            pipeline = self.redis_client.pipeline()
-            for key in keys:
-                pipeline.get(key)
-            
-            results = await asyncio.wait_for(pipeline.execute(), timeout=8.0)
-            
             # JSON 파싱
             data = []
-            for i, result in enumerate(results):
-                if result:
-                    try:
-                        json_data = json.loads(result)
+            for symbol, json_str in all_data.items():
+                try:
+                    json_data = json.loads(json_str)
+                    
+                    # 마켓 코드 추출
+                    market_code = json_data.get('symbol', symbol)
+                    symbol_only = market_code.replace('KRW-', '') if market_code and 'KRW-' in market_code else market_code
+                    
+                    crypto_data = CryptoData(
+                        # 새로운 필수 필드들
+                        market_code=market_code,
+                        symbol=symbol_only,
+                        price=json_data.get('price'),
+                        change_24h=json_data.get('change_price'),
+                        change_rate_24h=f"{json_data.get('change_rate', 0):.2f}%" if json_data.get('change_rate') else "0.00%",
+                        volume=json_data.get('volume'),
+                        acc_trade_value_24h=json_data.get('acc_trade_price_24h'),
+                        timestamp=json_data.get('timestamp'),
                         
-                        # 새로운 스키마에 맞춘 CryptoData 생성
-                        market_code = json_data.get('symbol', keys[i].split(':')[-1])
-                        symbol = market_code.replace('KRW-', '') if market_code and 'KRW-' in market_code else market_code
-                        
-                        crypto_data = CryptoData(
-                            # 새로운 필수 필드들
-                            market_code=market_code,
-                            symbol=symbol,
-                            price=json_data.get('price'),
-                            change_24h=json_data.get('change_price'),
-                            change_rate_24h=f"{json_data.get('change_rate', 0):.2f}%" if json_data.get('change_rate') else "0.00%",
-                            volume=json_data.get('volume'),
-                            acc_trade_value_24h=json_data.get('volume_24h'),
-                            timestamp=json_data.get('timestamp'),
-                            
-                            # 기존 호환성 필드들 (deprecated)
-                            market=market_code,
-                            trade_price=json_data.get('price'),
-                            signed_change_rate=json_data.get('change_rate'),
-                            signed_change_price=json_data.get('change_price'),
-                            trade_volume=json_data.get('volume'),
-                            acc_trade_volume_24h=json_data.get('volume_24h'),
-                            timestamp_field=json_data.get('timestamp'),
-                            source='bithumb',
-                            crypto_name=self._get_crypto_name(market_code)
-                        )
-                        data.append(crypto_data)
-                        
-                    except (json.JSONDecodeError, ValueError) as e:
-                        logger.warning(f"⚠️ Redis 암호화폐 데이터 파싱 실패: {e}")
-                        continue
+                        # 기존 호환성 필드들 (deprecated)
+                        market=market_code,
+                        trade_price=json_data.get('price'),
+                        signed_change_rate=json_data.get('change_rate'),
+                        signed_change_price=json_data.get('change_price'),
+                        trade_volume=json_data.get('volume'),
+                        acc_trade_volume_24h=json_data.get('acc_trade_price_24h'),
+                        timestamp_field=json_data.get('timestamp'),
+                        source=json_data.get('source', 'bithumb'),
+                        crypto_name=self._get_crypto_name(market_code)
+                    )
+                    data.append(crypto_data)
+                    
+                except (json.JSONDecodeError, ValueError) as e:
+                    logger.warning(f"⚠️ Redis 암호화폐 데이터 파싱 실패 ({symbol}): {e}")
+                    continue
             
             # 현재가별 정렬 및 제한
             data.sort(key=lambda x: x.trade_price or 0, reverse=True)
@@ -226,12 +221,59 @@ class CryptoService:
                 db.close()
     
     # =========================
-    # WebSocket 전용 메서드
+    # 🆕 WebSocket 전용 메서드 (Push 방식)
     # =========================
+    
+    async def get_realtime_data(self, limit: int = 415) -> List[Dict[str, Any]]:
+        """
+        WebSocket용 실시간 암호화폐 데이터 조회 (Push 방식)
+        
+        Args:
+            limit: 반환할 최대 개수
+            
+        Returns:
+            List[Dict]: WebSocket 전송용 데이터 리스트
+        """
+        try:
+            self.stats["api_calls"] += 1
+            
+            # Redis에서 데이터 조회
+            crypto_data = await self.get_crypto_from_redis(limit)
+            
+            if not crypto_data:
+                return []
+            
+            # 딕셔너리 형태로 변환
+            formatted_data = []
+            for item in crypto_data:
+                if hasattr(item, 'dict'):
+                    item_dict = item.dict()
+                elif hasattr(item, '__dict__'):
+                    item_dict = item.__dict__.copy()
+                else:
+                    item_dict = {
+                        'market_code': item.market,
+                        'symbol': item.symbol,
+                        'price': item.trade_price,
+                        'change_rate': item.signed_change_rate,
+                        'change_price': item.signed_change_price,
+                        'volume': item.trade_volume,
+                        'acc_trade_price_24h': item.acc_trade_volume_24h,
+                        'timestamp': item.timestamp_field,
+                        'source': item.source
+                    }
+                formatted_data.append(item_dict)
+            
+            return formatted_data
+            
+        except Exception as e:
+            logger.error(f"❌ WebSocket 실시간 데이터 조회 실패: {e}")
+            self.stats["errors"] += 1
+            return []
     
     async def get_websocket_updates(self, limit: int = 415) -> List[CryptoData]:
         """
-        WebSocket용 실시간 암호화폐 데이터
+        WebSocket용 실시간 암호화폐 데이터 (deprecated)
         
         Args:
             limit: 반환할 최대 개수
@@ -315,7 +357,7 @@ class CryptoService:
     
     async def get_symbol_data(self, market: str) -> Optional[CryptoData]:
         """
-        특정 마켓의 암호화폐 데이터 조회
+        🆕 특정 마켓의 암호화폐 데이터 조회 (Push 방식)
         
         Args:
             market: 마켓 코드 (예: 'KRW-BTC')
@@ -327,22 +369,36 @@ class CryptoService:
             market = market.upper()
             
             if self.redis_client:
-                # Redis에서 조회
-                redis_key = f"latest:crypto:{market}"
-                result = await self.redis_client.get(redis_key)
+                # 🆕 Redis Hash에서 조회
+                crypto_list_key = "crypto_realtime_data"
+                result = await self.redis_client.hget(crypto_list_key, market)
                 
                 if result:
                     json_data = json.loads(result)
+                    market_code = json_data.get('symbol', market)
+                    symbol_only = market_code.replace('KRW-', '') if market_code and 'KRW-' in market_code else market_code
+                    
                     return CryptoData(
-                        market=market,
+                        # 새로운 필수 필드들
+                        market_code=market_code,
+                        symbol=symbol_only,
+                        price=json_data.get('price'),
+                        change_24h=json_data.get('change_price'),
+                        change_rate_24h=f"{json_data.get('change_rate', 0):.2f}%" if json_data.get('change_rate') else "0.00%",
+                        volume=json_data.get('volume'),
+                        acc_trade_value_24h=json_data.get('acc_trade_price_24h'),
+                        timestamp=json_data.get('timestamp'),
+                        
+                        # 기존 호환성 필드들
+                        market=market_code,
                         trade_price=json_data.get('price'),
                         signed_change_rate=json_data.get('change_rate'),
                         signed_change_price=json_data.get('change_price'),
                         trade_volume=json_data.get('volume'),
-                        acc_trade_volume_24h=json_data.get('volume_24h'),
+                        acc_trade_volume_24h=json_data.get('acc_trade_price_24h'),
                         timestamp_field=json_data.get('timestamp'),
-                        source='bithumb',
-                        crypto_name=self._get_crypto_name(market)
+                        source=json_data.get('source', 'bithumb'),
+                        crypto_name=self._get_crypto_name(market_code)
                     )
             
             # DB에서 조회
@@ -664,3 +720,63 @@ class CryptoService:
             
         except Exception as e:
             logger.error(f"❌ CryptoService 종료 실패: {e}")
+
+
+# =========================
+# 🆕 Redis 조회 함수 (동기, WebSocket에서 사용)
+# =========================
+
+def get_crypto_data_from_redis(redis_client, limit: int = 415) -> List[Dict[str, Any]]:
+    """
+    동기 방식으로 Redis에서 Crypto 데이터 조회
+    (WebSocket 핸들러에서 사용)
+    
+    Args:
+        redis_client: Redis 클라이언트 (동기)
+        limit: 최대 반환 개수
+        
+    Returns:
+        List[Dict]: Crypto 데이터 리스트
+    """
+    try:
+        crypto_list_key = "crypto_realtime_data"
+        all_data = redis_client.hgetall(crypto_list_key)
+        
+        if not all_data:
+            logger.debug("Redis에 Crypto 데이터 없음")
+            return []
+        
+        parsed_data = []
+        for symbol, json_str in all_data.items():
+            try:
+                json_data = json.loads(json_str)
+                
+                # 마켓 코드 추출
+                market_code = json_data.get('symbol', symbol)
+                symbol_only = market_code.replace('KRW-', '') if market_code and 'KRW-' in market_code else market_code
+                
+                # WebSocket 전송용 데이터 포맷
+                crypto_item = {
+                    'market_code': market_code,
+                    'symbol': symbol_only,
+                    'price': json_data.get('price'),
+                    'change_rate': json_data.get('change_rate'),
+                    'change_price': json_data.get('change_price'),
+                    'volume': json_data.get('volume'),
+                    'acc_trade_price_24h': json_data.get('acc_trade_price_24h'),
+                    'timestamp': json_data.get('timestamp'),
+                    'source': json_data.get('source', 'bithumb')
+                }
+                parsed_data.append(crypto_item)
+                
+            except json.JSONDecodeError as e:
+                logger.warning(f"Crypto 데이터 파싱 실패 ({symbol}): {e}")
+                continue
+        
+        # 가격 기준 최신순 정렬 및 limit 적용
+        parsed_data.sort(key=lambda x: x.get('price', 0), reverse=True)
+        return parsed_data[:limit]
+        
+    except Exception as e:
+        logger.error(f"❌ Redis에서 Crypto 데이터 조회 실패: {e}")
+        return []

@@ -6,16 +6,12 @@ from datetime import datetime
 import pytz
 
 # 새로운 서비스 import 구조
-from app.services.topgainers_service import TopGainersService
 from app.services.crypto_service import CryptoService
 from app.services.sp500_service import SP500Service
 
 # 새로운 스키마 import 구조
 from app.schemas.base_websocket_schema import (
     create_symbol_update_message, create_dashboard_update_message
-)
-from app.schemas.topgainers_schema import (
-    TopGainerData, create_topgainers_update_message
 )
 from app.schemas.crypto_schema import (
     CryptoData, create_crypto_update_message
@@ -42,7 +38,6 @@ class RedisStreamer:
     """
     
     def __init__(self, 
-                 topgainers_service: Optional[TopGainersService],
                  crypto_service: Optional[CryptoService], 
                  sp500_service: Optional[SP500Service],
                  polling_interval: float = 0.5):
@@ -55,7 +50,6 @@ class RedisStreamer:
             sp500_service: SP500Service 인스턴스
             polling_interval: 폴링 간격 (초) - 기본값 500ms
         """
-        self.topgainers_service = topgainers_service
         self.crypto_service = crypto_service
         self.sp500_service = sp500_service
         self.polling_interval = polling_interval
@@ -137,90 +131,7 @@ class RedisStreamer:
         self.websocket_manager = websocket_manager
         logger.info("✅ WebSocket 매니저 연결 완료")
     
-    # =========================
-    # TopGainers 스트리밍
-    # =========================
     
-    async def start_topgainers_stream(self):
-        """TopGainers 실시간 스트리밍 시작"""
-        if self.is_streaming_topgainers:
-            logger.warning("⚠️ TopGainers 스트리밍이 이미 실행 중입니다")
-            return
-        
-        self.is_streaming_topgainers = True
-        logger.info("🚀 TopGainers 실시간 스트리밍 시작")
-        
-        self.topgainers_task = asyncio.create_task(self._topgainers_stream_loop())
-    
-    async def _topgainers_stream_loop(self):
-        """TopGainers 스트리밍 루프"""
-        try:
-            # TopGainers 서비스가 없으면 스트리밍 중단
-            if not self.topgainers_service:
-                logger.warning("TopGainers 서비스가 없어 스트리밍을 중단합니다")
-                self.is_streaming_topgainers = False
-                return
-                
-            while self.is_streaming_topgainers:
-                try:
-                    # TopGainers 서비스에서 데이터 조회
-                    new_data = await self.topgainers_service.get_realtime_data(limit=50)
-                    
-                    if new_data:
-                        # 변경 감지 (간단한 구현)
-                        changed_data, changed_count = self._detect_topgainers_changes(new_data)
-                        
-                        # 변경된 데이터가 있으면 브로드캐스트
-                        if changed_count > 0 and self.websocket_manager:
-                            # 최신 batch_id 추출
-                            batch_id = new_data[0].batch_id if new_data else None
-                            
-                            update_message = create_topgainers_update_message(changed_data, batch_id)
-                            await self.websocket_manager.broadcast_topgainers_update(update_message)
-                            
-                            logger.debug(f"📤 TopGainers 업데이트 전송: {changed_count}개 변경")
-                        
-                        # 통계 업데이트
-                        self.stats["topgainers_cycles"] += 1
-                        self.stats["total_data_fetched"] += len(new_data)
-                        self.stats["total_changes_detected"] += changed_count
-                        self.stats["last_topgainers_update"] = datetime.now(pytz.UTC)
-                    
-                    else:
-                        logger.debug("📊 TopGainers 데이터 없음")
-                    
-                    # 폴링 간격 대기
-                    await asyncio.sleep(self.polling_interval)
-                    
-                except Exception as e:
-                    logger.error(f"❌ TopGainers 스트리밍 오류: {e}")
-                    self.stats["errors"] += 1
-                    
-                    # 오류 발생 시 더 긴 대기 (5초)
-                    await asyncio.sleep(5)
-                    
-        except asyncio.CancelledError:
-            logger.info("🛑 TopGainers 스트리밍 중단됨")
-            
-        finally:
-            self.is_streaming_topgainers = False
-            logger.info("🏁 TopGainers 스트리밍 종료")
-    
-    async def stop_topgainers_stream(self):
-        """TopGainers 스트리밍 중단"""
-        if not self.is_streaming_topgainers:
-            return
-        
-        self.is_streaming_topgainers = False
-        
-        if self.topgainers_task and not self.topgainers_task.done():
-            self.topgainers_task.cancel()
-            try:
-                await self.topgainers_task
-            except asyncio.CancelledError:
-                pass
-        
-        logger.info("🛑 TopGainers 스트리밍 중단 완료")
     
     # =========================
     # 암호화폐 스트리밍
@@ -608,10 +519,7 @@ class RedisStreamer:
     async def start_all_basic_streams(self):
         """기본 스트리밍들 모두 시작"""
         logger.info("🚀 기본 스트리밍들 시작")
-        
-        # 순서대로 시작 (부하 분산)
-        await asyncio.sleep(0.1)
-        asyncio.create_task(self.start_topgainers_stream())
+
         
         await asyncio.sleep(0.2)
         asyncio.create_task(self.start_crypto_stream())
@@ -642,7 +550,6 @@ class RedisStreamer:
         return {
             "polling_interval": self.polling_interval,
             "streaming_status": {
-                "topgainers": self.is_streaming_topgainers,
                 "crypto": self.is_streaming_crypto,
                 "sp500": self.is_streaming_sp500,
                 "dashboard": self.is_streaming_dashboard
@@ -655,7 +562,6 @@ class RedisStreamer:
             "performance": {
                 "uptime_seconds": uptime.total_seconds(),
                 "total_cycles": (
-                    self.stats["topgainers_cycles"] + 
                     self.stats["crypto_cycles"] + 
                     self.stats["sp500_cycles"] + 
                     self.stats["dashboard_cycles"] + 
@@ -663,7 +569,6 @@ class RedisStreamer:
                 ),
                 "error_count": self.stats["errors"],
                 "last_updates": {
-                    "topgainers": self.stats["last_topgainers_update"].isoformat() if self.stats["last_topgainers_update"] else None,
                     "crypto": self.stats["last_crypto_update"].isoformat() if self.stats["last_crypto_update"] else None,
                     "sp500": self.stats["last_sp500_update"].isoformat() if self.stats["last_sp500_update"] else None,
                     "dashboard": self.stats["last_dashboard_update"].isoformat() if self.stats["last_dashboard_update"] else None
@@ -679,7 +584,6 @@ class RedisStreamer:
             Dict[str, Any]: 상세 통계
         """
         total_cycles = (
-            self.stats["topgainers_cycles"] + 
             self.stats["crypto_cycles"] + 
             self.stats["sp500_cycles"] + 
             self.stats["dashboard_cycles"] + 
@@ -688,7 +592,6 @@ class RedisStreamer:
         
         return {
             "streaming_breakdown": {
-                "topgainers_cycles": self.stats["topgainers_cycles"],
                 "crypto_cycles": self.stats["crypto_cycles"],
                 "sp500_cycles": self.stats["sp500_cycles"],
                 "dashboard_cycles": self.stats["dashboard_cycles"],
@@ -705,7 +608,6 @@ class RedisStreamer:
             "health_indicators": {
                 "websocket_manager_connected": self.websocket_manager is not None,
                 "recent_activity": any([
-                    self.stats["last_topgainers_update"],
                     self.stats["last_crypto_update"],
                     self.stats["last_sp500_update"],
                     self.stats["last_dashboard_update"]
@@ -727,7 +629,6 @@ class RedisStreamer:
             
             # 스트리머 자체 상태 확인
             active_streams = sum([
-                self.is_streaming_topgainers,
                 self.is_streaming_crypto,
                 self.is_streaming_sp500,
                 self.is_streaming_dashboard
@@ -800,7 +701,7 @@ class RedisStreamer:
     # 헬퍼 메소드들
     # =========================
     
-    def _detect_topgainers_changes(self, new_data: List[TopGainerData]) -> tuple[List[TopGainerData], int]:
+    def _detect_topgainers_changes(self, new_data: List[CryptoData]) -> tuple[List[CryptoData], int]:
         """TopGainers 데이터 변경 감지 (간단한 구현)"""
         # 실제 구현에서는 이전 데이터와 비교하여 변경된 항목만 반환
         # 지금은 모든 데이터를 변경된 것으로 간주
@@ -829,16 +730,13 @@ class RedisStreamer:
         """대시보드용 통합 데이터 조회"""
         try:
             # 각 서비스에서 요약 데이터 조회 (None 체크)
-            top_gainers = await self.topgainers_service.get_realtime_data(limit=10) if self.topgainers_service else []
             top_crypto = await self.crypto_service.get_realtime_data(limit=10) if self.crypto_service else []
             sp500_highlights = await self.sp500_service.get_realtime_data(limit=10) if self.sp500_service else []
             
             return {
-                "top_gainers": [item.dict() if hasattr(item, 'dict') else item for item in (top_gainers or [])],
                 "top_crypto": [item.dict() if hasattr(item, 'dict') else item for item in (top_crypto or [])],
                 "sp500_highlights": [item.dict() if hasattr(item, 'dict') else item for item in (sp500_highlights or [])],
                 "summary": {
-                    "topgainers_count": len(top_gainers) if top_gainers else 0,
                     "crypto_count": len(top_crypto) if top_crypto else 0,
                     "sp500_count": len(sp500_highlights) if sp500_highlights else 0,
                     "last_update": datetime.now(pytz.UTC).isoformat()
@@ -851,9 +749,7 @@ class RedisStreamer:
     async def _get_symbol_data(self, symbol: str, data_type: str):
         """특정 심볼 데이터 조회"""
         try:
-            if data_type == "topgainers" and self.topgainers_service:
-                return await self.topgainers_service.get_symbol_data(symbol)
-            elif data_type == "crypto" and self.crypto_service:
+            if data_type == "crypto" and self.crypto_service:
                 return await self.crypto_service.get_symbol_data(symbol)
             elif data_type == "sp500" and self.sp500_service:
                 return await self.sp500_service.get_symbol_data(symbol)
@@ -872,7 +768,6 @@ class RedisStreamer:
         }
         
         services = [
-            ("topgainers", self.topgainers_service),
             ("crypto", self.crypto_service),
             ("sp500", self.sp500_service)
         ]

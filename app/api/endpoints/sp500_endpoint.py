@@ -94,61 +94,9 @@ async def get_market_overview(
             ).model_dump()
         )
 
-@router.get("/polling", response_model=dict, summary="SP500 실시간 폴링 데이터 (페이징 방식)")
-async def get_sp500_polling_data(
-    limit: int = Query(default=50, ge=1, le=500, description="페이지당 항목 수"),
-    offset: int = Query(default=0, ge=0, description="시작 위치 (0부터 시작)"),
-    sort_by: str = Query(default="volume", description="정렬 기준: volume, change_percent, price"),
-    order: str = Query(default="desc", regex="^(asc|desc)$", description="정렬 순서"),
-    sp500_service: SP500Service = Depends(get_sp500_service)
-):
-    """
-    SP500 실시간 폴링 데이터 (페이징 방식, "더보기" 지원)
-    
-    **동작 방식:**
-    - offset=0, limit=50: 첫 번째 페이지 (1~50번째)
-    - offset=50, limit=50: 두 번째 페이지 (51~100번째)
-    - offset=100, limit=50: 세 번째 페이지 (101~150번째)
-    
-    **정렬 옵션:**
-    - `volume`: 거래량 순 (기본값)
-    - `change_percent`: 변동률 순  
-    - `price`: 가격 순
-    
-    **사용 예시:**
-    ```
-    GET /api/v1/stocks/sp500/polling                           # 첫 페이지 (0~49)
-    GET /api/v1/stocks/sp500/polling?offset=50                 # 두 번째 페이지 (50~99)
-    GET /api/v1/stocks/sp500/polling?offset=100&limit=50       # 세 번째 페이지 (100~149)
-    ```
-    
-    **응답 데이터:**
-    - 요청한 페이지의 데이터만 반환
-    - 페이징 메타데이터 (total_count, has_next, current_page 등)
-    - 프론트엔드에서 "더보기" 버튼 구현 가능
-    """
-    try:
-        logger.info(f"📡 SP500 폴링 데이터 요청 (offset: {offset}, limit: {limit}, sort: {sort_by})")
-        
-        result = await sp500_service.get_realtime_polling_data(
-            limit=limit,
-            offset=offset,
-            sort_by=sort_by,
-            order=order
-        )
-        
-        if result.get('error'):
-            logger.error(f"❌ SP500 폴링 데이터 조회 실패: {result['error']}")
-            raise HTTPException(status_code=500, detail=result['error'])
-        
-        logger.info(f"✅ SP500 폴링 데이터 조회 성공: {len(result.get('data', []))}개 반환 (페이지: {offset//limit + 1})")
-        return result
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"❌ 예상치 못한 오류: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+# 🔥 /polling 엔드포인트 제거됨 - WebSocket으로 대체
+# 실시간 데이터는 /ws/sp500 WebSocket 엔드포인트를 사용하세요
+# GET /api/v1/ws/sp500
 # =========================
 # 🎯 개별 주식 상세 조회 엔드포인트 (Company Overview 통합) 🆕
 # =========================

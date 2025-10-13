@@ -85,64 +85,9 @@ async def get_all_etfs(
             ).model_dump()
         )
 
-@router.get("/polling", summary="ETF 실시간 폴링 데이터 (더보기 방식)")
-async def get_etf_polling_data(
-    limit: int = Query(default=50, ge=1, le=200, description="반환할 ETF 개수"),
-    sort_by: str = Query(default="price", regex="^(price|change_percent)$", description="정렬 기준"),
-    order: SortOrderEnum = Query(default=SortOrderEnum.desc, description="정렬 순서"),
-    etf_service: ETFService = Depends(get_etf_service)
-):
-    """
-    ETF 실시간 폴링 데이터 조회 (더보기 방식)
-    
-    **주요 기능:**
-    - 실시간 ETF 가격 데이터
-    - 전일 대비 변동률 계산
-    - 가격 또는 변동률 기준 정렬
-    - 더보기 페이지네이션 지원
-    
-    **정렬 옵션:**
-    - `price`: 가격 기준 정렬
-    - `change_percent`: 변동률 기준 정렬
-    
-    **사용 예시:**
-    ```
-    GET /etf/polling?limit=20&sort_by=price&order=desc
-    GET /etf/polling?limit=50&sort_by=change_percent&order=desc
-    ```
-    
-    **더보기 방식:**
-    ```
-    GET /etf/polling?limit=50         # 처음 50개
-    GET /etf/polling?limit=50         # 더보기로 50개
-    GET /etf/polling?limit=100        # 더보기로 100개
-    ```
-    
-    **응답 데이터:**
-    - 항상 1번부터 limit개까지의 전체 데이터
-    - 실시간 갱신 시에도 동일한 limit으로 요청
-    """
-    try:
-        logger.info(f"ETF 폴링 데이터 요청 (limit: {limit}, sort: {sort_by})")
-        
-        result = await etf_service.get_realtime_polling_data(
-            limit=limit,
-            sort_by=sort_by,
-            order=order.value
-        )
-        
-        if result.get('error'):
-            logger.error(f"ETF 폴링 데이터 조회 실패: {result['error']}")
-            raise HTTPException(status_code=500, detail=result['error'])
-        
-        logger.info(f"ETF 폴링 데이터 조회 성공: {len(result['data'])}개 반환")
-        return result
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"예상치 못한 오류: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+# 🔥 /polling 엔드포인트 제거됨 - WebSocket으로 대체
+# 실시간 데이터는 /ws/etf WebSocket 엔드포인트를 사용하세요
+# GET /api/v1/ws/etf
 
 # =========================
 # 개별 ETF 상세 조회 엔드포인트

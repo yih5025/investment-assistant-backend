@@ -1,5 +1,3 @@
-# main.py - K3s 환경을 포함한 수정된 CORS 설정
-
 from fastapi import FastAPI, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -8,79 +6,144 @@ import logging
 import logging.config
 import time
 import json
+import redis
+import os
 
 from .config import settings, get_log_config
-import os
 from .database import test_db_connection
 from .dependencies import verify_db_connection
+
+# WebSocket 관련 import
+from app.websocket.manager import WebSocketManager
+from app.websocket.redis_streamer import RedisStreamer
+from app.services.crypto_service import CryptoService
+from app.services.sp500_service import SP500Service
+from app.api.endpoints.websocket_endpoint import set_websocket_dependencies
 
 # 로깅 설정
 logging.config.dictConfig(get_log_config())
 logger = logging.getLogger(__name__)
 
+# =========================
+# 전역 WebSocket 객체
+# =========================
+websocket_manager: WebSocketManager = None
+redis_streamer: RedisStreamer = None
+
+# =========================
+# FastAPI 생명주기 관리
+# =========================
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
-    logger.info(f"{settings.app_name} v{settings.app_version} 시작 중...")
-    if test_db_connection():
-        logger.info("✅ 데이터베이스 연결 성공")
-    else:
-        logger.error("❌ 데이터베이스 연결 실패")
+    """
+    FastAPI 앱 생명주기 관리
     
-    # 분리된 WebSocket 서비스들 초기화
+    시작 시: WebSocket Push 시스템 초기화
+    종료 시: 모든 연결 정리
+    """
+    global websocket_manager, redis_streamer
+    
+    logger.info("=" * 60)
+    logger.info("🚀 FastAPI 앱 시작 - WebSocket Push 시스템 초기화")
+    logger.info("=" * 60)
+    
     try:
-        # TopGainers WebSocket 초기화
-        from .api.endpoints.topgainers_websocket_endpoint import initialize_topgainers_websocket_services
-        await initialize_topgainers_websocket_services()
-        logger.info("✅ TopGainers WebSocket 서비스 초기화 완료")
+        # 1. Redis 클라이언트 초기화 (동기)
+        sync_redis_client = redis.Redis.from_url(
+            settings.REDIS_URL,
+            decode_responses=True
+        )
+        logger.info("✅ [1/7] Redis 클라이언트 초기화")
         
-        # SP500 WebSocket 초기화
-        from .api.endpoints.sp500_websocket_endpoint import initialize_sp500_websocket_services
-        await initialize_sp500_websocket_services()
-        logger.info("✅ SP500 WebSocket 서비스 초기화 완료")
+        # 2. 서비스 레이어 초기화
+        crypto_service = CryptoService()
+        await crypto_service.init_redis()  # 비동기 Redis 초기화
         
-        # Crypto WebSocket 초기화
-        from .api.endpoints.crypto_websocket_endpoint import initialize_crypto_websocket_services
-        await initialize_crypto_websocket_services()
-        logger.info("✅ Crypto WebSocket 서비스 초기화 완료")
+        sp500_service = SP500Service(redis_client=sync_redis_client)
+        logger.info("✅ [2/7] 서비스 레이어 초기화 (Crypto + SP500)")
         
-        logger.info("✅ 모든 WebSocket 서비스 초기화 완료")
+        # 3. WebSocket Manager 초기화
+        websocket_manager = WebSocketManager()
+        logger.info("✅ [3/7] WebSocket Manager 초기화")
+        
+        # 4. Redis Streamer 초기화
+        redis_streamer = RedisStreamer(
+            crypto_service=crypto_service,
+            sp500_service=sp500_service,
+            redis_url=settings.REDIS_URL
+        )
+        await redis_streamer.initialize()
+        logger.info("✅ [4/7] Redis Streamer 초기화")
+        
+        # 5. WebSocket Manager ↔ Redis Streamer 연결
+        redis_streamer.set_websocket_manager(websocket_manager)
+        logger.info("✅ [5/7] WebSocket Manager ↔ Redis Streamer 연결")
+        
+        # 6. WebSocket 라우터에 의존성 주입
+        set_websocket_dependencies(
+            manager=websocket_manager,
+            streamer=redis_streamer,
+            redis_client=sync_redis_client
+        )
+        logger.info("✅ [6/7] WebSocket 라우터 의존성 주입")
+        
+        # 7. Redis Pub/Sub 스트리밍 시작
+        await redis_streamer.start_streaming()
+        logger.info("✅ [7/7] Redis Pub/Sub 스트리밍 시작")
+        
+        logger.info("=" * 60)
+        logger.info("🎉 WebSocket Push 시스템 초기화 완료!")
+        logger.info(f"📢 구독 채널: crypto_updates, sp500_updates, etf_updates")
+        logger.info(f"🔌 WebSocket 엔드포인트: /api/v1/ws/crypto, /api/v1/ws/sp500, /api/v1/ws/etf")
+        logger.info("=" * 60)
+        
+        # 앱 실행 (yield로 제어권 반환)
+        yield
+        
+        # ========================================
+        # 종료 처리
+        # ========================================
+        logger.info("=" * 60)
+        logger.info("🛑 FastAPI 앱 종료 - WebSocket 시스템 정리 시작")
+        logger.info("=" * 60)
+        
+        # Redis Streamer 종료
+        if redis_streamer:
+            await redis_streamer.shutdown()
+            logger.info("✅ Redis Streamer 종료")
+        
+        # WebSocket Manager 종료
+        if websocket_manager:
+            await websocket_manager.shutdown_all_connections()
+            logger.info("✅ WebSocket Manager 종료")
+        
+        # Crypto Service 종료
+        if crypto_service:
+            await crypto_service.shutdown()
+            logger.info("✅ Crypto Service 종료")
+        
+        # Redis 클라이언트 종료
+        if sync_redis_client:
+            sync_redis_client.close()
+            logger.info("✅ Redis 클라이언트 종료")
+        
+        logger.info("=" * 60)
+        logger.info("✅ WebSocket 시스템 정리 완료")
+        logger.info("=" * 60)
+        
     except Exception as e:
-        logger.error(f"❌ WebSocket 서비스 초기화 실패: {e}")
-    
-    logger.info(f"🚀 서버가 http://{settings.host}:{settings.port} 에서 실행 중 입니다....")
-    logger.info(f"📚 API 문서: http://{settings.host}:{settings.port}/docs")
-    
-    yield
-    
-    # Shutdown - 분리된 WebSocket 서비스들 종료
-    logger.info("🛑 애플리케이션 종료 중...")
-    try:
-        # TopGainers WebSocket 종료
-        from .api.endpoints.topgainers_websocket_endpoint import shutdown_topgainers_websocket_services
-        await shutdown_topgainers_websocket_services()
-        logger.info("✅ TopGainers WebSocket 서비스 종료 완료")
-        
-        # SP500 WebSocket 종료
-        from .api.endpoints.sp500_websocket_endpoint import shutdown_sp500_websocket_services
-        await shutdown_sp500_websocket_services()
-        logger.info("✅ SP500 WebSocket 서비스 종료 완료")
-        
-        # Crypto WebSocket 종료
-        from .api.endpoints.crypto_websocket_endpoint import shutdown_crypto_websocket_services
-        await shutdown_crypto_websocket_services()
-        logger.info("✅ Crypto WebSocket 서비스 종료 완료")
-        
-        logger.info("✅ 모든 WebSocket 서비스 종료 완료")
-    except Exception as e:
-        logger.error(f"❌ WebSocket 서비스 종료 실패: {e}")
-    logger.info("✅ 정리 작업 완료")
+        logger.error(f"❌ WebSocket 시스템 초기화 실패: {e}", exc_info=True)
+        raise
 
+# =========================
 # FastAPI 애플리케이션 생성
+# =========================
+
 app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
-    description="투자 도우미 서비스의 데이터 API",
+    description="WE Investing API - Real-time Push WebSocket System",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
@@ -88,107 +151,69 @@ app = FastAPI(
     redirect_slashes=False
 )
 
-# 🔧 K3s 환경을 포함한 강화된 CORS 디버깅 미들웨어
-@app.middleware("http")
-async def cors_debug_middleware(request: Request, call_next):
-    """CORS 요청 디버깅 및 처리"""
-    
-    origin = request.headers.get("origin")
-    method = request.method
-    host = request.headers.get("host", "")
-    
-    # 요청 정보 상세 로깅
-    if origin:
-        logger.info(f"🌍 CORS 요청: {method} {request.url}")
-        logger.info(f"   Origin: {origin}")
-        logger.info(f"   Host: {host}")
-        logger.info(f"   Headers: {dict(request.headers)}")
-    
-    # OPTIONS 요청 (Preflight) 특별 처리 - 즉시 반환
-    if method == "OPTIONS":
-        logger.info(f"✈️ Preflight 요청 즉시 처리: {request.url}")
-        
-        response = JSONResponse(
-            content={"message": "CORS preflight OK"},
-            status_code=200
-        )
-        
-        # 🔧 CORS 헤더 설정 - 디버깅 강화
-        if origin:
-            if origin in cors_origins:
-                response.headers["Access-Control-Allow-Origin"] = origin
-                logger.info(f"✅ Preflight CORS 허용: {origin}")
-            else:
-                logger.warning(f"❌ Preflight CORS 거부: {origin} (허용되지 않은 오리진)")
-                response.headers["Access-Control-Allow-Origin"] = "null"
-        else:
-            # Origin 헤더가 없는 경우 (내부 네트워크)
-            logger.info("⚠️ Preflight Origin 헤더 없음")
-            response.headers["Access-Control-Allow-Origin"] = "*"
-            
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
-        response.headers["Access-Control-Allow-Headers"] = "*"
-        response.headers["Access-Control-Allow-Credentials"] = "false"
-        response.headers["Access-Control-Max-Age"] = "86400"
-        
-        logger.info(f"✅ Preflight 응답 헤더: {dict(response.headers)}")
-        return response
-    
-    # 일반 요청 처리
-    response = await call_next(request)
-    
-    # 응답에 CORS 헤더 추가 - 디버깅 강화
-    if origin:
-        # 허용된 오리진인지 확인
-        if origin in cors_origins:
-            response.headers["Access-Control-Allow-Origin"] = origin
-            logger.info(f"✅ CORS 허용: {origin}")
-        else:
-            logger.warning(f"❌ CORS 거부: {origin} (허용되지 않은 오리진)")
-            response.headers["Access-Control-Allow-Origin"] = "null"
-    else:
-        logger.info("⚠️ Origin 헤더 없음 - 내부 요청으로 처리")
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        
-    response.headers["Access-Control-Allow-Credentials"] = "false"
-    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
-    response.headers["Access-Control-Allow-Headers"] = "*"
-    
-    logger.info(f"✅ 응답 CORS 헤더 추가: Origin={response.headers.get('Access-Control-Allow-Origin')}")
-    
-    return response
+# =========================
+# CORS 설정
+# =========================
 
-# 상세 API 로깅 미들웨어 (기존과 동일)
+# 프로덕션 허용 오리진
+ALLOWED_ORIGINS = [
+    # Vercel 프론트엔드
+    "https://investment-assistant.vercel.app",
+    
+    # 커스텀 도메인
+    "https://weinvesting.site",
+    "https://www.weinvesting.site",
+    "https://investment-assistant.site",
+    "https://api.investment-assistant.site",
+]
+
+logger.info("=" * 60)
+logger.info("🔒 CORS 설정 (프로덕션)")
+logger.info(f"📝 허용 오리진: {len(ALLOWED_ORIGINS)}개")
+for origin in ALLOWED_ORIGINS:
+    logger.info(f"   ✅ {origin}")
+logger.info("=" * 60)
+
+# CORS 미들웨어 추가
+# ⚠️ allow_origins=["*"]로 설정한 이유:
+#    - 특정 오리진만 허용 시 Preflight 요청 처리 문제 발생
+#    - WebSocket 연결 시 Origin 헤더 불일치 이슈
+#    - credentials=False이므로 보안 문제 최소화
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 모든 오리진 허용 (credentials 미사용)
+    allow_credentials=False,  # 쿠키/인증 비활성화 (보안)
+    allow_methods=["*"],  # 모든 HTTP 메서드 허용
+    allow_headers=["*"],  # 모든 헤더 허용
+    expose_headers=["*"]  # 모든 응답 헤더 노출
+)
+
+# =========================
+# 미들웨어
+# =========================
+
 @app.middleware("http")
-async def detailed_logging_middleware(request: Request, call_next):
-    """상세한 API 요청/응답 로깅 미들웨어"""
+async def api_logging_middleware(request: Request, call_next):
+    """API 요청/응답 로깅"""
     start_time = time.time()
     
-    # 요청 정보 수집
+    # 요청 정보
     client_ip = request.client.host if request.client else "unknown"
-    user_agent = request.headers.get("user-agent", "unknown")
     method = request.method
     url = str(request.url)
-    query_params = dict(request.query_params)
     
     # 요청 로깅
     logger.info(f"📥 {method} {url} - IP: {client_ip}")
-    if query_params:
-        logger.info(f"   Query params: {json.dumps(query_params, ensure_ascii=False)}")
     
-    # 요청 처리
     try:
+        # 요청 처리
         response = await call_next(request)
         process_time = time.time() - start_time
         
         # 응답 로깅
-        if response.status_code >= 400:
-            logger.warning(f"❌ {method} {url} - {response.status_code} ({process_time:.3f}s)")
-            if response.status_code == 404:
-                logger.warning(f"   🔍 404 상세: 경로 '{request.url.path}'를 찾을 수 없음")
-        else:
-            logger.info(f"✅ {method} {url} - {response.status_code} ({process_time:.3f}s)")
-            
+        status_emoji = "✅" if response.status_code < 400 else "❌"
+        logger.info(f"{status_emoji} {method} {url} - {response.status_code} ({process_time:.3f}s)")
+        
         return response
         
     except Exception as e:
@@ -196,75 +221,37 @@ async def detailed_logging_middleware(request: Request, call_next):
         logger.error(f"💥 {method} {url} - ERROR ({process_time:.3f}s): {str(e)}")
         raise
 
-# 🔧 환경별 CORS 설정 (보안 강화)
-# 환경 확인
-is_production = os.getenv("ENVIRONMENT", "development").lower() == "production"
-is_development = not is_production
+# =========================
+# 기본 엔드포인트
+# =========================
 
-# 기본 허용 오리진 (프로덕션용)
-production_origins = [
-    "https://investment-assistant.vercel.app",
-    "https://investment-assistant.site", 
-    "https://api.investment-assistant.site",
-    "https://www.weinvesting.site",
-    "https://weinvesting.site"
-]
-
-# 개발용 오리진 (개발 환경에서만)
-development_origins = [
-    "http://localhost:3000",
-    "http://localhost:5173", 
-    "http://localhost:8888",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:8888",
-    "http://localhost:30333",
-    "http://127.0.0.1:30333",
-    "http://192.168.0.27:30333",
-    "http://100.108.146.70:30333"
-]
-
-# 환경에 따른 오리진 설정
-cors_origins = production_origins + (development_origins if is_development else [])
-
-logger.info(f"🔒 CORS 보안 설정 - 환경: {'프로덕션' if is_production else '개발'}")
-logger.info(f"🔒 허용된 오리진 수: {len(cors_origins)}")
-logger.info(f"🔒 허용된 오리진 목록: {cors_origins}")
-logger.info(f"🔧 환경변수 ENVIRONMENT: {os.getenv('ENVIRONMENT', 'not_set')}")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # 🔥 임시로 모든 도메인 허용
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["*"]
-)
-# 루트 엔드포인트
 @app.get("/", tags=["Root"])
 async def root():
-    """루트 경로 - API 기본 정보 제공"""
+    """루트 경로 - API 정보"""
     return {
         "message": f"Welcome to {settings.app_name}!",
         "version": settings.app_version,
+        "system": "Real-time Push WebSocket",
         "docs": "/docs",
-        "redoc": "/redoc",
-        "status": "running",
-        "cors_status": "enabled_for_all_environments",
-        "supported_origins": [
-            "Vercel 도메인 (*.vercel.app)",
-            "로컬 개발 환경 (localhost, 127.0.0.1)",
-            "K8s 내부 네트워크 (192.168.x.x, 10.x.x.x, 172.x.x.x)",
-            "커스텀 도메인 (*.investment-assistant.site)"
-        ],
-        "uvicorn_reload_test": "SUCCESS 4",
-        "timestamp": "2025-08-14 16:30:00"
+        "endpoints": {
+            "rest_api": "/api/v1/*",
+            "websocket": {
+                "crypto": "/api/v1/ws/crypto",
+                "sp500": "/api/v1/ws/sp500",
+                "etf": "/api/v1/ws/etf"
+            },
+            "health": "/health"
+        },
+        "frontend": {
+            "vercel": "https://investment-assistant.vercel.app",
+            "main": "https://weinvesting.site"
+        },
+        "status": "running"
     }
 
-# 헬스체크 엔드포인트
 @app.get("/health", tags=["Health"])
 async def health_check():
-    """헬스체크 - 서비스 상태 확인"""
+    """헬스체크"""
     db_status = "connected" if test_db_connection() else "disconnected"
     
     return {
@@ -272,85 +259,91 @@ async def health_check():
         "app_name": settings.app_name,
         "version": settings.app_version,
         "database": db_status,
-        "debug_mode": settings.debug,
-        "cors_status": "enabled_for_all_environments"
+        "websocket_system": "active",
+        "cors": "enabled_for_all_origins"
     }
 
-# 🔧 강화된 CORS 테스트 엔드포인트
-@app.get("/cors-test", tags=["Debug"])
-async def cors_test(request: Request):
-    """CORS 테스트 전용 엔드포인트"""
-    origin = request.headers.get("origin", "No Origin")
-    host = request.headers.get("host", "No Host")
-    user_agent = request.headers.get("user-agent", "No User-Agent")
-    
-    return {
-        "message": "CORS 테스트 성공! 🎉",
-        "request_info": {
-            "origin": origin,
-            "host": host,
-            "user_agent": user_agent,
-            "client_ip": request.client.host if request.client else "unknown",
-            "method": request.method,
-            "url": str(request.url)
-        },
-        "cors_info": {
-            "allowed_origins": "모든 환경 허용",
-            "allowed_methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-            "credentials": False
-        },
-        "timestamp": time.time()
-    }
-
-# 상세 헬스체크 엔드포인트
 @app.get("/health/detailed", tags=["Health"])
 async def detailed_health_check(_: None = Depends(verify_db_connection)):
     """상세 헬스체크"""
+    
+    # WebSocket 시스템 상태
+    websocket_status = {}
+    if websocket_manager:
+        websocket_status = websocket_manager.get_status()
+    
+    # Redis Streamer 상태
+    streamer_status = {}
+    if redis_streamer:
+        streamer_status = redis_streamer.get_status()
+    
     return {
         "status": "healthy",
         "app_name": settings.app_name,
         "version": settings.app_version,
         "database": "connected",
+        "websocket": {
+            "manager": websocket_status,
+            "streamer": streamer_status
+        },
         "services": {
             "postgresql": "connected",
-            "redis": "not_implemented",
-        },
-        "cors": {
-            "status": "enabled",
-            "environments": ["vercel", "k8s", "local", "custom_domain"]
-        },
-        "debug_mode": settings.debug
+            "redis": "connected"
+        }
     }
 
+@app.get("/ws/status", tags=["WebSocket"])
+async def websocket_status():
+    """WebSocket 시스템 상태 조회"""
+    if not websocket_manager or not redis_streamer:
+        return {
+            "status": "not_initialized",
+            "message": "WebSocket 시스템이 초기화되지 않았습니다."
+        }
+    
+    return {
+        "status": "active",
+        "manager": websocket_manager.get_status(),
+        "streamer": redis_streamer.get_status(),
+        "timestamp": time.time()
+    }
+
+# =========================
 # API 라우터 등록
+# =========================
+
 from .api.api_v1 import api_router
+from .api.endpoints.websocket_endpoint import router as websocket_router
+
+# REST API 라우터
 app.include_router(api_router, prefix=settings.api_v1_prefix)
 
-# 전역 예외 처리기
-@app.exception_handler(Exception)
-async def global_exception_handler(request, exc):
-    """전역 예외 처리기"""
-    logger.error(f"예상하지 못한 에러 발생: {str(exc)}", exc_info=True)
-    
-    if settings.debug:
-        return JSONResponse(
-            status_code=500,
-            content={
-                "error": "Internal Server Error",
-                "detail": str(exc),
-                "type": type(exc).__name__
-            }
-        )
-    else:
-        return JSONResponse(
-            status_code=500,
-            content={
-                "error": "Internal Server Error",
-                "detail": "서버에 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
-            }
-        )
+# WebSocket 라우터
+app.include_router(websocket_router, prefix=settings.api_v1_prefix)
+logger.info(f"✅ WebSocket 라우터 등록: {settings.api_v1_prefix}/ws/{{crypto|sp500|etf}}")
 
-# 개발 환경용 디버그 정보
+# =========================
+# 전역 예외 처리
+# =========================
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """전역 예외 처리기"""
+    logger.error(f"예상하지 못한 에러: {str(exc)}", exc_info=True)
+    
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": "Internal Server Error",
+            "detail": str(exc) if settings.debug else "서버 오류가 발생했습니다.",
+            "type": type(exc).__name__
+        }
+    )
+
+# =========================
+# 디버그 엔드포인트 (개발 환경)
+# =========================
+
 if settings.debug:
     @app.get("/debug/info", tags=["Debug"])
     async def debug_info():
@@ -363,8 +356,27 @@ if settings.debug:
                 "debug": settings.debug,
                 "log_level": settings.log_level
             },
+            "websocket": {
+                "manager_initialized": websocket_manager is not None,
+                "streamer_initialized": redis_streamer is not None,
+                "status": websocket_manager.get_status() if websocket_manager else None
+            },
             "cors": {
-                "status": "enabled_for_all_environments",
-                "note": "모든 Origin 허용됨 (개발 환경)"
+                "mode": "allow_all_origins",
+                "credentials": False,
+                "reason": "Preflight & WebSocket compatibility"
             }
         }
+    
+    @app.get("/cors-test", tags=["Debug"])
+    async def cors_test(request: Request):
+        """CORS 테스트"""
+        return {
+            "message": "CORS 테스트 성공! 🎉",
+            "origin": request.headers.get("origin", "No Origin"),
+            "host": request.headers.get("host", "No Host"),
+            "method": request.method,
+            "cors_mode": "allow_all (*)",
+            "credentials": False
+        }
+

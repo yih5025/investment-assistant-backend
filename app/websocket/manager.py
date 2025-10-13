@@ -1,4 +1,4 @@
-# app/websocket/manager.py
+# app/websocket/manager.py - 통합 버전
 import asyncio
 import json
 import logging
@@ -7,52 +7,44 @@ from datetime import datetime
 import pytz
 from fastapi import WebSocket
 
-# 새로운 스키마 import 구조
+# 스키마 import (기존 유지)
 from app.schemas.base_websocket_schema import (
     WebSocketMessageType, SymbolUpdateMessage, DashboardUpdateMessage, BaseErrorMessage,
     create_symbol_update_message, create_dashboard_update_message, create_error_message
 )
-from app.schemas.topgainers_schema import (
-    TopGainersUpdateMessage, TopGainersErrorMessage, 
-    create_topgainers_update_message, create_topgainers_error_message
-)
 from app.schemas.crypto_schema import (
-    CryptoUpdateMessage, CryptoErrorMessage,
-    create_crypto_update_message, create_crypto_error_message  
+    CryptoUpdateMessage, create_crypto_update_message
 )
 from app.schemas.sp500_schema import (
-    SP500UpdateMessage, SP500ErrorMessage,
-    create_sp500_update_message, create_sp500_error_message
+    SP500UpdateMessage, create_sp500_update_message
 )
 
 logger = logging.getLogger(__name__)
 
 class WebSocketManager:
     """
-    WebSocket 연결 관리 클래스
+    통합 WebSocket 연결 관리 클래스
     
-    이 클래스는 모든 WebSocket 연결을 관리하고, 데이터 타입별로 
-    클라이언트 그룹을 분리하여 메시지를 브로드캐스트합니다.
-    
-    **지원하는 구독 타입:**
-    - TopGainers 전체 구독
-    - 암호화폐 전체 구독  
-    - SP500 전체 구독
-    - 특정 심볼 구독 (데이터 타입별)
-    - 대시보드 통합 구독
+    지원 타입:
+    - Crypto (기존 유지)
+    - SP500 (신규 추가)
+    - ETF (신규 추가)
     """
     
     def __init__(self):
         """WebSocketManager 초기화"""
         
-        # 전체 데이터 구독자들
-        self.topgainers_subscribers: List[WebSocket] = []
+        # ✅ 기존 crypto 구독자 (유지)
         self.crypto_subscribers: List[WebSocket] = []
+        
+        # 🆕 신규 추가: SP500, ETF 구독자
         self.sp500_subscribers: List[WebSocket] = []
+        self.etf_subscribers: List[WebSocket] = []
+        
+        # 대시보드 구독자 (선택적)
         self.dashboard_subscribers: List[WebSocket] = []
         
         # 심볼별 구독자들 {data_type:symbol: [websocket1, websocket2, ...]}
-        # 예: {"topgainers:AAPL": [ws1, ws2], "crypto:KRW-BTC": [ws3]}
         self.symbol_subscribers: Dict[str, List[WebSocket]] = {}
         
         # 클라이언트 메타데이터 {websocket_id: metadata}
@@ -70,101 +62,21 @@ class WebSocketManager:
         # 활성 연결들 추적
         self.active_connections: Set[int] = set()
         
-        logger.info("✅ WebSocketManager 초기화 완료")
+        logger.info("✅ WebSocketManager 초기화 완료 (Crypto + SP500 + ETF)")
     
     # =========================
-    # TopGainers 연결 관리
-    # =========================
-    
-    async def connect_topgainers(self, websocket: WebSocket) -> bool:
-        """
-        TopGainers 전체 구독자로 연결
-        
-        Args:
-            websocket: WebSocket 연결 객체
-            
-        Returns:
-            bool: 연결 성공 여부
-        """
-        try:
-            client_id = id(websocket)
-            client_ip = websocket.client.host if websocket.client else "unknown"
-            
-            # 연결 리스트에 추가
-            self.topgainers_subscribers.append(websocket)
-            self.active_connections.add(client_id)
-            
-            # 클라이언트 메타데이터 저장
-            self.client_metadata[client_id] = {
-                "type": "topgainers",
-                "subscription": "all",
-                "ip": client_ip,
-                "connected_at": datetime.now(pytz.UTC),
-                "last_heartbeat": datetime.now(pytz.UTC),
-                "messages_received": 0
-            }
-            
-            # 통계 업데이트
-            self.stats["total_connections"] += 1
-            
-            logger.info(f"🔗 TopGainers 구독자 연결: {client_id} ({client_ip})")
-            logger.info(f"📊 현재 TopGainers 구독자 수: {len(self.topgainers_subscribers)}")
-            
-            return True
-            
-        except Exception as e:
-            logger.error(f"❌ TopGainers 연결 실패: {e}")
-            return False
-    
-    async def disconnect_topgainers(self, websocket: WebSocket):
-        """TopGainers 구독자 연결 해제"""
-        try:
-            client_id = id(websocket)
-            
-            # 연결 리스트에서 제거
-            if websocket in self.topgainers_subscribers:
-                self.topgainers_subscribers.remove(websocket)
-            
-            await self._cleanup_client(client_id, "TopGainers")
-            
-        except Exception as e:
-            logger.error(f"❌ TopGainers 연결 해제 오류: {e}")
-    
-    async def broadcast_topgainers_update(self, message: TopGainersUpdateMessage):
-        """모든 TopGainers 구독자에게 업데이트 브로드캐스트"""
-        if not self.topgainers_subscribers:
-            return
-        
-        successful_sends = await self._broadcast_to_subscribers(
-            self.topgainers_subscribers, message, "TopGainers"
-        )
-        
-        if successful_sends > 0:
-            logger.debug(f"📤 TopGainers 업데이트 전송 완료: {successful_sends}명")
-    
-    # =========================
-    # 암호화폐 연결 관리
+    # ✅ Crypto 연결 관리 (기존 유지)
     # =========================
     
     async def connect_crypto(self, websocket: WebSocket) -> bool:
-        """
-        암호화폐 전체 구독자로 연결
-        
-        Args:
-            websocket: WebSocket 연결 객체
-            
-        Returns:
-            bool: 연결 성공 여부
-        """
+        """암호화폐 전체 구독자로 연결"""
         try:
             client_id = id(websocket)
             client_ip = websocket.client.host if websocket.client else "unknown"
             
-            # 연결 리스트에 추가
             self.crypto_subscribers.append(websocket)
             self.active_connections.add(client_id)
             
-            # 클라이언트 메타데이터 저장
             self.client_metadata[client_id] = {
                 "type": "crypto",
                 "subscription": "all",
@@ -174,67 +86,53 @@ class WebSocketManager:
                 "messages_received": 0
             }
             
-            # 통계 업데이트
             self.stats["total_connections"] += 1
             
-            logger.info(f"🔗 암호화폐 구독자 연결: {client_id} ({client_ip})")
-            logger.info(f"📊 현재 암호화폐 구독자 수: {len(self.crypto_subscribers)}")
-            
+            logger.info(f"🔗 Crypto 구독자 연결: {client_id} ({client_ip})")
             return True
             
         except Exception as e:
-            logger.error(f"❌ 암호화폐 연결 실패: {e}")
+            logger.error(f"❌ Crypto 연결 실패: {e}")
             return False
     
     async def disconnect_crypto(self, websocket: WebSocket):
-        """암호화폐 구독자 연결 해제"""
+        """Crypto 구독자 연결 해제"""
         try:
             client_id = id(websocket)
             
-            # 연결 리스트에서 제거
             if websocket in self.crypto_subscribers:
                 self.crypto_subscribers.remove(websocket)
             
-            await self._cleanup_client(client_id, "암호화폐")
+            await self._cleanup_client(client_id, "Crypto")
             
         except Exception as e:
-            logger.error(f"❌ 암호화폐 연결 해제 오류: {e}")
+            logger.error(f"❌ Crypto 연결 해제 오류: {e}")
     
     async def broadcast_crypto_update(self, message: CryptoUpdateMessage):
-        """모든 암호화폐 구독자에게 업데이트 브로드캐스트"""
+        """모든 Crypto 구독자에게 업데이트 브로드캐스트"""
         if not self.crypto_subscribers:
             return
         
         successful_sends = await self._broadcast_to_subscribers(
-            self.crypto_subscribers, message, "암호화폐"
+            self.crypto_subscribers, message, "Crypto"
         )
         
         if successful_sends > 0:
-            logger.debug(f"📤 암호화폐 업데이트 전송 완료: {successful_sends}명")
+            logger.debug(f"📤 Crypto 업데이트 전송 완료: {successful_sends}명")
     
     # =========================
-    # SP500 연결 관리
+    # 🆕 SP500 연결 관리 (신규)
     # =========================
     
     async def connect_sp500(self, websocket: WebSocket) -> bool:
-        """
-        SP500 전체 구독자로 연결
-        
-        Args:
-            websocket: WebSocket 연결 객체
-            
-        Returns:
-            bool: 연결 성공 여부
-        """
+        """SP500 전체 구독자로 연결"""
         try:
             client_id = id(websocket)
             client_ip = websocket.client.host if websocket.client else "unknown"
             
-            # 연결 리스트에 추가
             self.sp500_subscribers.append(websocket)
             self.active_connections.add(client_id)
             
-            # 클라이언트 메타데이터 저장
             self.client_metadata[client_id] = {
                 "type": "sp500",
                 "subscription": "all",
@@ -244,12 +142,9 @@ class WebSocketManager:
                 "messages_received": 0
             }
             
-            # 통계 업데이트
             self.stats["total_connections"] += 1
             
             logger.info(f"🔗 SP500 구독자 연결: {client_id} ({client_ip})")
-            logger.info(f"📊 현재 SP500 구독자 수: {len(self.sp500_subscribers)}")
-            
             return True
             
         except Exception as e:
@@ -261,7 +156,6 @@ class WebSocketManager:
         try:
             client_id = id(websocket)
             
-            # 연결 리스트에서 제거
             if websocket in self.sp500_subscribers:
                 self.sp500_subscribers.remove(websocket)
             
@@ -283,183 +177,76 @@ class WebSocketManager:
             logger.debug(f"📤 SP500 업데이트 전송 완료: {successful_sends}명")
     
     # =========================
-    # 대시보드 연결 관리
+    # 🆕 ETF 연결 관리 (신규)
     # =========================
     
-    async def connect_dashboard(self, websocket: WebSocket) -> bool:
-        """
-        대시보드 구독자로 연결
-        
-        Args:
-            websocket: WebSocket 연결 객체
-            
-        Returns:
-            bool: 연결 성공 여부
-        """
+    async def connect_etf(self, websocket: WebSocket) -> bool:
+        """ETF 전체 구독자로 연결"""
         try:
             client_id = id(websocket)
             client_ip = websocket.client.host if websocket.client else "unknown"
             
-            # 연결 리스트에 추가
-            self.dashboard_subscribers.append(websocket)
+            self.etf_subscribers.append(websocket)
             self.active_connections.add(client_id)
             
-            # 클라이언트 메타데이터 저장
             self.client_metadata[client_id] = {
-                "type": "dashboard",
-                "subscription": "integrated",
+                "type": "etf",
+                "subscription": "all",
                 "ip": client_ip,
                 "connected_at": datetime.now(pytz.UTC),
                 "last_heartbeat": datetime.now(pytz.UTC),
                 "messages_received": 0
             }
             
-            # 통계 업데이트
             self.stats["total_connections"] += 1
             
-            logger.info(f"🔗 대시보드 구독자 연결: {client_id} ({client_ip})")
-            logger.info(f"📊 현재 대시보드 구독자 수: {len(self.dashboard_subscribers)}")
-            
+            logger.info(f"🔗 ETF 구독자 연결: {client_id} ({client_ip})")
             return True
             
         except Exception as e:
-            logger.error(f"❌ 대시보드 연결 실패: {e}")
+            logger.error(f"❌ ETF 연결 실패: {e}")
             return False
     
-    async def disconnect_dashboard(self, websocket: WebSocket):
-        """대시보드 구독자 연결 해제"""
+    async def disconnect_etf(self, websocket: WebSocket):
+        """ETF 구독자 연결 해제"""
         try:
             client_id = id(websocket)
             
-            # 연결 리스트에서 제거
-            if websocket in self.dashboard_subscribers:
-                self.dashboard_subscribers.remove(websocket)
+            if websocket in self.etf_subscribers:
+                self.etf_subscribers.remove(websocket)
             
-            await self._cleanup_client(client_id, "대시보드")
+            await self._cleanup_client(client_id, "ETF")
             
         except Exception as e:
-            logger.error(f"❌ 대시보드 연결 해제 오류: {e}")
+            logger.error(f"❌ ETF 연결 해제 오류: {e}")
     
-    async def broadcast_dashboard_update(self, message: DashboardUpdateMessage):
-        """모든 대시보드 구독자에게 업데이트 브로드캐스트"""
-        if not self.dashboard_subscribers:
+    async def broadcast_etf_update(self, data: List[dict]):
+        """
+        모든 ETF 구독자에게 업데이트 브로드캐스트
+        
+        Args:
+            data: ETF 데이터 리스트
+        """
+        if not self.etf_subscribers:
             return
         
-        successful_sends = await self._broadcast_to_subscribers(
-            self.dashboard_subscribers, message, "대시보드"
-        )
-        
-        if successful_sends > 0:
-            logger.debug(f"📤 대시보드 업데이트 전송 완료: {successful_sends}명")
-    
-    # =========================
-    # 심볼별 구독 관리
-    # =========================
-    
-    async def connect_symbol_subscriber(self, websocket: WebSocket, symbol: str, data_type: str) -> bool:
-        """
-        특정 심볼 구독자로 연결
-        
-        Args:
-            websocket: WebSocket 연결 객체
-            symbol: 구독할 심볼
-            data_type: 데이터 타입 (topgainers, crypto, sp500)
-            
-        Returns:
-            bool: 연결 성공 여부
-        """
         try:
-            client_id = id(websocket)
-            client_ip = websocket.client.host if websocket.client else "unknown"
-            symbol = symbol.upper()
-            
-            # 구독 키 생성 (data_type:symbol)
-            subscription_key = f"{data_type}:{symbol}"
-            
-            # 심볼별 구독자 리스트 초기화 (필요한 경우)
-            if subscription_key not in self.symbol_subscribers:
-                self.symbol_subscribers[subscription_key] = []
-            
-            # 구독자 리스트에 추가
-            self.symbol_subscribers[subscription_key].append(websocket)
-            self.active_connections.add(client_id)
-            
-            # 클라이언트 메타데이터 저장
-            self.client_metadata[client_id] = {
-                "type": "symbol",
-                "data_type": data_type,
-                "symbol": symbol,
-                "subscription_key": subscription_key,
-                "ip": client_ip,
-                "connected_at": datetime.now(pytz.UTC),
-                "last_heartbeat": datetime.now(pytz.UTC),
-                "messages_received": 0
+            # ETF 메시지 포맷 생성
+            message = {
+                "type": "etf",
+                "data": data,
+                "timestamp": datetime.now(pytz.UTC).isoformat()
             }
             
-            # 통계 업데이트
-            self.stats["total_connections"] += 1
+            successful_sends = await self._broadcast_to_subscribers(
+                self.etf_subscribers, message, "ETF"
+            )
             
-            logger.info(f"🔗 심볼 구독자 연결: {client_id} ({client_ip}) - {subscription_key}")
-            logger.info(f"📊 {subscription_key} 구독자 수: {len(self.symbol_subscribers[subscription_key])}")
-            
-            return True
-            
-        except Exception as e:
-            logger.error(f"❌ 심볼 구독자 연결 실패: {e}")
-            return False
-    
-    async def disconnect_symbol_subscriber(self, websocket: WebSocket, symbol: str, data_type: str):
-        """
-        특정 심볼 구독자 연결 해제
-        
-        Args:
-            websocket: WebSocket 연결 객체
-            symbol: 구독 중인 심볼
-            data_type: 데이터 타입
-        """
-        try:
-            client_id = id(websocket)
-            symbol = symbol.upper()
-            subscription_key = f"{data_type}:{symbol}"
-            
-            # 심볼별 구독자 리스트에서 제거
-            if subscription_key in self.symbol_subscribers and websocket in self.symbol_subscribers[subscription_key]:
-                self.symbol_subscribers[subscription_key].remove(websocket)
+            if successful_sends > 0:
+                logger.debug(f"📤 ETF 업데이트 전송 완료: {successful_sends}명")
                 
-                # 구독자가 없으면 심볼 키 자체를 제거
-                if not self.symbol_subscribers[subscription_key]:
-                    del self.symbol_subscribers[subscription_key]
-                    logger.info(f"🧹 심볼 {subscription_key} 구독자 리스트 정리 완료")
-            
-            await self._cleanup_client(client_id, f"심볼 {subscription_key}")
-            
-            remaining_count = len(self.symbol_subscribers.get(subscription_key, []))
-            logger.info(f"📊 {subscription_key} 남은 구독자 수: {remaining_count}")
-            
         except Exception as e:
-            logger.error(f"❌ 심볼 구독자 연결 해제 오류: {e}")
-    
-    async def broadcast_symbol_update(self, symbol: str, data_type: str, message: SymbolUpdateMessage):
-        """
-        특정 심볼 구독자들에게 업데이트 브로드캐스트
-        
-        Args:
-            symbol: 업데이트할 심볼
-            data_type: 데이터 타입
-            message: 전송할 SymbolUpdateMessage
-        """
-        symbol = symbol.upper()
-        subscription_key = f"{data_type}:{symbol}"
-        
-        if subscription_key not in self.symbol_subscribers or not self.symbol_subscribers[subscription_key]:
-            return
-        
-        successful_sends = await self._broadcast_to_subscribers(
-            self.symbol_subscribers[subscription_key], message, f"심볼 {subscription_key}"
-        )
-        
-        if successful_sends > 0:
-            logger.debug(f"📤 심볼 {subscription_key} 업데이트 전송 완료: {successful_sends}명")
+            logger.error(f"❌ ETF 브로드캐스트 실패: {e}")
     
     # =========================
     # 공통 유틸리티 메서드들
@@ -471,7 +258,7 @@ class WebSocketManager:
         
         Args:
             subscribers: WebSocket 구독자 리스트
-            message: 전송할 메시지
+            message: 전송할 메시지 (dict 또는 Pydantic 모델)
             context: 로깅용 컨텍스트 정보
             
         Returns:
@@ -480,7 +267,16 @@ class WebSocketManager:
         if not subscribers:
             return 0
         
-        message_json = message.json()
+        # 메시지 JSON 변환
+        if isinstance(message, dict):
+            message_json = json.dumps(message, default=str)
+        elif hasattr(message, 'json'):
+            message_json = message.json()
+        elif hasattr(message, 'model_dump_json'):
+            message_json = message.model_dump_json()
+        else:
+            message_json = json.dumps(str(message))
+        
         disconnected_clients = []
         successful_sends = 0
         
@@ -514,14 +310,14 @@ class WebSocketManager:
         """연결 끊어진 클라이언트 모든 리스트에서 제거"""
         try:
             # 모든 구독자 리스트에서 제거
-            if websocket in self.topgainers_subscribers:
-                self.topgainers_subscribers.remove(websocket)
-            
             if websocket in self.crypto_subscribers:
                 self.crypto_subscribers.remove(websocket)
             
             if websocket in self.sp500_subscribers:
                 self.sp500_subscribers.remove(websocket)
+            
+            if websocket in self.etf_subscribers:
+                self.etf_subscribers.remove(websocket)
             
             if websocket in self.dashboard_subscribers:
                 self.dashboard_subscribers.remove(websocket)
@@ -558,155 +354,19 @@ class WebSocketManager:
         except Exception as e:
             logger.error(f"❌ 클라이언트 정리 실패: {e}")
     
-    async def broadcast_error(self, error_message: BaseErrorMessage, target_clients: Optional[List[WebSocket]] = None):
-        """
-        에러 메시지 브로드캐스트
-        
-        Args:
-            error_message: 전송할 BaseErrorMessage
-            target_clients: 특정 클라이언트들 (None이면 모든 클라이언트)
-        """
-        if target_clients is None:
-            # 모든 클라이언트에게 전송
-            all_clients = []
-            all_clients.extend(self.topgainers_subscribers)
-            all_clients.extend(self.crypto_subscribers)
-            all_clients.extend(self.sp500_subscribers)
-            all_clients.extend(self.dashboard_subscribers)
-            
-            for symbol_clients in self.symbol_subscribers.values():
-                all_clients.extend(symbol_clients)
-            
-            target_clients = list(set(all_clients))  # 중복 제거
-        
-        message_json = error_message.json()
-        
-        for websocket in target_clients:
-            try:
-                await websocket.send_text(message_json)
-            except Exception as e:
-                logger.warning(f"⚠️ 에러 메시지 전송 실패: {id(websocket)} - {e}")
-    
     # =========================
     # 상태 조회 및 통계
     # =========================
     
     def get_status(self) -> Dict[str, Any]:
-        """
-        WebSocket 매니저 상태 반환
-        
-        Returns:
-            Dict[str, Any]: 상태 정보
-        """
-        total_symbol_subscribers = sum(len(clients) for clients in self.symbol_subscribers.values())
-        
+        """WebSocket 매니저 상태 반환"""
         return {
             "total_connections": len(self.active_connections),
-            "topgainers_subscribers": len(self.topgainers_subscribers),
             "crypto_subscribers": len(self.crypto_subscribers),
             "sp500_subscribers": len(self.sp500_subscribers),
+            "etf_subscribers": len(self.etf_subscribers),
             "dashboard_subscribers": len(self.dashboard_subscribers),
-            "symbol_subscribers": total_symbol_subscribers,
-            "unique_symbols": len(self.symbol_subscribers),
-            "active_symbols": list(self.symbol_subscribers.keys())
         }
-    
-    def get_detailed_stats(self) -> Dict[str, Any]:
-        """
-        상세 통계 정보 반환
-        
-        Returns:
-            Dict[str, Any]: 상세 통계
-        """
-        uptime = datetime.now(pytz.UTC) - self.stats["start_time"]
-        
-        return {
-            **self.stats,
-            "uptime_seconds": uptime.total_seconds(),
-            "uptime_str": str(uptime),
-            "subscription_breakdown": {
-                "topgainers": len(self.topgainers_subscribers),
-                "crypto": len(self.crypto_subscribers),
-                "sp500": len(self.sp500_subscribers),
-                "dashboard": len(self.dashboard_subscribers),
-                "symbols": {
-                    symbol: len(clients) 
-                    for symbol, clients in self.symbol_subscribers.items()
-                }
-            },
-            "error_rate": (
-                self.stats["total_errors"] / max(self.stats["total_messages_sent"], 1) * 100
-            )
-        }
-    
-    def get_client_info(self, client_id: int) -> Optional[Dict[str, Any]]:
-        """
-        특정 클라이언트 정보 조회
-        
-        Args:
-            client_id: 클라이언트 ID
-            
-        Returns:
-            Optional[Dict[str, Any]]: 클라이언트 정보
-        """
-        return self.client_metadata.get(client_id)
-    
-    def get_subscription_summary(self) -> Dict[str, Any]:
-        """
-        구독 현황 요약 반환
-        
-        Returns:
-            Dict[str, Any]: 구독 현황
-        """
-        return {
-            "timestamp": datetime.now(pytz.UTC).isoformat(),
-            "total_active_connections": len(self.active_connections),
-            "subscriptions": {
-                "all_data": {
-                    "topgainers": len(self.topgainers_subscribers),
-                    "crypto": len(self.crypto_subscribers),
-                    "sp500": len(self.sp500_subscribers),
-                    "dashboard": len(self.dashboard_subscribers)
-                },
-                "symbol_specific": {
-                    "total_symbols": len(self.symbol_subscribers),
-                    "total_subscribers": sum(len(clients) for clients in self.symbol_subscribers.values()),
-                    "by_data_type": self._get_symbol_breakdown_by_type()
-                }
-            }
-        }
-    
-    def _get_symbol_breakdown_by_type(self) -> Dict[str, Dict[str, int]]:
-        """데이터 타입별 심볼 구독 현황 분석"""
-        breakdown = {"topgainers": {}, "crypto": {}, "sp500": {}}
-        
-        for subscription_key, clients in self.symbol_subscribers.items():
-            if ":" in subscription_key:
-                data_type, symbol = subscription_key.split(":", 1)
-                if data_type in breakdown:
-                    breakdown[data_type][symbol] = len(clients)
-        
-        return breakdown
-    
-    async def cleanup_inactive_connections(self):
-        """
-        비활성 연결들 정리 (주기적으로 실행)
-        """
-        current_time = datetime.now(pytz.UTC)
-        inactive_threshold = 300  # 5분
-        
-        inactive_clients = []
-        
-        for client_id, metadata in self.client_metadata.items():
-            last_heartbeat = metadata.get("last_heartbeat")
-            if last_heartbeat and (current_time - last_heartbeat).total_seconds() > inactive_threshold:
-                inactive_clients.append(client_id)
-        
-        if inactive_clients:
-            logger.info(f"🧹 비활성 연결 정리: {len(inactive_clients)}개")
-            
-            # 실제 정리는 각 연결의 disconnect 메서드에서 처리됨
-            # 여기서는 로깅 및 통계만 수행
     
     async def shutdown_all_connections(self):
         """모든 WebSocket 연결 종료"""
@@ -719,25 +379,16 @@ class WebSocketManager:
                 message="서버가 종료됩니다. 연결이 곧 끊어집니다."
             )
             
-            # 모든 클라이언트에게 종료 알림
-            await self.broadcast_error(shutdown_message)
-            
-            # 짧은 대기 (메시지 전송 완료)
-            await asyncio.sleep(1)
-            
-            # 통계 정리
-            total_connections = len(self.active_connections)
-            
-            # 연결 리스트 정리
-            self.topgainers_subscribers.clear()
+            # 모든 구독자 리스트 정리
             self.crypto_subscribers.clear()
             self.sp500_subscribers.clear()
+            self.etf_subscribers.clear()
             self.dashboard_subscribers.clear()
             self.symbol_subscribers.clear()
             self.client_metadata.clear()
             self.active_connections.clear()
             
-            logger.info(f"✅ 모든 WebSocket 연결 종료 완료: {total_connections}개")
+            logger.info("✅ 모든 WebSocket 연결 종료 완료")
             
         except Exception as e:
             logger.error(f"❌ WebSocket 연결 종료 실패: {e}")
