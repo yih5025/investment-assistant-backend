@@ -51,7 +51,7 @@ async def lifespan(app: FastAPI):
     try:
         # 1. Redis 클라이언트 초기화 (동기)
         sync_redis_client = redis.Redis.from_url(
-            settings.REDIS_URL,
+            settings.redis_url,
             decode_responses=True
         )
         logger.info("✅ [1/7] Redis 클라이언트 초기화")
