@@ -71,7 +71,7 @@ async def lifespan(app: FastAPI):
         redis_streamer = RedisStreamer(
             crypto_service=crypto_service,
             sp500_service=sp500_service,
-            redis_url=settings.REDIS_URL
+            redis_url=settings.redis_url
         )
         await redis_streamer.initialize()
         logger.info("✅ [4/7] Redis Streamer 초기화")
