@@ -94,15 +94,44 @@ class CryptoHeartbeatMessage(BaseModel):
 # 헬퍼 함수들
 # =========================
 
-def create_crypto_update_message(data: List[CryptoData], exchange: CryptoExchange = CryptoExchange.BITHUMB) -> CryptoUpdateMessage:
-    """암호화폐 업데이트 메시지 생성"""
-    market_types = list(set(item.market for item in data if item.market))
+def create_crypto_update_message(data: List[Any], exchange: CryptoExchange = CryptoExchange.BITHUMB) -> CryptoUpdateMessage:
+    """
+    암호화폐 업데이트 메시지 생성
+    
+    Args:
+        data: CryptoData 객체 또는 dict의 리스트
+        exchange: 거래소
+    
+    Returns:
+        CryptoUpdateMessage
+    """
+    # dict를 CryptoData 객체로 변환
+    crypto_data_list = []
+    market_types = []
+    
+    for item in data:
+        if isinstance(item, dict):
+            # dict를 CryptoData로 변환
+            crypto_data = CryptoData(**item)
+            crypto_data_list.append(crypto_data)
+            
+            # market_code 또는 market에서 마켓 타입 추출
+            market = item.get('market_code') or item.get('market') or item.get('symbol')
+            if market:
+                market_types.append(market)
+        else:
+            # 이미 CryptoData 객체
+            crypto_data_list.append(item)
+            if hasattr(item, 'market') and item.market:
+                market_types.append(item.market)
+            elif hasattr(item, 'market_code') and item.market_code:
+                market_types.append(item.market_code)
     
     return CryptoUpdateMessage(
-        data=data,
-        data_count=len(data),
+        data=crypto_data_list,
+        data_count=len(crypto_data_list),
         exchange=exchange,
-        market_types=market_types
+        market_types=list(set(market_types))
     )
 
 def create_crypto_error_message(error_code: str, message: str, exchange: CryptoExchange = None, market: str = None, details: Dict[str, Any] = None) -> CryptoErrorMessage:
