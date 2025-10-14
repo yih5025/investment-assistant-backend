@@ -226,7 +226,7 @@ class RedisStreamer:
                 return
             
             # Redis에서 최신 Crypto 데이터 조회
-            crypto_data = await self.crypto_service.get_realtime_data(limit=100)
+            crypto_data = await self.crypto_service.get_realtime_data(limit=500)
             
             if not crypto_data:
                 logger.debug("📊 Crypto 데이터 없음")
@@ -254,7 +254,7 @@ class RedisStreamer:
             sp500_data_raw = await asyncio.to_thread(
                 get_sp500_data_from_redis,
                 self.sync_redis_client,
-                100
+                500
             )
             
             if not sp500_data_raw:
