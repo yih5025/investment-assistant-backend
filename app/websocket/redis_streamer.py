@@ -251,15 +251,22 @@ class RedisStreamer:
                 return
             
             # Redis에서 최신 SP500 데이터 조회 (동기 함수 사용)
-            sp500_data = await asyncio.to_thread(
+            sp500_data_raw = await asyncio.to_thread(
                 get_sp500_data_from_redis,
                 self.sync_redis_client,
                 100
             )
             
-            if not sp500_data:
+            if not sp500_data_raw:
                 logger.debug("📊 SP500 데이터 없음")
                 return
+            
+            # dict를 StockInfo 객체로 변환
+            from app.schemas.sp500_schema import StockInfo
+            sp500_data = [
+                StockInfo(**item) if isinstance(item, dict) else item
+                for item in sp500_data_raw
+            ]
             
             # WebSocket 브로드캐스트
             update_message = create_sp500_update_message(sp500_data)
