@@ -52,7 +52,7 @@ async def websocket_crypto_endpoint(websocket: WebSocket):
             initial_data = await asyncio.to_thread(
                 get_crypto_data_from_redis,
                 sync_redis_client,
-                100
+                500
             )
             if initial_data:
                 response = {
@@ -125,7 +125,7 @@ async def websocket_sp500_endpoint(websocket: WebSocket):
             initial_data = await asyncio.to_thread(
                 get_sp500_data_from_redis,
                 sync_redis_client,
-                100
+                500
             )
             if initial_data:
                 response = {
@@ -195,7 +195,7 @@ async def websocket_etf_endpoint(websocket: WebSocket):
             initial_data = await asyncio.to_thread(
                 get_etf_data_from_redis,
                 sync_redis_client,
-                100
+                500
             )
             if initial_data:
                 response = {
