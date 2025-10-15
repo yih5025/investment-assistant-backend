@@ -290,7 +290,7 @@ class RedisStreamer:
             etf_data = await asyncio.to_thread(
                 get_etf_data_from_redis,
                 self.sync_redis_client,
-                100
+                500
             )
             
             if not etf_data:

@@ -81,29 +81,99 @@ class ETFRealtimePrices(Base):
 
     @classmethod
     def get_previous_close_price(cls, db: Session, symbol: str) -> Optional[float]:
-        """특정 ETF의 전날 종가 조회"""
+        """
+        특정 ETF의 전날 종가 조회 (주말/공휴일 고려)
+        
+        미국 시장의 마지막 거래일 폐장가를 정확히 조회합니다.
+        주말과 공휴일을 고려하여 실제 거래가 있었던 마지막 날의 데이터를 찾습니다.
+        """
         try:
-            # 어제 날짜 계산
-            yesterday = datetime.now() - timedelta(days=1)
-            yesterday_start = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
-            yesterday_end = yesterday.replace(hour=23, minute=59, second=59, microsecond=999999)
+            import pytz
+            us_eastern = pytz.timezone('US/Eastern')
+            
+            # 현재 미국 동부 시간
+            now_utc = datetime.now(pytz.utc)
+            now_us = now_utc.astimezone(us_eastern)
+            
+            # 미국 공휴일 목록 (간단한 버전)
+            market_holidays = {
+                '2024-01-01', '2024-01-15', '2024-02-19', '2024-03-29',
+                '2024-05-27', '2024-06-19', '2024-07-04', '2024-09-02',
+                '2024-11-28', '2024-12-25',
+                '2025-01-01', '2025-01-20', '2025-02-17', '2025-04-18',
+                '2025-05-26', '2025-06-19', '2025-07-04', '2025-09-01',
+                '2025-11-27', '2025-12-25'
+            }
+            
+            # 마지막 거래일 찾기 (주말과 공휴일 제외)
+            last_trading_day = now_us - timedelta(days=1)
+            while (last_trading_day.weekday() >= 5 or 
+                   last_trading_day.strftime('%Y-%m-%d') in market_holidays):
+                last_trading_day -= timedelta(days=1)
+            
+            # 검색 범위: 마지막 거래일 종료 시점 전후
+            search_end = last_trading_day.replace(hour=20, minute=0, second=0, microsecond=0)  # 오후 8시까지 (시간외 포함)
+            search_start = search_end - timedelta(days=1)  # 24시간 전부터
             
             # 어제 마지막 거래 가격 조회
             previous_trade = db.query(cls).filter(
                 cls.symbol == symbol,
-                cls.created_at >= yesterday_start,
-                cls.created_at <= yesterday_end
+                cls.created_at >= search_start.replace(tzinfo=None),
+                cls.created_at <= search_end.replace(tzinfo=None)
             ).order_by(cls.created_at.desc()).first()
             
-            return float(previous_trade.price) if previous_trade else None
+            if previous_trade:
+                return float(previous_trade.price)
+            
+            # 데이터가 없으면 확장 검색 (5일 전까지)
+            extended_search_start = search_end - timedelta(days=5)
+            extended_trade = db.query(cls).filter(
+                cls.symbol == symbol,
+                cls.created_at >= extended_search_start.replace(tzinfo=None),
+                cls.created_at <= search_end.replace(tzinfo=None)
+            ).order_by(cls.created_at.desc()).first()
+            
+            return float(extended_trade.price) if extended_trade else None
             
         except Exception as e:
             logger.error(f"{symbol} ETF 전날 종가 조회 실패: {e}")
             return None
 
     @classmethod
+    def get_trading_volume_24h(cls, db: Session, symbol: str) -> int:
+        """
+        특정 ETF의 24시간 거래량 조회
+        
+        Args:
+            db: 데이터베이스 세션
+            symbol: ETF 심볼
+            
+        Returns:
+            int: 24시간 총 거래량
+        """
+        try:
+            from sqlalchemy import func
+            
+            # 24시간 전부터 현재까지
+            since_24h = datetime.now() - timedelta(hours=24)
+            
+            result = db.query(
+                func.sum(cls.volume).label('total_volume')
+            ).filter(
+                cls.symbol == symbol,
+                cls.created_at >= since_24h,
+                cls.volume.isnot(None)
+            ).scalar()
+            
+            return int(result) if result else 0
+            
+        except Exception as e:
+            logger.error(f"{symbol} ETF 24시간 거래량 조회 실패: {e}")
+            return 0
+
+    @classmethod
     def get_price_change_info(cls, db: Session, symbol: str) -> Dict[str, Any]:
-        """ETF 가격 변동 정보 조회"""
+        """ETF 가격 변동 정보 조회 (24시간 거래량 포함)"""
         try:
             # 현재가
             current_trade = cls.get_current_price(db, symbol)
@@ -130,12 +200,15 @@ class ETFRealtimePrices(Base):
                 change_amount = current_price - previous_close
                 change_percentage = (change_amount / previous_close) * 100
             
+            # 24시간 거래량 조회
+            volume_24h = cls.get_trading_volume_24h(db, symbol)
+            
             return {
                 'current_price': current_price,
                 'previous_close': previous_close,
                 'change_amount': round(change_amount, 2) if change_amount else None,
                 'change_percentage': round(change_percentage, 2) if change_percentage else None,
-                'volume': current_trade.volume,
+                'volume': volume_24h,  # 24시간 누적 거래량 사용
                 'last_updated': current_trade.created_at.isoformat()
             }
             

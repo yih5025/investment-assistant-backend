@@ -18,6 +18,7 @@ from app.websocket.manager import WebSocketManager
 from app.websocket.redis_streamer import RedisStreamer
 from app.services.crypto_service import CryptoService
 from app.services.sp500_service import SP500Service
+from app.services.etf_service import ETFService
 from app.api.endpoints.websocket_endpoint import set_websocket_dependencies
 
 # 로깅 설정
@@ -61,7 +62,8 @@ async def lifespan(app: FastAPI):
         await crypto_service.init_redis()  # 비동기 Redis 초기화
         
         sp500_service = SP500Service(redis_client=sync_redis_client)
-        logger.info("✅ [2/7] 서비스 레이어 초기화 (Crypto + SP500)")
+        etf_service = ETFService(redis_client=sync_redis_client)
+        logger.info("✅ [2/7] 서비스 레이어 초기화 (Crypto + SP500 + ETF)")
         
         # 3. WebSocket Manager 초기화
         websocket_manager = WebSocketManager()
@@ -84,7 +86,9 @@ async def lifespan(app: FastAPI):
         set_websocket_dependencies(
             manager=websocket_manager,
             streamer=redis_streamer,
-            redis_client=sync_redis_client
+            redis_client=sync_redis_client,
+            sp500_svc=sp500_service,
+            etf_svc=etf_service
         )
         logger.info("✅ [6/7] WebSocket 라우터 의존성 주입")
         
