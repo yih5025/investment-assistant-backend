@@ -780,61 +780,70 @@ class SP500Service:
 
 def get_sp500_data_from_redis(redis_client: redis.Redis, limit: int = 500) -> List[dict]:
     """
-    동기 방식으로 Redis에서 SP500 데이터 조회
+    동기 방식으로 Redis에서 SP500 데이터 조회 및 병합
     (WebSocket 핸들러에서 사용)
     
     Redis 키 구조:
-    - sp500_realtime_data: {symbol: json_data}
-    - json_data 필수 필드: symbol, company_name, current_price, 
-      change_amount, change_percentage, volume, volume_24h, last_updated
+    - sp500_realtime_data (Consumer): {symbol: {"symbol": "AAPL", "price": 150.5}}
+    - sp500_market_data (DAG): {symbol: {"company_name": "Apple", "change_percentage": 1.5, ...}}
     
     Args:
         redis_client: Redis 클라이언트
         limit: 최대 반환 개수
         
     Returns:
-        List[dict]: SP500 데이터 리스트 (변화량 + 24시간 거래량 포함)
+        List[dict]: 병합된 SP500 데이터 리스트
     """
     try:
-        sp500_list_key = "sp500_realtime_data"
-        all_data = redis_client.hgetall(sp500_list_key)
+        realtime_key = "sp500_realtime_data"
+        market_key = "sp500_market_data"
         
-        if not all_data:
-            logger.debug("Redis에 SP500 데이터 없음")
+        realtime_data_raw = redis_client.hgetall(realtime_key)
+        market_data_raw = redis_client.hgetall(market_key)
+        
+        if not realtime_data_raw:
+            logger.warning("Redis에 실시간 데이터 없음")
             return []
         
-        parsed_data = []
-        for symbol, json_str in all_data.items():
-            try:
-                data = json.loads(json_str)
-                
-                # 필요한 필드만 추출 (WebSocket 전송용 포맷)
-                stock_item = {
-                    'symbol': data.get('symbol', symbol),
-                    'company_name': data.get('company_name', symbol),
-                    'current_price': data.get('current_price', 0),
-                    'change_amount': data.get('change_amount', 0),
-                    'change_percentage': data.get('change_percentage', 0),
-                    'volume': data.get('volume', 0),
-                    'volume_24h': data.get('volume_24h', 0),  # 🆕 24시간 거래량
-                    'last_updated': data.get('last_updated'),
-                    'is_positive': data.get('change_amount', 0) > 0 if data.get('change_amount') is not None else None
-                }
-                parsed_data.append(stock_item)
-                
-            except json.JSONDecodeError as e:
-                logger.warning(f"SP500 데이터 파싱 실패 ({symbol}): {e}")
-                continue
-            except Exception as e:
-                logger.warning(f"SP500 데이터 처리 실패 ({symbol}): {e}")
-                continue
+        merged_data = []
         
-        # 변동률 기준 내림차순 정렬 (상승률 높은 순)
-        parsed_data.sort(key=lambda x: x.get('change_percentage', 0), reverse=True)
+        # 실시간 데이터 기준으로만 병합
+        for symbol_bytes, json_str_bytes in realtime_data_raw.items():
+            symbol = symbol_bytes.decode('utf-8') if isinstance(symbol_bytes, bytes) else symbol_bytes
+            json_str = json_str_bytes.decode('utf-8') if isinstance(json_str_bytes, bytes) else json_str_bytes
+            
+            realtime_data = json.loads(json_str)
+            
+            # 시장 데이터 조회 (없으면 빈 dict)
+            market_json_bytes = market_data_raw.get(symbol_bytes)
+            market_data = {}
+            if market_json_bytes:
+                market_json_str = market_json_bytes.decode('utf-8') if isinstance(market_json_bytes, bytes) else market_json_bytes
+                market_data = json.loads(market_json_str)
+            
+            # 병합
+            stock_item = {
+                'symbol': realtime_data.get('symbol', symbol),
+                'price': realtime_data.get('price', 0),
+                'current_price': realtime_data.get('price', 0),
+                'timestamp': realtime_data.get('timestamp'),
+                
+                # market_data 없으면 기본값 사용
+                'company_name': market_data.get('company_name', symbol),
+                'change_amount': market_data.get('change_amount', 0),
+                'change_percentage': market_data.get('change_percentage', 0),
+                'volume_24h': market_data.get('volume_24h', 0),
+                'last_updated': market_data.get('last_updated'),
+                'is_positive': market_data.get('change_amount', 0) > 0 if market_data.get('change_amount') is not None else None
+            }
+            
+            merged_data.append(stock_item)
         
-        logger.debug(f"✅ Redis SP500 데이터 조회 완료: {len(parsed_data)}개")
-        return parsed_data[:limit]
+        merged_data.sort(key=lambda x: x.get('change_percentage', 0), reverse=True)
+        
+        logger.debug(f"✅ Redis SP500 데이터 병합 완료: {len(merged_data)}개")
+        return merged_data[:limit]
         
     except Exception as e:
-        logger.error(f"❌ Redis에서 SP500 데이터 조회 실패: {e}")
+        logger.error(f"❌ Redis 조회 실패: {e}")
         return []
