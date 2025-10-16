@@ -783,12 +783,17 @@ def get_sp500_data_from_redis(redis_client: redis.Redis, limit: int = 500) -> Li
     동기 방식으로 Redis에서 SP500 데이터 조회
     (WebSocket 핸들러에서 사용)
     
+    Redis 키 구조:
+    - sp500_realtime_data: {symbol: json_data}
+    - json_data 필수 필드: symbol, company_name, current_price, 
+      change_amount, change_percentage, volume, volume_24h, last_updated
+    
     Args:
         redis_client: Redis 클라이언트
         limit: 최대 반환 개수
         
     Returns:
-        List[dict]: SP500 데이터 리스트
+        List[dict]: SP500 데이터 리스트 (변화량 + 24시간 거래량 포함)
     """
     try:
         sp500_list_key = "sp500_realtime_data"
@@ -799,16 +804,35 @@ def get_sp500_data_from_redis(redis_client: redis.Redis, limit: int = 500) -> Li
             return []
         
         parsed_data = []
-        for symbol, json_data in all_data.items():
+        for symbol, json_str in all_data.items():
             try:
-                data = json.loads(json_data)
-                parsed_data.append(data)
+                data = json.loads(json_str)
+                
+                # 필요한 필드만 추출 (WebSocket 전송용 포맷)
+                stock_item = {
+                    'symbol': data.get('symbol', symbol),
+                    'company_name': data.get('company_name', symbol),
+                    'current_price': data.get('current_price', 0),
+                    'change_amount': data.get('change_amount', 0),
+                    'change_percentage': data.get('change_percentage', 0),
+                    'volume': data.get('volume', 0),
+                    'volume_24h': data.get('volume_24h', 0),  # 🆕 24시간 거래량
+                    'last_updated': data.get('last_updated'),
+                    'is_positive': data.get('change_amount', 0) > 0 if data.get('change_amount') is not None else None
+                }
+                parsed_data.append(stock_item)
+                
             except json.JSONDecodeError as e:
                 logger.warning(f"SP500 데이터 파싱 실패 ({symbol}): {e}")
                 continue
+            except Exception as e:
+                logger.warning(f"SP500 데이터 처리 실패 ({symbol}): {e}")
+                continue
         
-        # 최신순 정렬 및 limit 적용
-        parsed_data.sort(key=lambda x: x.get('timestamp', 0), reverse=True)
+        # 변동률 기준 내림차순 정렬 (상승률 높은 순)
+        parsed_data.sort(key=lambda x: x.get('change_percentage', 0), reverse=True)
+        
+        logger.debug(f"✅ Redis SP500 데이터 조회 완료: {len(parsed_data)}개")
         return parsed_data[:limit]
         
     except Exception as e:

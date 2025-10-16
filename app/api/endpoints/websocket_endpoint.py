@@ -124,13 +124,13 @@ async def websocket_sp500_endpoint(websocket: WebSocket):
         if websocket_manager:
             await websocket_manager.connect_sp500(websocket)
         
-        # 🎁 초기 데이터 전송 (Service를 통해 변화량 계산 포함)
-        if sp500_service:
-            initial_result = await asyncio.to_thread(
-                sp500_service.get_stock_list,
+        # 🎁 초기 데이터 전송 (Redis에서 빠르게 조회)
+        if sync_redis_client:
+            initial_data = await asyncio.to_thread(
+                get_sp500_data_from_redis,
+                sync_redis_client,
                 500
             )
-            initial_data = initial_result.get('stocks', [])
             if initial_data:
                 response = {
                     "type": "sp500",
@@ -138,7 +138,24 @@ async def websocket_sp500_endpoint(websocket: WebSocket):
                     "timestamp": datetime.now(pytz.UTC).isoformat()
                 }
                 await websocket.send_text(json.dumps(response, default=str))
-                logger.info(f"📦 SP500 초기 데이터 전송: {len(initial_data)}개 (변화량 계산 포함)")
+                logger.info(f"📦 SP500 초기 데이터 전송 (Redis): {len(initial_data)}개")
+            else:
+                # Redis에 데이터 없으면 DB fallback
+                logger.warning("⚠️ Redis에 SP500 데이터 없음, DB fallback")
+                if sp500_service:
+                    initial_result = await asyncio.to_thread(
+                        sp500_service.get_stock_list,
+                        500
+                    )
+                    initial_data_db = initial_result.get('stocks', [])
+                    if initial_data_db:
+                        response = {
+                            "type": "sp500",
+                            "data": initial_data_db,
+                            "timestamp": datetime.now(pytz.UTC).isoformat()
+                        }
+                        await websocket.send_text(json.dumps(response, default=str))
+                        logger.info(f"📦 SP500 초기 데이터 전송 (DB fallback): {len(initial_data_db)}개")
         
         # 연결 유지
         while True:
