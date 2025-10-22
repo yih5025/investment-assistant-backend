@@ -9,7 +9,7 @@ import redis.asyncio as aioredis
 
 from app.services.crypto_service import CryptoService
 from app.services.sp500_service import SP500Service, get_sp500_data_from_redis
-from app.services.etf_service import get_etf_data_from_redis
+from app.services.etf_service import ETFService, get_etf_data_from_redis
 
 from app.schemas.crypto_schema import create_crypto_update_message
 from app.schemas.sp500_schema import create_sp500_update_message
@@ -21,9 +21,11 @@ class RedisStreamer:
     통합 Redis 실시간 데이터 스트리머
     
     Redis Pub/Sub을 통해 다음 채널을 감시:
-    - crypto_updates (기존)
-    - sp500_updates (신규)
-    - etf_updates (신규)
+    - crypto_updates: 암호화폐 실시간
+    - sp500_updates: SP500 Consumer 실시간
+    - sp500_market_updates: SP500 Airflow 집계 (병합)
+    - etf_updates: ETF Consumer 실시간
+    - etf_market_updates: ETF Airflow 집계 (병합)
     """
     
     def __init__(self, 
@@ -47,11 +49,18 @@ class RedisStreamer:
         self.redis_client = None
         self.sync_redis_client = None  # 동기 클라이언트 (데이터 조회용)
         
-        # 채널 매핑: Redis 채널 → 데이터 타입
+        # 🔄 채널 매핑: Redis 채널 → 데이터 타입
+        # 실시간과 집계 채널이 같은 타입으로 매핑 (같은 Redis 데이터 병합 사용)
         self.channels_to_types = {
             "crypto_updates": "crypto",
-            "sp500_updates": "sp500",
-            "etf_updates": "etf",
+            
+            # SP500 채널 (Consumer + Airflow)
+            "sp500_updates": "sp500",              # Consumer: 실시간 가격
+            "sp500_market_updates": "sp500",       # Airflow: 집계 데이터 (병합)
+            
+            # ETF 채널 (Consumer + Airflow)
+            "etf_updates": "etf",                  # Consumer: 실시간 가격
+            "etf_market_updates": "etf",           # Airflow: 집계 데이터 (병합)
         }
         
         # 스트리밍 상태 관리
@@ -74,7 +83,9 @@ class RedisStreamer:
         # WebSocket 매니저 (나중에 설정됨)
         self.websocket_manager = None
         
-        logger.info(f"✅ RedisStreamer 초기화 완료 (Crypto + SP500 + ETF)")
+        logger.info(f"✅ RedisStreamer 초기화 완료")
+        logger.info(f"   - SP500: sp500_updates (실시간), sp500_market_updates (집계)")
+        logger.info(f"   - ETF: etf_updates (실시간), etf_market_updates (집계)")
     
     async def initialize(self):
         """RedisStreamer 초기화 및 Redis 연결"""
@@ -168,10 +179,8 @@ class RedisStreamer:
                         logger.warning(f"⚠️ 알 수 없는 채널: {channel}")
                         continue
                     
-                    # logger.info(f"📬 '{data_type}' 업데이트 신호 수신!")
-                    
-                    # 데이터 타입별 처리
-                    await self._handle_update(data_type)
+                    # 데이터 타입별 처리 (channel 정보 전달)
+                    await self._handle_update(data_type, channel)
                     
                     # 통계 업데이트
                     self.stats["total_messages"] += 1
@@ -193,25 +202,26 @@ class RedisStreamer:
             self.is_streaming = False
             logger.info("🏁 Redis Pub/Sub 리스닝 종료")
     
-    async def _handle_update(self, data_type: str):
+    async def _handle_update(self, data_type: str, channel: str):
         """
         데이터 타입별 업데이트 처리
         
         Args:
             data_type: 'crypto', 'sp500', 'etf' 중 하나
+            channel: 원본 채널명 (실시간 vs 집계 구분용)
         """
         try:
             if not self.websocket_manager:
                 logger.warning("⚠️ WebSocket 매니저가 설정되지 않았습니다")
                 return
             
-            # 데이터 타입별 처리
+            # 데이터 타입별 처리 (channel 정보 전달)
             if data_type == "crypto":
                 await self._handle_crypto_update()
             elif data_type == "sp500":
-                await self._handle_sp500_update()
+                await self._handle_sp500_update(channel)
             elif data_type == "etf":
-                await self._handle_etf_update()
+                await self._handle_etf_update(channel)
             else:
                 logger.warning(f"⚠️ 지원하지 않는 데이터 타입: {data_type}")
                 
@@ -243,14 +253,27 @@ class RedisStreamer:
         except Exception as e:
             logger.error(f"❌ Crypto 업데이트 처리 실패: {e}")
     
-    async def _handle_sp500_update(self):
-        """SP500 업데이트 처리"""
+    async def _handle_sp500_update(self, channel: str):
+        """
+        SP500 업데이트 처리
+        
+        Consumer (sp500_updates) → 실시간 가격
+        Airflow (sp500_market_updates) → 집계 데이터
+        
+        둘 다 같은 Redis 병합 데이터 사용
+        """
         try:
             if not self.sync_redis_client:
                 logger.debug("Redis 클라이언트 없음")
                 return
             
-            # Redis에서 최신 SP500 데이터 조회 (동기 함수 사용)
+            # 채널별 로그
+            if channel == "sp500_updates":
+                logger.debug("📬 SP500 실시간 업데이트 신호 수신! (Consumer)")
+            else:
+                logger.info("📬 SP500 집계 데이터 업데이트 신호 수신! (Airflow)")
+            
+            # Redis에서 최신 SP500 데이터 조회 (병합된 데이터)
             sp500_data_raw = await asyncio.to_thread(
                 get_sp500_data_from_redis,
                 self.sync_redis_client,
@@ -274,19 +297,32 @@ class RedisStreamer:
             
             # 통계 업데이트
             self.stats["last_sp500_update"] = datetime.now(pytz.UTC)
-            logger.debug(f"📤 SP500 업데이트 전송 완료: {len(sp500_data)}개")
+            logger.info(f"📤 SP500 업데이트 전송 완료: {len(sp500_data)}개 ({channel})")
             
         except Exception as e:
             logger.error(f"❌ SP500 업데이트 처리 실패: {e}")
     
-    async def _handle_etf_update(self):
-        """ETF 업데이트 처리"""
+    async def _handle_etf_update(self, channel: str):
+        """
+        ETF 업데이트 처리 (Redis 병합 방식)
+        
+        Consumer (etf_updates) → 실시간 가격
+        Airflow (etf_market_updates) → 집계 데이터
+        
+        둘 다 같은 Redis 병합 데이터 사용
+        """
         try:
             if not self.sync_redis_client:
                 logger.debug("Redis 클라이언트 없음")
                 return
             
-            # Redis에서 최신 ETF 데이터 조회 (동기 함수 사용)
+            # 채널별 로그
+            if channel == "etf_updates":
+                logger.debug("📬 ETF 실시간 업데이트 신호 수신! (Consumer)")
+            else:
+                logger.info("📬 ETF 집계 데이터 업데이트 신호 수신! (Airflow)")
+            
+            # Redis에서 최신 ETF 데이터 조회 (병합된 데이터)
             etf_data = await asyncio.to_thread(
                 get_etf_data_from_redis,
                 self.sync_redis_client,
@@ -302,7 +338,7 @@ class RedisStreamer:
             
             # 통계 업데이트
             self.stats["last_etf_update"] = datetime.now(pytz.UTC)
-            logger.debug(f"📤 ETF 업데이트 전송 완료: {len(etf_data)}개")
+            logger.info(f"📤 ETF 업데이트 전송 완료: {len(etf_data)}개 ({channel})")
             
         except Exception as e:
             logger.error(f"❌ ETF 업데이트 처리 실패: {e}")

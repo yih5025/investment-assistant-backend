@@ -730,3 +730,87 @@ def get_etf_data_from_redis(redis_client: redis.Redis, limit: int = 500) -> List
     except Exception as e:
         logger.error(f"❌ Redis에서 ETF 데이터 조회 실패: {e}")
         return []
+
+# =========================
+# 🆕 Redis 조회 함수 (동기, WebSocket에서 사용)
+# =========================
+
+def get_etf_data_from_redis(redis_client: redis.Redis, limit: int = 500) -> List[dict]:
+    """
+    동기 방식으로 Redis에서 ETF 데이터 조회 및 병합
+    (WebSocket 핸들러에서 사용)
+    
+    Redis 키 구조:
+    - etf_realtime_data (Consumer): {symbol: {"symbol": "SPY", "price": 450.5, "volume": 1000}}
+    - etf_market_data (Airflow): {symbol: {"etf_name": "SPDR S&P 500", "change_percentage": 1.5, ...}}
+    
+    Args:
+        redis_client: Redis 클라이언트
+        limit: 최대 반환 개수
+        
+    Returns:
+        List[dict]: 병합된 ETF 데이터 리스트
+    """
+    try:
+        realtime_key = "etf_realtime_data"
+        market_key = "etf_market_data"
+        
+        realtime_data_raw = redis_client.hgetall(realtime_key)
+        market_data_raw = redis_client.hgetall(market_key)
+        
+        if not realtime_data_raw:
+            logger.warning("Redis에 ETF 실시간 데이터 없음")
+            return []
+        
+        merged_data = []
+        
+        # 실시간 데이터 기준으로만 병합
+        for symbol_bytes, json_str_bytes in realtime_data_raw.items():
+            symbol = symbol_bytes.decode('utf-8') if isinstance(symbol_bytes, bytes) else symbol_bytes
+            json_str = json_str_bytes.decode('utf-8') if isinstance(json_str_bytes, bytes) else json_str_bytes
+            
+            try:
+                realtime_data = json.loads(json_str)
+            except json.JSONDecodeError:
+                logger.warning(f"⚠️ ETF 실시간 데이터 파싱 실패: {symbol}")
+                continue
+            
+            # 시장 데이터 조회 (없으면 빈 dict)
+            market_json_bytes = market_data_raw.get(symbol_bytes)
+            market_data = {}
+            if market_json_bytes:
+                market_json_str = market_json_bytes.decode('utf-8') if isinstance(market_json_bytes, bytes) else market_json_bytes
+                try:
+                    market_data = json.loads(market_json_str)
+                except json.JSONDecodeError:
+                    logger.warning(f"⚠️ ETF 시장 데이터 파싱 실패: {symbol}")
+            
+            # 병합 (SP500과 동일한 패턴)
+            etf_item = {
+                'symbol': realtime_data.get('symbol', symbol),
+                'price': realtime_data.get('price', 0),
+                'current_price': realtime_data.get('price', 0),
+                'timestamp': realtime_data.get('timestamp'),
+                
+                # market_data 없으면 기본값 사용
+                'name': market_data.get('etf_name', symbol),  # 프론트엔드 호환
+                'etf_name': market_data.get('etf_name', symbol),
+                'change_amount': market_data.get('change_amount', 0),
+                'change_percentage': market_data.get('change_percentage', 0),
+                'volume': realtime_data.get('volume', 0),
+                'volume_24h': market_data.get('volume_24h', 0),
+                'last_updated': market_data.get('last_updated'),
+                'is_positive': market_data.get('change_amount', 0) > 0 if market_data.get('change_amount') is not None else None
+            }
+            
+            merged_data.append(etf_item)
+        
+        # 변화율 기준 정렬
+        merged_data.sort(key=lambda x: x.get('change_percentage', 0), reverse=True)
+        
+        logger.debug(f"✅ Redis ETF 데이터 병합 완료: {len(merged_data)}개")
+        return merged_data[:limit]
+        
+    except Exception as e:
+        logger.error(f"❌ ETF Redis 조회 실패: {e}")
+        return []
