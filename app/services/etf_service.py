@@ -689,48 +689,6 @@ class ETFService:
                 "error": str(e)
             }
 
-
-# =========================
-# 🆕 Redis 조회 함수 (동기, WebSocket에서 사용)
-# =========================
-
-def get_etf_data_from_redis(redis_client: redis.Redis, limit: int = 500) -> List[dict]:
-    """
-    동기 방식으로 Redis에서 ETF 데이터 조회
-    (WebSocket 핸들러에서 사용)
-    
-    Args:
-        redis_client: Redis 클라이언트
-        limit: 최대 반환 개수
-        
-    Returns:
-        List[dict]: ETF 데이터 리스트
-    """
-    try:
-        etf_list_key = "etf_realtime_data"
-        all_data = redis_client.hgetall(etf_list_key)
-        
-        if not all_data:
-            logger.debug("Redis에 ETF 데이터 없음")
-            return []
-        
-        parsed_data = []
-        for symbol, json_data in all_data.items():
-            try:
-                data = json.loads(json_data)
-                parsed_data.append(data)
-            except json.JSONDecodeError as e:
-                logger.warning(f"ETF 데이터 파싱 실패 ({symbol}): {e}")
-                continue
-        
-        # 최신순 정렬 및 limit 적용
-        parsed_data.sort(key=lambda x: x.get('timestamp', 0), reverse=True)
-        return parsed_data[:limit]
-        
-    except Exception as e:
-        logger.error(f"❌ Redis에서 ETF 데이터 조회 실패: {e}")
-        return []
-
 # =========================
 # 🆕 Redis 조회 함수 (동기, WebSocket에서 사용)
 # =========================

@@ -45,10 +45,10 @@ class CoingeckoCoinDetails(Base):
     
     # ATH/ATL (Tab 2: 투자 분석)
     ath_usd = Column(DECIMAL(20, 8))
-    ath_change_percentage = Column(DECIMAL(10, 4))
+    ath_change_percentage = Column(DECIMAL(20, 4))
     ath_date = Column(TIMESTAMP)
     atl_usd = Column(DECIMAL(20, 8))
-    atl_change_percentage = Column(DECIMAL(10, 4))
+    atl_change_percentage = Column(DECIMAL(20, 4))
     atl_date = Column(TIMESTAMP)
     
     # Supply Data (Tab 2: 투자 분석)
