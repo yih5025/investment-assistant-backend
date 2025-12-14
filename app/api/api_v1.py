@@ -43,6 +43,9 @@ from .endpoints import (
     
     # IPO
     ipo_calendar_endpoint,
+    
+    # 이메일 구독
+    email_subscription_endpoint,
 )
 
 # API v1 메인 라우터 생성
@@ -219,6 +222,15 @@ ROUTER_CONFIGS = [
         "tag": "IPO Calendar",
         "category": "IPO",
         "description": "IPO 캘린더 API"
+    },
+    
+    # 이메일 구독 API
+    {
+        "router": email_subscription_endpoint.router,
+        "prefix": "/email-subscription",
+        "tag": "Email Subscription",
+        "category": "알림서비스",
+        "description": "이메일 구독 API - 주간 실적 발표 알림 구독/취소"
     },
 ]
 
