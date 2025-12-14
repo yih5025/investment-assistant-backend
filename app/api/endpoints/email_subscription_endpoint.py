@@ -139,7 +139,6 @@ async def verify_email(
                         매주 일요일에 S&P 500 실적 발표 일정을<br>
                         받아보실 수 있습니다.
                     </p>
-                    <a href="https://investment-assistant.site" class="btn">홈으로 돌아가기</a>
                 </div>
             </body>
             </html>
