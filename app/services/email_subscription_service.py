@@ -1,7 +1,7 @@
 # app/services/email_subscription_service.py
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
-from typing import Optional, Dict, Any
+from sqlalchemy import and_, text
+from typing import Optional, Dict, Any, List, Tuple
 from datetime import datetime, timedelta
 import uuid
 import logging
@@ -14,11 +14,11 @@ from app.models.email_subscription_model import EmailSubscription
 
 logger = logging.getLogger(__name__)
 
-# SMTP 설정 (환경변수 또는 기본값)
+# SMTP 설정 (환경변수에서 가져옴 - Kubernetes Deployment에서 설정)
 SMTP_HOST = os.getenv('SMTP_HOST', 'smtp.gmail.com')
 SMTP_PORT = int(os.getenv('SMTP_PORT', '587'))
-SMTP_USER = os.getenv('SMTP_USER', 'yih5025@gmail.com')
-SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', 'wpcdvkryldmmyqtm')
+SMTP_USER = os.getenv('SMTP_USER', '')  # 환경변수 필수
+SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', '')  # 환경변수 필수
 
 # 인증 토큰 유효 기간 (24시간)
 VERIFICATION_TOKEN_EXPIRE_HOURS = 24
@@ -33,6 +33,151 @@ class EmailSubscriptionService:
     
     def __init__(self, db: Session):
         self.db = db
+    
+    def _get_upcoming_earnings(self) -> List[Tuple]:
+        """
+        오늘부터 7일 후까지의 실적 발표 일정 조회
+        
+        Returns:
+            List[Tuple]: [(report_date, symbol, company_name, estimate, gics_sector), ...]
+        """
+        try:
+            today = datetime.now().date()
+            end_date = today + timedelta(days=7)
+            
+            sql = text("""
+                SELECT 
+                    ec.report_date,
+                    ec.symbol,
+                    sp.company_name,
+                    ec.estimate,
+                    sp.gics_sector
+                FROM earnings_calendar ec
+                JOIN sp500_companies sp ON ec.symbol = sp.symbol
+                WHERE ec.report_date BETWEEN :start_date AND :end_date
+                ORDER BY ec.report_date ASC, sp.market_cap DESC
+            """)
+            
+            result = self.db.execute(sql, {"start_date": today, "end_date": end_date})
+            return result.fetchall()
+            
+        except Exception as e:
+            logger.error(f"❌ 실적 발표 일정 조회 실패: {e}")
+            return []
+    
+    def _send_earnings_notification_email(self, email: str, unsubscribe_token: str) -> bool:
+        """
+        실적 발표 알림 이메일 발송
+        
+        Args:
+            email: 수신자 이메일
+            unsubscribe_token: 구독 취소 토큰
+            
+        Returns:
+            bool: 발송 성공 여부
+        """
+        try:
+            # 실적 발표 일정 조회
+            earnings_data = self._get_upcoming_earnings()
+            
+            if not earnings_data:
+                logger.info(f"📭 향후 7일간 실적 발표 일정 없음 - {email}에게 이메일 미발송")
+                return False
+            
+            today = datetime.now().date()
+            end_date = today + timedelta(days=7)
+            unsubscribe_link = f"{API_URL}/email-subscription/unsubscribe?token={unsubscribe_token}"
+            
+            # 이메일 본문 생성
+            rows_html = ""
+            for row in earnings_data:
+                r_date = row[0]
+                symbol = row[1]
+                name = row[2]
+                est = row[3] if row[3] is not None else '-'
+                sector = row[4] if row[4] else '-'
+                
+                rows_html += f"""
+                    <tr>
+                        <td style="padding: 12px; border-bottom: 1px solid #eee;">{r_date}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #eee;"><b>{symbol}</b></td>
+                        <td style="padding: 12px; border-bottom: 1px solid #eee;">{name}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #eee;">{sector}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #eee;">{est}</td>
+                    </tr>
+                """
+            
+            html_content = f"""
+            <!DOCTYPE html>
+            <html lang="ko">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5;">
+                <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                    <!-- 헤더 -->
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
+                        <h1 style="color: white; margin: 0; font-size: 22px;">📅 향후 7일간 S&P 500 실적 발표 일정</h1>
+                    </div>
+                    
+                    <!-- 본문 -->
+                    <div style="padding: 25px;">
+                        <p style="color: #333; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
+                            안녕하세요!<br><br>
+                            <strong>{today}</strong>부터 <strong>{end_date}</strong>까지 예정된 주요 기업의 실적 발표 일정입니다.
+                        </p>
+                        
+                        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                            <thead>
+                                <tr style="background: #f8f9fa;">
+                                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">날짜</th>
+                                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">티커</th>
+                                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">기업명</th>
+                                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">섹터</th>
+                                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">예상 EPS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {rows_html}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 푸터 -->
+                    <div style="background: #f8f9fa; padding: 20px; text-align: center;">
+                        <p style="color: #999; font-size: 12px; margin: 0;">
+                            본 메일은 투자 정보 제공을 위해 발송되었습니다.<br>
+                            더 이상 알림을 원치 않으시면 <a href="{unsubscribe_link}" style="color: #667eea;">여기</a>를 클릭하여 구독을 취소하세요.
+                        </p>
+                        <p style="color: #bbb; font-size: 11px; margin-top: 10px;">
+                            © 2024 WE INVESTING | 주간 실적 발표 알림 서비스
+                        </p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+            
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = f'[WE INVESTING] 향후 7일간 S&P 500 실적 발표 ({today} ~ {end_date})'
+            msg['From'] = SMTP_USER
+            msg['To'] = email
+            
+            html_part = MIMEText(html_content, 'html', 'utf-8')
+            msg.attach(html_part)
+            
+            with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=30) as server:
+                server.starttls()
+                server.login(SMTP_USER, SMTP_PASSWORD)
+                server.sendmail(SMTP_USER, [email], msg.as_string())
+            
+            logger.info(f"✅ 실적 발표 알림 이메일 발송 완료: {email} ({len(earnings_data)}개 일정)")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ 실적 발표 알림 이메일 발송 실패: {email} - {e}")
+            return False
     
     def _send_verification_email(self, email: str, verification_token: str) -> bool:
         """
@@ -298,11 +443,26 @@ class EmailSubscriptionService:
             
             logger.info(f"✅ 이메일 인증 완료: {subscription.email}")
             
-            return {
-                'success': True,
-                'message': '이메일 인증이 완료되었습니다! 이제 매주 일요일에 실적 발표 일정을 받아보실 수 있습니다.',
-                'email': subscription.email
-            }
+            # 🆕 인증 완료 시 즉시 실적 발표 알림 이메일 발송
+            email_sent = False
+            if subscription.unsubscribe_token:
+                email_sent = self._send_earnings_notification_email(
+                    subscription.email, 
+                    str(subscription.unsubscribe_token)
+                )
+            
+            if email_sent:
+                return {
+                    'success': True,
+                    'message': '이메일 인증이 완료되었습니다! 향후 7일간 실적 발표 일정을 이메일로 보내드렸습니다.',
+                    'email': subscription.email
+                }
+            else:
+                return {
+                    'success': True,
+                    'message': '이메일 인증이 완료되었습니다! 이제 매주 일요일에 실적 발표 일정을 받아보실 수 있습니다.',
+                    'email': subscription.email
+                }
             
         except Exception as e:
             self.db.rollback()
