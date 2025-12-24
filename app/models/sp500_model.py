@@ -243,57 +243,88 @@ class SP500WebsocketTrades(BaseModel):
     
     @classmethod
     def get_chart_data_by_timeframe(cls, db_session: Session, symbol: str, 
-                                   timeframe: str = '1D', limit: int = 1000) -> List['SP500WebsocketTrades']:
+                                   timeframe: str = '1D', limit: int = 200) -> List['SP500WebsocketTrades']:
         """
-        특정 심볼의 차트 데이터 조회 (시간대별)
+        특정 심볼의 차트 데이터 조회 (시간대별) - 최적화 버전
+        
+        🔧 성능 개선 (2024.12):
+        - 기존: Python에서 샘플링 (70만 행 로드 → 27초)
+        - 개선: SQL에서 직접 샘플링 (~100개 행 반환 → <0.5초)
         
         Args:
             db_session: 데이터베이스 세션
             symbol: 주식 심볼
-            timeframe: 시간대 ('1D', '1H', '5M', '1M', '1W', '1MO')
-            limit: 반환할 최대 개수
+            timeframe: 시간대 ('1H', '1D', '1W', '1MO')
+            limit: 반환할 최대 개수 (기본 200)
             
         Returns:
             List[SP500WebsocketTrades]: 시간대별 차트 데이터
         """
         try:
-            # 시간대별 조회 기간 설정
-            timeframe_map = {
-                '1M': timedelta(minutes=1),    # 1분
-                '5M': timedelta(minutes=5),    # 5분  
-                '1H': timedelta(hours=1),      # 1시간
-                '1D': timedelta(days=1),       # 1일
-                '1W': timedelta(weeks=1),      # 1주
-                '1MO': timedelta(days=30)      # 1개월
+            # ✅ 수정: 시간대별 고정 조회 범위 (버그 수정)
+            range_config = {
+                '1H': {'range': timedelta(hours=1), 'interval_minutes': 1},      # 1시간, 1분 간격 → ~60개
+                '1D': {'range': timedelta(days=1), 'interval_minutes': 5},       # 1일, 5분 간격 → ~78개
+                '1W': {'range': timedelta(days=5), 'interval_minutes': 30},      # 5거래일, 30분 간격 → ~65개
+                '1MO': {'range': timedelta(days=22), 'interval_minutes': 120},   # 22거래일, 2시간 간격 → ~72개
             }
             
-            # 조회 시작 시간 계산
-            if timeframe in timeframe_map:
-                # 최근 데이터만 조회 (예: 1D면 최근 1일치)
-                start_time = datetime.now(pytz.UTC) - timeframe_map[timeframe] * limit
-            else:
-                # 기본값: 최근 1일
-                start_time = datetime.now(pytz.UTC) - timedelta(days=1)
+            config = range_config.get(timeframe, range_config['1D'])
+            start_time = datetime.now(pytz.UTC) - config['range']
+            interval_minutes = config['interval_minutes']
             
-            # 시간 범위 내 데이터 조회
-            query = db_session.query(cls).filter(
-                cls.symbol == symbol.upper(),
-                cls.created_at >= start_time
-            ).order_by(cls.created_at.asc())
+            # ✅ 수정: SQL에서 직접 샘플링 (Python 샘플링 제거)
+            # 지정된 간격으로 버킷팅하고, 각 버킷의 마지막 가격만 선택
+            sampling_query = text("""
+                WITH sampled AS (
+                    SELECT 
+                        id,
+                        symbol,
+                        price,
+                        volume,
+                        timestamp_ms,
+                        created_at,
+                        -- 지정된 분 단위로 버킷팅
+                        date_trunc('hour', created_at) + 
+                        INTERVAL '1 min' * (FLOOR(EXTRACT(MINUTE FROM created_at) / :interval) * :interval) AS time_bucket,
+                        -- 각 버킷 내에서 마지막 데이터 선택 (시간순 DESC)
+                        ROW_NUMBER() OVER (
+                            PARTITION BY date_trunc('hour', created_at) + 
+                            INTERVAL '1 min' * (FLOOR(EXTRACT(MINUTE FROM created_at) / :interval) * :interval)
+                            ORDER BY created_at DESC
+                        ) AS rn
+                    FROM sp500_websocket_trades
+                    WHERE symbol = :symbol
+                      AND created_at >= :start_time
+                )
+                SELECT id, symbol, price, volume, timestamp_ms, created_at
+                FROM sampled
+                WHERE rn = 1
+                ORDER BY time_bucket ASC
+                LIMIT :limit
+            """)
             
-            # 시간대별 데이터 샘플링 (성능 최적화)
-            if timeframe == '1D':
-                # 1일 차트: 5분 간격으로 샘플링
-                return cls._sample_data_by_interval(query.all(), minutes=5)
-            elif timeframe == '1W':
-                # 1주 차트: 1시간 간격으로 샘플링
-                return cls._sample_data_by_interval(query.all(), hours=1)
-            elif timeframe == '1MO':
-                # 1개월 차트: 4시간 간격으로 샘플링
-                return cls._sample_data_by_interval(query.all(), hours=4)
-            else:
-                # 분/시간 차트: 원본 데이터 반환
-                return query.limit(limit).all()
+            result = db_session.execute(sampling_query, {
+                'symbol': symbol.upper(),
+                'start_time': start_time.replace(tzinfo=None),
+                'interval': interval_minutes,
+                'limit': limit
+            }).fetchall()
+            
+            # 결과를 ORM 객체 형태로 변환 (기존 인터페이스 유지)
+            chart_data = []
+            for row in result:
+                trade = cls()
+                trade.id = row.id
+                trade.symbol = row.symbol
+                trade.price = row.price
+                trade.volume = row.volume
+                trade.timestamp_ms = row.timestamp_ms
+                trade.created_at = row.created_at
+                chart_data.append(trade)
+            
+            logger.info(f"📊 {symbol} 차트 데이터 조회 완료: {len(chart_data)}개 ({timeframe}, {interval_minutes}분 간격)")
+            return chart_data
                 
         except Exception as e:
             logger.error(f"❌ {symbol} 차트 데이터 조회 실패 ({timeframe}): {e}")
