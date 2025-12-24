@@ -243,7 +243,7 @@ class SP500WebsocketTrades(BaseModel):
     
     @classmethod
     def get_chart_data_by_timeframe(cls, db_session: Session, symbol: str, 
-                                   timeframe: str = '1D', limit: int = 200) -> List['SP500WebsocketTrades']:
+                                   timeframe: str = '1D', limit: int = 1000) -> List['SP500WebsocketTrades']:
         """
         특정 심볼의 차트 데이터 조회 (시간대별) - 최적화 버전
         
