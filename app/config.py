@@ -60,7 +60,7 @@ class Settings(BaseSettings):
     # === API 설정 ===
     api_v1_prefix: str = Field("/api/v1", description="API v1 경로 접두사")    
     # === 로깅 설정 ===
-    log_level: str = Field("INFO", description="로그 레벨")
+    log_level: str = Field("WARNING", description="로그 레벨")
     
     # === 보안 설정 ===
     secret_key: str = Field(
