@@ -292,11 +292,15 @@ class SP500Service:
             )
             
             if not chart_data:
+                # 데이터가 없어도 정상 응답 (시장 마감 중일 수 있음)
                 return {
                     'symbol': symbol,
                     'timeframe': timeframe,
                     'chart_data': [],
-                    'error': f'No chart data found for symbol {symbol}'
+                    'data_points': 0,
+                    'market_status': self.market_checker.get_market_status(),
+                    'last_updated': datetime.now(pytz.UTC).isoformat(),
+                    'message': f'No recent data for {timeframe} timeframe. Market may be closed.'
                 }
             
             # 차트 데이터 포맷 변환

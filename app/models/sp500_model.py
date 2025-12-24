@@ -261,7 +261,7 @@ class SP500WebsocketTrades(BaseModel):
             List[SP500WebsocketTrades]: 시간대별 차트 데이터
         """
         try:
-            # ✅ 수정: 시간대별 고정 조회 범위 (버그 수정)
+            # ✅ 시간대별 고정 조회 범위
             range_config = {
                 '1H': {'range': timedelta(hours=1), 'interval_minutes': 1},      # 1시간, 1분 간격 → ~60개
                 '1D': {'range': timedelta(days=1), 'interval_minutes': 5},       # 1일, 5분 간격 → ~78개
@@ -270,8 +270,21 @@ class SP500WebsocketTrades(BaseModel):
             }
             
             config = range_config.get(timeframe, range_config['1D'])
-            start_time = datetime.now(pytz.UTC) - config['range']
             interval_minutes = config['interval_minutes']
+            
+            # ✅ ETF 방식 적용: 최신 데이터 시점 기준 (시장 마감 중에도 동작)
+            latest_record = db_session.query(cls).filter(
+                cls.symbol == symbol.upper()
+            ).order_by(cls.created_at.desc()).first()
+            
+            if not latest_record:
+                logger.warning(f"⚠️ {symbol} 데이터가 없습니다")
+                return []
+            
+            latest_time = latest_record.created_at
+            start_time = latest_time - config['range']
+            
+            logger.debug(f"📊 {symbol} 차트 조회 범위: {start_time} ~ {latest_time} ({timeframe})")
             
             # ✅ 수정: SQL에서 직접 샘플링 (Python 샘플링 제거)
             # 지정된 간격으로 버킷팅하고, 각 버킷의 마지막 가격만 선택
